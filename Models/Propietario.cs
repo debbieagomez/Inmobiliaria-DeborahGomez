@@ -1,6 +1,6 @@
 
 
-namespace Models; 
+namespace Inmobiliaria_DeborahGomez.Models; 
 /* esta clase vive dentro de models
 */
 

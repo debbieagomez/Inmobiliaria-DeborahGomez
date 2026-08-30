@@ -116,3 +116,14 @@ classDiagram
 ​```
 
 </details>
+
+### Pasos para ingresar a MySQL Workbench e inicializar localmente la base de datos:
+
+1. Ingresar a MySQL Workbench
+2. Seleccionar opción Database (o el atajo de teclado Ctrl+U)
+3. Colocar Connect to Database...
+4. Ingresar a la conexión con las credenciales correspondientes de la computadora
+5. Copiar, pegar y ejecutar el archivo de Database/DBInmobiliaria_DeborahGomez.sql
+6. Refrescar conexión o seleccionar Reconnect to DBMS
+7. Verificar en la pestaña Schemas
+8. Corroborar que haya cargado la base de datos + sus respectivas tablas

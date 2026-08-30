@@ -1,4 +1,4 @@
-namespace Models;
+namespace Inmobiliaria_DeborahGomez.Models;
 
 public class Inmueble
 {
