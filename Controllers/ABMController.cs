@@ -1,9 +1,10 @@
 using Inmobiliaria_DeborahGomez.Models;
+using Inmobiliaria_DeborahGomez.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
 
 
-namespace Inmobiliaria_DeborahGomez.Repositories;
+namespace Inmobiliaria_DeborahGomez.Controllers;
 
 public abstract class ABMController<T> : Controller
 {
