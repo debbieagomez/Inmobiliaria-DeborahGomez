@@ -1,7 +1,13 @@
+using Inmobiliaria_DeborahGomez.Repositories;
+
 var builder = WebApplication.CreateBuilder(args);
+
+var connectionString = builder.Configuration.GetConnectionString("MySqlConnection");
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+
+builder.Services.AddScoped<IRepositorioPropietario>(provider => new RepositorioPropietario(connectionString!));
 
 var app = builder.Build();
 
