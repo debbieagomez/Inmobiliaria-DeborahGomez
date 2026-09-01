@@ -26,7 +26,21 @@ public class RepositorioPropietario : IRepositorioPropietario
 
         var sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email FROM propietario WHERE @busqueda IS NULL OR @busqueda = '' OR Dni LIKE @busqueda OR Nombre LIKE @busqueda ORDER BY IdPropietario LIMIT @tamPagina OFFSET @offset;";
 
+
+
         using var comando = new MySqlCommand(sql, conexion);
+
+        if (string.IsNullOrWhiteSpace(busqueda))
+        {
+            comando.Parameters.AddWithValue("@busqueda", DBNull.Value);
+        }
+        else
+        {
+            comando.Parameters.AddWithValue("@busqueda", "%" + busqueda + "%");
+        }
+
+        comando.Parameters.AddWithValue("@tamPagina", tamPagina);
+        comando.Parameters.AddWithValue("@offset", (pagina - 1) * tamPagina);
 
         using var reader = comando.ExecuteReader();
 

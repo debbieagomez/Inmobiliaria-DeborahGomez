@@ -30,6 +30,8 @@ public class RepositorioInquilino : IRepositorioInquilino
 
         using var comando = new MySqlCommand(sql, conexion);
 
+        
+
         if (string.IsNullOrWhiteSpace(busqueda))
 
         {
