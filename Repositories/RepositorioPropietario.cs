@@ -1,179 +1,215 @@
-using Data;
+
+using System.Data.SqlTypes;
 using Inmobiliaria_DeborahGomez.Models;
 using MySqlConnector;
-
 
 namespace Inmobiliaria_DeborahGomez.Repositories;
 
 
-
-
 public class RepositorioPropietario : IRepositorioPropietario
-{      
-  private readonly MySqlConnectionFactory _factory;
-    public RepositorioPropietario(MySqlConnectionFactory factory)
+{
+
+    private readonly string connectionString;
+
+    public RepositorioPropietario (string connectionString)
     {
-        _factory = factory;
-    }
-
-    public int Alta(Propietario entidad)
-    {
-        using var conexion = _factory.CrearConexionAbierta();
-        using var comando = new MySqlCommand(
-            @"INSERT INTO propietarios (nombre, apellido, dni, telefono, email)
-            VALUES (@nombre, @apellido, @dni, @telefono, @email);
-            SELECT LAST_iNSERT_ID();",
-            conexion);
-
-            comando.Parameters.AddWithValue("@nombre", entidad.Nombre);
-            comando.Parameters.AddWithValue("@apellido", entidad.Apellido);
-            comando.Parameters.AddWithValue("@dni", entidad.Dni);
-            comando.Parameters.AddWithValue("@telefono", (object?)entidad.Telefono ?? DBNull.Value);
-            comando.Parameters.AddWithValue("@email", (object?)entidad.Email ?? DBNull.Value);
-
-            var nuevoId = Convert.ToInt32(comando.ExecuteScalar());
-            return nuevoId;
-
         
+        this.connectionString = connectionString;
     }
 
-    public int Baja(int Id)
+    public IList<Propietario> ObtenerLista(string? busqueda = null, int pagina = 1, int tamPagina = 10)
     {
-        using var conexion = _factory.CrearConexionAbierta();
-        using var comando = new MySqlCommand(
-            "DELETE FROM propietarios WHERE id_propietario = @id",
-            conexion);
-        comando.Parameters.AddWithValue("@id", Id);
+        var lista = new List<Propietario>();
 
-        return comando.ExecuteNonQuery();
-    }
+        using var conexion = new MySqlConnection(connectionString);
 
-    public int Modificacion(Propietario entidad)
-    {
-        using var conexion = _factory.CrearConexionAbierta();
-        using var comando = new MySqlCommand(
-            @"UPDATE propietarios
-              SET nombre = @nombre, apellido = @apellido, dni = @dni,
-                  telefono = @telefono, email = @email
-              WHERE id_propietario = @id",
-            conexion);
+        conexion.Open();
 
-        comando.Parameters.AddWithValue("@nombre", entidad.Nombre);
-        comando.Parameters.AddWithValue("@apellido", entidad.Apellido);
-        comando.Parameters.AddWithValue("@dni", entidad.Dni);
-        comando.Parameters.AddWithValue("@telefono", (object?)entidad.Telefono ?? DBNull.Value);
-        comando.Parameters.AddWithValue("@email", (object?)entidad.Email ?? DBNull.Value);
-        comando.Parameters.AddWithValue("@id", entidad.IdPropietario);
+        var sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email FROM propietario WHERE @busqueda IS NULL OR @busqueda = '' OR Dni LIKE @busqueda OR Nombre LIKE @busqueda ORDER BY IdPropietario LIMIT @tamPagina OFFSET @offset;";
 
-        return comando.ExecuteNonQuery();
+
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        if (string.IsNullOrWhiteSpace(busqueda))
+        {
+            comando.Parameters.AddWithValue("@busqueda", DBNull.Value);
+        }
+        else
+        {
+            comando.Parameters.AddWithValue("@busqueda", "%" + busqueda + "%");
+        }
+
+        comando.Parameters.AddWithValue("@tamPagina", tamPagina);
+        comando.Parameters.AddWithValue("@offset", (pagina - 1) * tamPagina);
+
+        using var reader = comando.ExecuteReader();
+
+        while(reader.Read())
+        {
+            var propietario = new Propietario();
+            propietario.IdPropietario = reader.GetInt32("IdPropietario");
+            propietario.Nombre = reader.GetString("Nombre");
+            propietario.Apellido = reader.GetString("Apellido");
+            propietario.Dni = reader.GetString("Dni");
+            propietario.Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email");
+            propietario.Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono");
+
+            lista.Add(propietario);
+        }
+
+        return lista;
+
     }
 
     public Propietario? ObtenerPorId(int id)
     {
-        using var conexion = _factory.CrearConexionAbierta();
-        using var comando = new MySqlCommand(
-            "SELECT id_propietario, nombre, apellido, dni, telefono, email FROM propietarios WHERE id_propietario = @id",
-            conexion);
+
+        using var conexion = new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email FROM propietariO WHERE IdPropietario = @id;";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
         comando.Parameters.AddWithValue("@id", id);
 
+
         using var reader = comando.ExecuteReader();
+
         if (reader.Read())
         {
-            return MapearPropietario(reader);
+            var propietario = new Propietario();
+            propietario.IdPropietario = reader.GetInt32("IdPropietario");
+            propietario.Nombre = reader.GetString("Nombre");
+            propietario.Apellido = reader.GetString("Apellido");
+            propietario.Dni = reader.GetString("Dni");
+            propietario.Email = reader.IsDBNull(reader.GetOrdinal("Email")) ? null : reader.GetString("Email");
+            propietario.Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString("Telefono");
+
+            return propietario;
         }
+
         return null;
     }
 
-     public IList<Propietario> ObtenerLista(string? busqueda = null, int pagina = 1, int tamPagina = 10)
+    public int Alta(Propietario propietario)
     {
-        var lista = new List<Propietario>();
-        using var conexion = _factory.CrearConexionAbierta();
+        using var conexion = new MySqlConnection(connectionString);
 
-        // Si viene texto de búsqueda, filtramos por nombre, apellido o dni.
-        // Si no, traemos todos (WHERE 1=1 es un truco para no tener que armar el SQL con "if" distintos)
-        var sql = @"SELECT id_propietario, nombre, apellido, dni, telefono, email
-                     FROM propietarios
-                     WHERE (@busqueda IS NULL OR nombre LIKE @busquedaLike
-                            OR apellido LIKE @busquedaLike OR dni LIKE @busquedaLike)
-                     ORDER BY apellido, nombre
-                     LIMIT @tamPagina OFFSET @offset";
+        conexion.Open();
+
+        var sql = @"INSERT INTO propietario(Nombre, Apellido, Dni, Telefono, Email)
+            VALUES (@nombre, @apellido, @dni, @telefono, @email);
+        ";
 
         using var comando = new MySqlCommand(sql, conexion);
-        comando.Parameters.AddWithValue("@busqueda", (object?)busqueda ?? DBNull.Value);
-        comando.Parameters.AddWithValue("@busquedaLike", $"%{busqueda}%");
-        comando.Parameters.AddWithValue("@tamPagina", tamPagina);
-        // OFFSET calcula desde qué fila arrancar: página 1 = fila 0, página 2 = fila 10, etc.
-        comando.Parameters.AddWithValue("@offset", (pagina - 1) * tamPagina);
 
-        using var reader = comando.ExecuteReader();
-        while (reader.Read())
-        {
-            lista.Add(MapearPropietario(reader));
-        }
-        return lista;
+        comando.Parameters.AddWithValue("@nombre",propietario.Nombre);
+        comando.Parameters.AddWithValue("@apellido",propietario.Apellido);
+        comando.Parameters.AddWithValue("@dni",propietario.Dni);
+        comando.Parameters.AddWithValue("@telefono",propietario.Telefono ?? (object)DBNull.Value);
+        comando.Parameters.AddWithValue("@email",propietario.Email ?? (object)DBNull.Value);
+
+        return comando.ExecuteNonQuery();
+    }
+
+    public int Modificacion(Propietario propietario)
+    {
+        using var conexion = new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"UPDATE propietario
+            SET Nombre = @nombre, Apellido = @apellido, Dni = @dni, Telefono = @telefono, Email = @email
+            WHERE IdPropietario = @id;";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue("@nombre",propietario.Nombre);
+        comando.Parameters.AddWithValue("@apellido",propietario.Apellido);
+        comando.Parameters.AddWithValue("@dni",propietario.Dni);
+        comando.Parameters.AddWithValue("@telefono",propietario.Telefono ?? (object)DBNull.Value);
+        comando.Parameters.AddWithValue("@email",propietario.Email ?? (object)DBNull.Value);
+
+        return comando.ExecuteNonQuery();
+    }
+
+    public int Baja(int id)
+    {
+        using var conexion = new MySqlConnection(connectionString);
+        conexion.Open();
+
+        var sql = @"DELETE FROM propietario WHERE IdPropietario = @id;";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue("@id", id);
+
+        return comando.ExecuteNonQuery();
+
     }
 
     public int ObtenerCantidad(string? busqueda = null)
     {
-        using var conexion = _factory.CrearConexionAbierta();
-        var sql = @"SELECT COUNT(*) FROM propietarios
-                     WHERE (@busqueda IS NULL OR nombre LIKE @busquedaLike
-                            OR apellido LIKE @busquedaLike OR dni LIKE @busquedaLike)";
+
+        using var conexion = new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"SELECT COUNT(*) FROM propietario WHERE @busqueda IS NULL
+                OR @busqueda = '' OR Nombre LIKE @busqueda OR Apellido LIKE @busqueda OR Dni LIKE @busqueda;";
 
         using var comando = new MySqlCommand(sql, conexion);
-        comando.Parameters.AddWithValue("@busqueda", (object?)busqueda ?? DBNull.Value);
-        comando.Parameters.AddWithValue("@busquedaLike", $"%{busqueda}%");
+
+        if (string.IsNullOrWhiteSpace(busqueda))
+        {
+            comando.Parameters.AddWithValue("@busqueda", DBNull.Value);
+        }
+        else
+        {
+            comando.Parameters.AddWithValue("@busqueda", "%" + busqueda + "%");
+        }
+
 
         return Convert.ToInt32(comando.ExecuteScalar());
     }
 
     public bool ExisteDni(string dni, int idExcluir = 0)
-     {
-        using var conexion = _factory.CrearConexionAbierta();
-        using var comando = new MySqlCommand(
-            "SELECT COUNT(*) FROM propietarios WHERE dni = @dni AND id_propietario != @idExcluir",
-            conexion);
+    {
+        using var conexion = new MySqlConnection(connectionString);
+        conexion.Open();
+
+        var sql = @"SELECT COUNT(*) FROM propietario WHERE Dni = @dni AND IdPropietario <> @idExcluir;
+        ";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
         comando.Parameters.AddWithValue("@dni", dni);
+
         comando.Parameters.AddWithValue("@idExcluir", idExcluir);
 
         var cantidad = Convert.ToInt32(comando.ExecuteScalar());
+
         return cantidad > 0;
     }
+
 
     public bool ExisteEmail(string email, int idExcluir = 0)
     {
-        using var conexion = _factory.CrearConexionAbierta();
-        using var comando = new MySqlCommand(
-            "SELECT COUNT(*) FROM propietarios WHERE email = @email AND id_propietario != @idExcluir",
-            conexion);
-        comando.Parameters.AddWithValue("@email", email);
-        comando.Parameters.AddWithValue("@idExcluir", idExcluir);
+        using var conexion =  new MySqlConnection(connectionString);
+        conexion.Open();
 
+        var sql = @"SELECT COUNT(*) FROM propietario WHERE Email = @email AND IdPropietario <> @idExcluir;";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue("@email",email);
+
+        comando.Parameters.AddWithValue("@idExcluir", idExcluir);
         var cantidad = Convert.ToInt32(comando.ExecuteScalar());
+
         return cantidad > 0;
     }
-
-     // Método auxiliar privado: convierte una fila del reader en un objeto Propietario.
-    // Se reutiliza en ObtenerPorId y ObtenerLista para no repetir el mismo código.
-    private static Propietario MapearPropietario(MySqlDataReader reader)
-    {
-        return new Propietario
-        {
-            IdPropietario = reader.GetInt32("id_propietario"),
-            Nombre = reader.GetString("nombre"),
-            Apellido = reader.GetString("apellido"),
-            Dni = reader.GetString("dni"),
-            Telefono = reader.IsDBNull(reader.GetOrdinal("telefono")) ? null : reader.GetString("telefono"),
-            Email = reader.IsDBNull(reader.GetOrdinal("email")) ? null : reader.GetString("email"),
-        };
-    }
 }
-
-
-
-
-
-
-
-
-

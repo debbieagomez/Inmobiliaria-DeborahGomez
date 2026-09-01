@@ -127,3 +127,9 @@ classDiagram
 6. Refrescar conexión o seleccionar Reconnect to DBMS
 7. Verificar en la pestaña Schemas
 8. Corroborar que haya cargado la base de datos + sus respectivas tablas
+9. Ingresa a la terminal posicionandose sobre Inmobiliaria-DeborahGomez
+10. Ejecuta *dotnet user-secrets init*
+11. Reemplaza TU-CONTRASEÑA por la de MySQL y ejecuta el siguiente comando: 
+*dotnet user-secrets set "ConnectionStrings:MySqlConnection" "Server=localhost;Port=3306;Database=dbinmobiliaria_deborahgomez;Uid=root;Pwd=TU-CONTRASEÑA;"*
+12. Verificar con *dotnet user-secrets list* si aparece el ConnectionStrings correspondiente
+13. Ya puedes ejecutar la aplicacion *dotnet run*

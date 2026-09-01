@@ -5,6 +5,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RootNamespace>Inmobiliaria_DeborahGomez</RootNamespace>
+    <UserSecretsId>Inmobiliaria-DeborahGomez</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>

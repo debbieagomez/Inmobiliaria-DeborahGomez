@@ -1,0 +1,70 @@
+@model IEnumerable<Inmobiliaria_DeborahGomez.Models.Propietario>
+
+    <h1>Propietarios</h1>
+
+    <a asp-controller="Propietarios" asp-action="Crear">
+        Nuevo propietario
+    </a>
+
+    <table>
+        <thead> 
+            <tr> 
+                <th>
+                    Id
+                </th> 
+                <th>
+                    Nombre
+                </th> 
+                <th>
+                    Apellido
+                </th> 
+                <th>
+                    Dni
+                </th> 
+                <th>
+                    Teléfono
+                </th> 
+                <th>
+                    Email
+                </th> 
+                <th>
+                    Acciones
+                </th> 
+            </tr> 
+        </thead>
+    
+
+        <tbody>
+            @foreach (var propietario in Model)
+            {
+
+                <tr>
+                    <td>
+                        @propietario.IdPropietario
+                    </td>
+                    <td>
+                        @propietario.Nombre 
+                    </td>
+                    <td>
+                        @propietario.Apellido
+                    </td>
+                    <td>
+                        @propietario.Dni
+                    </td>
+                    <td>
+                        @propietario.Telefono
+                    </td>
+                    <td>
+                        @propietario.Email
+                    </td>
+                    <td>
+                        <a asp-action="Editar" asp-route-id="@propietario.IdPropietario"> Editar </a>
+                        <a asp-action="Eliminar" asp-route-id="@propietario.IdPropietario"> Eliminar </a>
+                    </td>
+                </tr>
+
+            }
+        </tbody>
+
+    </table>
+
