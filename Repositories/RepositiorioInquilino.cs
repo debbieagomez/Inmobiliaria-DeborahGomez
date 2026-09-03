@@ -131,6 +131,7 @@ public class RepositorioInquilino : IRepositorioInquilino
         comando.Parameters.AddWithValue("@nombreCompleto", inquilino.NombreCompleto);
         comando.Parameters.AddWithValue("@telefono", inquilino.Telefono ?? (object)DBNull.Value);
         comando.Parameters.AddWithValue("@email", inquilino.Email ?? (object)DBNull.Value);
+        comando.Parameters.AddWithValue("@id", inquilino.IdInquilino);
         return comando.ExecuteNonQuery();
 
     }

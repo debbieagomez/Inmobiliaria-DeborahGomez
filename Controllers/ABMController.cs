@@ -98,13 +98,13 @@ public abstract class ABMController<T> : Controller
 
         if (entidad is Propietario propietario) 
         {
-            if (repositorio.ExisteDni(propietario.Dni))
+            if (repositorio.ExisteDni(propietario.Dni, propietario.IdPropietario))
             {
                 ModelState.AddModelError("Dni", "El Dni ya existe");
             }
             if (propietario.Email != null)
             {
-                if (repositorio.ExisteEmail(propietario.Email))
+                if (repositorio.ExisteEmail(propietario.Email, propietario.IdPropietario))
                 {
                     ModelState.AddModelError("Email", "El email ya existe");
                 }
@@ -112,13 +112,13 @@ public abstract class ABMController<T> : Controller
         } 
         else if (entidad is Inquilino inquilino)
         {
-            if (repositorio.ExisteDni(inquilino.Dni))
+            if (repositorio.ExisteDni(inquilino.Dni,inquilino.IdInquilino))
             {
                 ModelState.AddModelError("Dni", "El Dni ya existe");
             }
             if (inquilino.Email != null)
             {
-                if (repositorio.ExisteEmail(inquilino.Email))
+                if (repositorio.ExisteEmail(inquilino.Email, inquilino.IdInquilino))
                 {
                     ModelState.AddModelError("Email", "El email ya existe");
                 }

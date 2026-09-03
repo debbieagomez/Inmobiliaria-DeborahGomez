@@ -1,0 +1,41 @@
+@model Inmobiliaria_DeborahGomez.Models.Propietario
+
+<h2>Eliminar Propietario</h2>
+
+<h4>Datos del propietario</h4>
+
+<div class="mb-3">
+    <label>Nombre</label>
+    <p>@Model.Nombre</p>
+</div>
+
+<div class="mb-3">
+    <label>Apellido</label>
+    <p>@Model.Apellido</p>
+</div>
+
+<div class="mb-3">
+    <label>Dni</label>
+    <p>@Model.Dni</p>
+</div>
+
+<div class="mb-3">
+    <label>Teléfono</label>
+    <p>@Model.Telefono</p>
+</div>
+
+<div class="mb-3">
+    <label>Email</label>
+    <p>@Model.Email</p>
+</div>
+
+<form asp-action="EliminarConfirmado" method="post">
+    <input type="hidden" name="id" asp-for="IdPropietario" />
+
+
+<button type="submit" class="btn btn-danger">Eliminar</button>
+
+<a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+
+</form>

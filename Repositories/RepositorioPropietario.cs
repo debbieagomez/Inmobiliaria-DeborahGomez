@@ -132,6 +132,7 @@ public class RepositorioPropietario : IRepositorioPropietario
         comando.Parameters.AddWithValue("@dni",propietario.Dni);
         comando.Parameters.AddWithValue("@telefono",propietario.Telefono ?? (object)DBNull.Value);
         comando.Parameters.AddWithValue("@email",propietario.Email ?? (object)DBNull.Value);
+        comando.Parameters.AddWithValue("@id",propietario.IdPropietario);
 
         return comando.ExecuteNonQuery();
     }
