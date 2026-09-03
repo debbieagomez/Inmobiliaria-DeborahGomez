@@ -1,0 +1,20 @@
+@model Inmobiliaria_DeborahGomez.Models.TipoInmueble
+
+<h2>Eliminar Tipo de Inmueble</h2>
+
+<h4>Datos del Tipo de Inmueble</h4>
+
+<div class="mb-3">
+    <label>Nombre</label>
+    <p>@Model.Nombre</p>
+</div>
+
+<form asp-action="EliminarConfirmado" method="post">
+
+    <input type="hidden" name="id" value="@Model.IdTipoInmueble" />
+
+    <button type="submit" class="btn btn-danger">Eliminar</button>
+
+    <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+
+</form>

@@ -1,0 +1,41 @@
+@model IEnumerable<Inmobiliaria_DeborahGomez.Models.TipoInmueble>
+
+    <h1>Tipos de Inmueble</h1>
+
+    <a asp-controller="TipoInmueble" asp-action="Crear">
+        Nuevo tipo de inmueble
+    </a>
+
+    <table>
+        <thead> 
+            <tr> 
+                <th>
+                    Id
+                </th> 
+                <th>
+                    Nombre
+                </th> 
+                <th>
+                    Acciones
+                </th> 
+            </tr> 
+        </thead>
+    
+        <tbody>
+            @foreach (var tipoInmueble in Model)
+            {
+                <tr>
+                    <td>
+                        @tipoInmueble.IdTipoInmueble
+                    </td>
+                    <td>
+                        @tipoInmueble.Nombre
+                    </td>
+                    <td>
+                        <a asp-action="Editar" asp-route-id="@tipoInmueble.IdTipoInmueble"> Editar </a>
+                        <a asp-action="Eliminar" asp-route-id="@tipoInmueble.IdTipoInmueble"> Eliminar </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
