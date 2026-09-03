@@ -10,6 +10,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IRepositorioPropietario>(provider => new RepositorioPropietario(connectionString!));
 builder.Services.AddScoped<IRepositorioInquilino>(provider => new RepositorioInquilino(connectionString!));
 builder.Services.AddScoped<IRepositorioTipoInmueble>(provider => new RepositorioTipoInmueble(connectionString!));
+builder.Services.AddScoped<IRepositorioReserva>( 
+    provider => new RepositorioReserva(connectionString!) );
 
 var app = builder.Build();
 
