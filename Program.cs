@@ -8,6 +8,7 @@ var connectionString = builder.Configuration.GetConnectionString("MySqlConnectio
 builder.Services.AddControllersWithViews();
 
 builder.Services.AddScoped<IRepositorioPropietario>(provider => new RepositorioPropietario(connectionString!));
+builder.Services.AddScoped<IRepositorioInquilino>(provider => new RepositorioInquilino(connectionString!));
 
 var app = builder.Build();
 

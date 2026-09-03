@@ -126,7 +126,6 @@ public class RepositorioInquilino : IRepositorioInquilino
         var sql = @"UPDATE inquilino SET Dni = @dni, NombreCompleto = @nombreCompleto, Telefono = @telefono, Email = @email WHERE IdInquilino = @id;";
         using var comando = new MySqlCommand(sql, conexion);
 
-        comando.Parameters.AddWithValue("@id", inquilino.IdInquilino);
         comando.Parameters.AddWithValue("@dni", inquilino.Dni);
         comando.Parameters.AddWithValue("@nombreCompleto", inquilino.NombreCompleto);
         comando.Parameters.AddWithValue("@telefono", inquilino.Telefono ?? (object)DBNull.Value);
