@@ -9,7 +9,6 @@ public interface IRepositorio<T>
     IList<T> ObtenerLista(string? busqueda = null, int pagina = 1, int tamPagina = 10);
     int ObtenerCantidad(string? busqueda = null);
     T? ObtenerPorId(int id);
-    bool ExisteDni(string dni, int idExcluir = 0);
-    bool ExisteEmail(string email, int idExcluir = 0);
+
 
 }
