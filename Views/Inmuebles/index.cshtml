@@ -1,0 +1,43 @@
+@model IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>
+
+    <h1>Inmuebles</h1>
+
+    <a asp-controller="Inmuebles" asp-action="Crear">
+        Nuevo Inmueble
+        </a>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Direccion</th>
+                    <th>Tipo</th>
+                    <th>Propietario</th>
+                    <th>Cupo</th>
+                    <th>Precio</th>
+                    <th>Disponible</th>
+                    <th>Acciones</th>
+                </tr>  
+            </thead>
+            <tbody>
+                @foreach (var inmueble in Model)
+                {
+                    <tr>
+                        <td>@inmueble.IdInmueble</td>
+                        <td>@inmueble.Direccion</td>
+                        <td>@inmueble.TipoNombre</td>
+                        <td>@inmueble.propietarioNombre</td>
+                        <td>@inmueble.Cupo</td>
+                        <td>@inmueble.PrecioPorDia.ToString("C")</td>
+                        <td>@(inmueble.Disponible ? "si" : "NO")</td>
+                        <td>
+                            <a asp-action= "Editar" asp-route-id= "@inmueble.IdInmueble"> Editar</a>
+                            <a asp-action= "Eliminar" asp-route-id= "@inmueble.IdInmueble"> Eliminar</a>
+                        </td>
+            
+                    </tr>
+                }
+                
+            </tbody>
+
+        </table>
