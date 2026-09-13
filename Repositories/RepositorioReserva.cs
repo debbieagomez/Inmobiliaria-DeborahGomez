@@ -12,7 +12,11 @@ public class RepositorioReserva : IRepositorioReserva
         this.connectionString = connectionString;
     }
 
-    public IList<Reserva> ObtenerLista(string? busqueda = null, int pagina = 1, int tamPagina = 10)
+
+    public IList<Reserva> ObtenerLista(
+        string? busqueda = null,
+        int pagina = 1,
+        int tamPagina = 10)
     {
         var lista = new List<Reserva>();
 
@@ -20,19 +24,20 @@ public class RepositorioReserva : IRepositorioReserva
         conexion.Open();
 
         var sql = @"
-            SELECT IdReserva,
-                   FechaDesde,
-                   FechaHasta,
-                   FechaHastaOriginal,
-                   MontoPorDia,
-                   Finalizada,
-                   FechaFinalizacionAnticipada,
-                   MontoMulta,
-                   InmuebleId,
-                   InquilinoId,
-                   UsuarioCreadorId,
-                   UsuarioFinalizadorId
-            FROM reserva
+            SELECT
+                IdReserva,
+                FechaDesde,
+                FechaHasta,
+                FechaHastaOriginal,
+                MontoPorDia,
+                Finalizada,
+                FechaFinalizacionAnticipada,
+                MontoMulta,
+                InmuebleId,
+                InquilinoId,
+                UsuarioCreadorId,
+                UsuarioFinalizadorId
+            FROM Reserva
             ORDER BY IdReserva
             LIMIT @tamPagina OFFSET @offset;
         ";
@@ -48,33 +53,34 @@ public class RepositorioReserva : IRepositorioReserva
 
         while (reader.Read())
         {
-            var reserva = new Reserva();
+            var reserva = new Reserva
+            {
+                IdReserva = reader.GetInt32("IdReserva"),
+                FechaDesde = reader.GetDateTime("FechaDesde"),
+                FechaHasta = reader.GetDateTime("FechaHasta"),
+                FechaHastaOriginal = reader.GetDateTime("FechaHastaOriginal"),
+                MontoPorDia = reader.GetDecimal("MontoPorDia"),
+                Finalizada = reader.GetBoolean("Finalizada"),
 
-            reserva.IdReserva = reader.GetInt32("IdReserva");
-            reserva.FechaDesde = reader.GetDateTime("FechaDesde");
-            reserva.FechaHasta = reader.GetDateTime("FechaHasta");
-            reserva.FechaHastaOriginal = reader.GetDateTime("FechaHastaOriginal");
-            reserva.MontoPorDia = reader.GetDecimal("MontoPorDia");
-            reserva.Finalizada = reader.GetBoolean("Finalizada");
+                FechaFinalizacionAnticipada =
+                    reader.IsDBNull(reader.GetOrdinal("FechaFinalizacionAnticipada"))
+                        ? null
+                        : reader.GetDateTime("FechaFinalizacionAnticipada"),
 
-            reserva.FechaFinalizacionAnticipada =
-                reader.IsDBNull(reader.GetOrdinal("FechaFinalizacionAnticipada"))
-                    ? null
-                    : reader.GetDateTime("FechaFinalizacionAnticipada");
+                MontoMulta =
+                    reader.IsDBNull(reader.GetOrdinal("MontoMulta"))
+                        ? null
+                        : reader.GetDecimal("MontoMulta"),
 
-            reserva.MontoMulta =
-                reader.IsDBNull(reader.GetOrdinal("MontoMulta"))
-                    ? null
-                    : reader.GetDecimal("MontoMulta");
+                InmuebleId = reader.GetInt32("InmuebleId"),
+                InquilinoId = reader.GetInt32("InquilinoId"),
+                UsuarioCreadorId = reader.GetInt32("UsuarioCreadorId"),
 
-            reserva.InmuebleId = reader.GetInt32("InmuebleId");
-            reserva.InquilinoId = reader.GetInt32("InquilinoId");
-            reserva.UsuarioCreadorId = reader.GetInt32("UsuarioCreadorId");
-
-            reserva.UsuarioFinalizadorId =
-                reader.IsDBNull(reader.GetOrdinal("UsuarioFinalizadorId"))
-                    ? null
-                    : reader.GetInt32("UsuarioFinalizadorId");
+                UsuarioFinalizadorId =
+                    reader.IsDBNull(reader.GetOrdinal("UsuarioFinalizadorId"))
+                        ? null
+                        : reader.GetInt32("UsuarioFinalizadorId")
+            };
 
             lista.Add(reserva);
         }
@@ -82,25 +88,27 @@ public class RepositorioReserva : IRepositorioReserva
         return lista;
     }
 
+  
     public Reserva? ObtenerPorId(int id)
     {
         using var conexion = new MySqlConnection(connectionString);
         conexion.Open();
 
         var sql = @"
-            SELECT IdReserva,
-                   FechaDesde,
-                   FechaHasta,
-                   FechaHastaOriginal,
-                   MontoPorDia,
-                   Finalizada,
-                   FechaFinalizacionAnticipada,
-                   MontoMulta,
-                   InmuebleId,
-                   InquilinoId,
-                   UsuarioCreadorId,
-                   UsuarioFinalizadorId
-            FROM reserva
+            SELECT
+                IdReserva,
+                FechaDesde,
+                FechaHasta,
+                FechaHastaOriginal,
+                MontoPorDia,
+                Finalizada,
+                FechaFinalizacionAnticipada,
+                MontoMulta,
+                InmuebleId,
+                InquilinoId,
+                UsuarioCreadorId,
+                UsuarioFinalizadorId
+            FROM Reserva
             WHERE IdReserva = @id;
         ";
 
@@ -110,49 +118,57 @@ public class RepositorioReserva : IRepositorioReserva
 
         using var reader = comando.ExecuteReader();
 
-        if (reader.Read())
+        if (!reader.Read())
         {
-            var reserva = new Reserva();
-
-            reserva.IdReserva = reader.GetInt32("IdReserva");
-            reserva.FechaDesde = reader.GetDateTime("FechaDesde");
-            reserva.FechaHasta = reader.GetDateTime("FechaHasta");
-            reserva.FechaHastaOriginal = reader.GetDateTime("FechaHastaOriginal");
-            reserva.MontoPorDia = reader.GetDecimal("MontoPorDia");
-            reserva.Finalizada = reader.GetBoolean("Finalizada");
-
-            reserva.FechaFinalizacionAnticipada =
-                reader.IsDBNull(reader.GetOrdinal("FechaFinalizacionAnticipada"))
-                    ? null
-                    : reader.GetDateTime("FechaFinalizacionAnticipada");
-
-            reserva.MontoMulta =
-                reader.IsDBNull(reader.GetOrdinal("MontoMulta"))
-                    ? null
-                    : reader.GetDecimal("MontoMulta");
-
-            reserva.InmuebleId = reader.GetInt32("InmuebleId");
-            reserva.InquilinoId = reader.GetInt32("InquilinoId");
-            reserva.UsuarioCreadorId = reader.GetInt32("UsuarioCreadorId");
-
-            reserva.UsuarioFinalizadorId =
-                reader.IsDBNull(reader.GetOrdinal("UsuarioFinalizadorId"))
-                    ? null
-                    : reader.GetInt32("UsuarioFinalizadorId");
-
-            return reserva;
+            return null;
         }
 
-        return null;
+        var reserva = new Reserva
+        {
+            IdReserva = reader.GetInt32("IdReserva"),
+            FechaDesde = reader.GetDateTime("FechaDesde"),
+            FechaHasta = reader.GetDateTime("FechaHasta"),
+            FechaHastaOriginal = reader.GetDateTime("FechaHastaOriginal"),
+            MontoPorDia = reader.GetDecimal("MontoPorDia"),
+            Finalizada = reader.GetBoolean("Finalizada"),
+
+            FechaFinalizacionAnticipada =
+                reader.IsDBNull(reader.GetOrdinal("FechaFinalizacionAnticipada"))
+                    ? null
+                    : reader.GetDateTime("FechaFinalizacionAnticipada"),
+
+            MontoMulta =
+                reader.IsDBNull(reader.GetOrdinal("MontoMulta"))
+                    ? null
+                    : reader.GetDecimal("MontoMulta"),
+
+            InmuebleId = reader.GetInt32("InmuebleId"),
+            InquilinoId = reader.GetInt32("InquilinoId"),
+            UsuarioCreadorId = reader.GetInt32("UsuarioCreadorId"),
+
+            UsuarioFinalizadorId =
+                reader.IsDBNull(reader.GetOrdinal("UsuarioFinalizadorId"))
+                    ? null
+                    : reader.GetInt32("UsuarioFinalizadorId")
+        };
+
+        return reserva;
     }
+
 
     public int Alta(Reserva reserva)
     {
+
+        if (reserva.FechaHastaOriginal == default)
+        {
+            reserva.FechaHastaOriginal = reserva.FechaHasta;
+        }
+
         using var conexion = new MySqlConnection(connectionString);
         conexion.Open();
 
         var sql = @"
-            INSERT INTO reserva
+            INSERT INTO Reserva
             (
                 FechaDesde,
                 FechaHasta,
@@ -184,22 +200,56 @@ public class RepositorioReserva : IRepositorioReserva
 
         using var comando = new MySqlCommand(sql, conexion);
 
-        comando.Parameters.AddWithValue("@fechaDesde", reserva.FechaDesde);
-        comando.Parameters.AddWithValue("@fechaHasta", reserva.FechaHasta);
-        comando.Parameters.AddWithValue("@fechaHastaOriginal", reserva.FechaHastaOriginal);
-        comando.Parameters.AddWithValue("@montoPorDia", reserva.MontoPorDia);
-        comando.Parameters.AddWithValue("@finalizada", reserva.Finalizada);
+        comando.Parameters.AddWithValue(
+            "@fechaDesde",
+            reserva.FechaDesde
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            reserva.FechaHasta
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHastaOriginal",
+            reserva.FechaHastaOriginal
+        );
+
+        comando.Parameters.AddWithValue(
+            "@montoPorDia",
+            reserva.MontoPorDia
+        );
+
+        comando.Parameters.AddWithValue(
+            "@finalizada",
+            reserva.Finalizada
+        );
+
         comando.Parameters.AddWithValue(
             "@fechaFinalizacionAnticipada",
             reserva.FechaFinalizacionAnticipada ?? (object)DBNull.Value
         );
+
         comando.Parameters.AddWithValue(
             "@montoMulta",
             reserva.MontoMulta ?? (object)DBNull.Value
         );
-        comando.Parameters.AddWithValue("@inmuebleId", reserva.InmuebleId);
-        comando.Parameters.AddWithValue("@inquilinoId", reserva.InquilinoId);
-        comando.Parameters.AddWithValue("@usuarioCreadorId", reserva.UsuarioCreadorId);
+
+        comando.Parameters.AddWithValue(
+            "@inmuebleId",
+            reserva.InmuebleId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@inquilinoId",
+            reserva.InquilinoId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@usuarioCreadorId",
+            reserva.UsuarioCreadorId
+        );
+
         comando.Parameters.AddWithValue(
             "@usuarioFinalizadorId",
             reserva.UsuarioFinalizadorId ?? (object)DBNull.Value
@@ -208,14 +258,16 @@ public class RepositorioReserva : IRepositorioReserva
         return comando.ExecuteNonQuery();
     }
 
+  
     public int Modificacion(Reserva reserva)
     {
         using var conexion = new MySqlConnection(connectionString);
         conexion.Open();
 
         var sql = @"
-            UPDATE reserva
-            SET FechaDesde = @fechaDesde,
+            UPDATE Reserva
+            SET
+                FechaDesde = @fechaDesde,
                 FechaHasta = @fechaHasta,
                 FechaHastaOriginal = @fechaHastaOriginal,
                 MontoPorDia = @montoPorDia,
@@ -231,11 +283,30 @@ public class RepositorioReserva : IRepositorioReserva
 
         using var comando = new MySqlCommand(sql, conexion);
 
-        comando.Parameters.AddWithValue("@fechaDesde", reserva.FechaDesde);
-        comando.Parameters.AddWithValue("@fechaHasta", reserva.FechaHasta);
-        comando.Parameters.AddWithValue("@fechaHastaOriginal", reserva.FechaHastaOriginal);
-        comando.Parameters.AddWithValue("@montoPorDia", reserva.MontoPorDia);
-        comando.Parameters.AddWithValue("@finalizada", reserva.Finalizada);
+        comando.Parameters.AddWithValue(
+            "@fechaDesde",
+            reserva.FechaDesde
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            reserva.FechaHasta
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHastaOriginal",
+            reserva.FechaHastaOriginal
+        );
+
+        comando.Parameters.AddWithValue(
+            "@montoPorDia",
+            reserva.MontoPorDia
+        );
+
+        comando.Parameters.AddWithValue(
+            "@finalizada",
+            reserva.Finalizada
+        );
 
         comando.Parameters.AddWithValue(
             "@fechaFinalizacionAnticipada",
@@ -247,27 +318,42 @@ public class RepositorioReserva : IRepositorioReserva
             reserva.MontoMulta ?? (object)DBNull.Value
         );
 
-        comando.Parameters.AddWithValue("@inmuebleId", reserva.InmuebleId);
-        comando.Parameters.AddWithValue("@inquilinoId", reserva.InquilinoId);
-        comando.Parameters.AddWithValue("@usuarioCreadorId", reserva.UsuarioCreadorId);
+        comando.Parameters.AddWithValue(
+            "@inmuebleId",
+            reserva.InmuebleId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@inquilinoId",
+            reserva.InquilinoId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@usuarioCreadorId",
+            reserva.UsuarioCreadorId
+        );
 
         comando.Parameters.AddWithValue(
             "@usuarioFinalizadorId",
             reserva.UsuarioFinalizadorId ?? (object)DBNull.Value
         );
 
-        comando.Parameters.AddWithValue("@id", reserva.IdReserva);
+        comando.Parameters.AddWithValue(
+            "@id",
+            reserva.IdReserva
+        );
 
         return comando.ExecuteNonQuery();
     }
 
+    // Eliminar una reserva
     public int Baja(int id)
     {
         using var conexion = new MySqlConnection(connectionString);
         conexion.Open();
 
         var sql = @"
-            DELETE FROM reserva
+            DELETE FROM Reserva
             WHERE IdReserva = @id;
         ";
 
@@ -278,12 +364,16 @@ public class RepositorioReserva : IRepositorioReserva
         return comando.ExecuteNonQuery();
     }
 
+
     public int ObtenerCantidad(string? busqueda = null)
     {
         using var conexion = new MySqlConnection(connectionString);
         conexion.Open();
 
-        var sql = @"SELECT COUNT(*) FROM reserva;";
+        var sql = @"
+            SELECT COUNT(*)
+            FROM Reserva;
+        ";
 
         using var comando = new MySqlCommand(sql, conexion);
 

@@ -1,0 +1,51 @@
+@model IEnumerable<Inmobiliaria_DeborahGomez.Models.Reserva>
+
+<h1>Reservas</h1>
+
+<p>
+    <a asp-action="Crear">Nueva Reserva</a>
+</p>
+
+<table>
+
+    <thead>
+        <tr>
+            <th>Id</th>
+            <th>Desde</th>
+            <th>Hasta</th>
+            <th>Monto por día</th>
+            <th>Inmueble</th>
+            <th>Inquilino</th>
+            <th>Finalizada</th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        @foreach (var reserva in Model)
+        {
+            <tr>
+                <td>@reserva.IdReserva</td>
+                <td>@reserva.FechaDesde</td>
+                <td>@reserva.FechaHasta</td>
+                <td>@reserva.MontoPorDia</td>
+                <td>@reserva.InmuebleId</td>
+                <td>@reserva.InquilinoId</td>
+                <td>@reserva.Finalizada</td>
+
+                <td>
+                    <a asp-action="Editar" asp-route-id="@reserva.IdReserva">
+                        Editar
+                    </a>
+
+                    <a asp-action="Eliminar" asp-route-id="@reserva.IdReserva">
+                        Eliminar
+                    </a>
+                </td>
+            </tr>
+        }
+
+    </tbody>
+
+</table>
