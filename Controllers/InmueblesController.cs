@@ -1,6 +1,7 @@
 using Inmobiliaria_DeborahGomez.Models;
 using Inmobiliaria_DeborahGomez.Repositories;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Inmobiliaria_DeborahGomez.Controllers;
 
@@ -18,24 +19,11 @@ public class InmueblesController : ABMController<Inmueble>
         this.repositorioTipoInmueble = repositorioTipo;   
     }
 
-    public new IActionResult Crear()
-    {
-        CargarListasDesplegables();
-        return View();
-    }
-
-    public new IActionResult Editar(int id)
-    {
-        var inmueble = repositorio.ObtenerPorId(id); 
-        if (inmueble == null) return NotFound();
-
-        CargarListasDesplegables();   
-        return View(inmueble);        
-    }
-
-    private void CargarListasDesplegables()
+    public override void OnActionExecuting(ActionExecutingContext context)
     {
         ViewBag.Propietarios = repositorioPropietario.ObtenerLista(tamPagina: 1000);
         ViewBag.Tipos = repositorioTipoInmueble.ObtenerLista(tamPagina: 1000);
+        base.OnActionExecuting(context);
     }
+    
 }

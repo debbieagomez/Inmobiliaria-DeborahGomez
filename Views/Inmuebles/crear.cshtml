@@ -1,0 +1,65 @@
+@model Inmobiliaria_DeborahGomez.Models.Inmueble
+
+<h1>Nuevo Inmueble</h1>
+
+<form asp-controller="Inmuebles" asp-action="Crear" method="post">
+    <div asp-validation-summary="All" class="text-danger"></div>
+    <div>
+        <label asp-for="Direccion"></label>
+        <input asp-for="Direccion"/>
+        <span asp-validation-for="Direccion"></span>
+    </div>
+
+    <div>
+        <label asp-for="Cupo"></label>
+        <input asp-for="Cupo" type="number"/>
+    </div>
+
+    <div>
+        <label asp-for="PrecioPorDia"></label>
+        <input asp-for="PrecioPorDia" type="number" step="0.01"/>
+    </div>
+
+    <div>
+        <label asp-for="PorcentajeSenia"></label>
+        <input asp-for="PorcentajeSenia" type="number" step="0.01"/>
+    </div>
+
+    <div>
+        <label asp-for="Latitud"></label>
+        <input asp-for="Latitud" type="number" step="0.0000001"/>
+    </div>
+
+    <div>
+        <label asp-for="Longitud"></label>
+        <input asp-for="Longitud" type="number" step="0.0000001"/>
+    </div>
+
+    <div>
+        <label>Propietario</label>
+        <select asp-for="PropietarioId">
+            @foreach (var p in (IEnumerable<Inmobiliaria_DeborahGomez.Models.Propietario>)ViewBag.Propietarios)
+                {
+                    <option value="@p.IdPropietario">@p.Nombre @p.Apellido</option>
+                }
+        </select>
+    </div>
+
+    <div>
+        <label>Tipo Inmueble</label>
+        <select asp-for="TipoInmuebleId">
+            @foreach (var t in (IEnumerable<Inmobiliaria_DeborahGomez.Models.TipoInmueble>)ViewBag.Tipos)
+                {
+                    <option value="@t.IdTipoInmueble">@t.Nombre</option>
+                }
+        </select>
+    </div>
+
+     <div>
+        <label asp-for="Disponible"></label>
+        <input asp-for="Disponible" type="checkbox" checked/>
+     </div>
+
+     <button type="submit">Guardar</button>
+     <a asp-action="Index">Cancelar</a>
+</form>

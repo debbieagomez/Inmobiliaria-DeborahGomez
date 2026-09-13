@@ -1,0 +1,23 @@
+@model Inmobiliaria_DeborahGomez.Models.Inmueble
+
+<h1>Desea Eliminar este inmuble?</><h1/>
+
+<dl>
+    <dt>Direccion</dt>
+    <dd>@Model.Direccion</dd>
+
+    <dt>Tipo</dt>
+    <dd>@Model.TipoNombre</dd>
+
+    <dt>Propietario</dt>
+    <dd>@Model.propietarioNombre</dd>
+
+    <dt>Precio Por Dia</dt>
+    <dd>@Model.PrecioPorDia.ToString("c")</dd>
+</dl>
+
+<form asp-controller="Inmueble" asp-action="EliminarConfirmado" method="post">
+    <input type="hidden" name="id" value="@Model.IdInmueble"/>
+    <button type="submit"> eliminar</button>
+    <a asp-action="Index"> Cancelar</a>
+    </form>
