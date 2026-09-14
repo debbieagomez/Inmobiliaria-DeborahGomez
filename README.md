@@ -119,17 +119,64 @@ classDiagram
 
 ### Pasos para ingresar a MySQL Workbench e inicializar localmente la base de datos:
 
-1. Ingresar a MySQL Workbench
-2. Seleccionar opción Database (o el atajo de teclado Ctrl+U)
-3. Colocar Connect to Database...
-4. Ingresar a la conexión con las credenciales correspondientes de la computadora
-5. Copiar, pegar y ejecutar el archivo de Database/DBInmobiliaria_DeborahGomez.sql
-6. Refrescar conexión o seleccionar Reconnect to DBMS
-7. Verificar en la pestaña Schemas
-8. Corroborar que haya cargado la base de datos + sus respectivas tablas
-9. Ingresa a la terminal posicionandose sobre Inmobiliaria-DeborahGomez
-10. Ejecuta *dotnet user-secrets init*
-11. Reemplaza TU-CONTRASEÑA por la de MySQL y ejecuta el siguiente comando: 
-*dotnet user-secrets set "ConnectionStrings:MySqlConnection" "Server=localhost;Port=3306;Database=dbinmobiliaria_deborahgomez;Uid=root;Pwd=TU-CONTRASEÑA;"*
-12. Verificar con *dotnet user-secrets list* si aparece el ConnectionStrings correspondiente
-13. Ya puedes ejecutar la aplicacion *dotnet run*
+### Pasos para ingresar a MySQL Workbench e inicializar localmente la base de datos:
+
+1. Abrir **MySQL Workbench** y seleccionar la conexión correspondiente al servidor MySQL local.
+
+2. Ir a:
+
+   `Server -> Data Import`
+
+3. Seleccionar **Import from Self-Contained File** y elegir:
+
+   `Database/DBInmobiliaria_DeborahGomez.sql`
+
+4. Presionar **Start Import** para importar la estructura de la base de datos.
+
+5. Actualizar la sección **Schemas -> Refresh All** y verificar que exista la base:
+
+   `DBInmobiliaria_DeborahGomez`
+
+6. Volver a:
+
+   `Server -> Data Import`
+
+7. Seleccionar nuevamente **Import from Self-Contained File** y elegir:
+
+   `Database/Seed.sql`
+
+8. Seleccionar como esquema de destino:
+
+   `DBInmobiliaria_DeborahGomez`
+
+**Nota:** Si no aparece el esquema de destino, abrir nuevamente la pestaña `Server -> Data Import`
+
+9. Presionar **Start Import** y verificar que se hayan cargado los datos de prueba.
+
+10. Abrir una terminal posicionándose sobre la carpeta raíz del proyecto:
+
+    `Inmobiliaria-DeborahGomez`
+
+11. Inicializar User Secrets:
+
+    ```bash
+    dotnet user-secrets init
+    ```
+
+12. Configurar la conexión a MySQL reemplazando `TU-CONTRASEÑA` por la contraseña correspondiente:
+
+    ```bash
+    dotnet user-secrets set "ConnectionStrings:MySqlConnection" "Server=localhost;Port=3306;Database=DBInmobiliaria_DeborahGomez;Uid=root;Pwd=TU-CONTRASEÑA;"
+    ```
+
+13. Verificar la configuración:
+
+    ```bash
+    dotnet user-secrets list
+    ```
+
+14. Ejecutar la aplicación:
+
+    ```bash
+    dotnet run
+    ```
