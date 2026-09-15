@@ -189,5 +189,68 @@ public class RepositorioInmueble : IRepositorioInmueble
         comando.Parameters.AddWithValue("@propietarioId", inmueble.PropietarioId);
         comando.Parameters.AddWithValue("@tipoInmuebleId", inmueble.TipoInmuebleId);
     }
+// ---------- Informe 1: Inmuebles y su dueño, filtrado por disponibilidad ----------
 
+    public IList<Inmueble> ObtenerPorDisponibilidad(bool? disponible, int pagina = 1, int tamPagina = 10)
+    {
+        var lista = new List<Inmueble>();
+        using var conexion = new MySqlConnection(connectionString);
+        conexion.Open();
+
+        var sql = @"SELECT i.IdInmueble, i.Direccion, i.Cupo, i.Latitud, i.Longitud, i.PrecioPorDia,
+                            i.PorcentajeSenia, i.Disponible, i.ImagenPortadaUrl, i.PropietarioId, i.TipoInmuebleId,
+                            CONCAT(p.Nombre, ' ', p.Apellido) AS propietarioNombre, t.Nombre AS TipoNombre
+                    FROM Inmueble i
+                    JOIN Propietario p ON i.PropietarioId = p.IdPropietario
+                    JOIN TipoInmueble t ON i.TipoInmuebleId = t.IdTipoInmueble
+                    WHERE @disponible IS NULL OR i.Disponible = @disponible
+                    ORDER BY i.Direccion
+                    LIMIT @tamPagina OFFSET @offset;";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        if (disponible.HasValue)
+        {
+            comando.Parameters.AddWithValue("@disponible", disponible.Value);
+        }
+        else
+        {
+            comando.Parameters.AddWithValue("@disponible", DBNull.Value);
+        }
+
+        var offset = (pagina - 1) * tamPagina;
+        comando.Parameters.AddWithValue("@tamPagina", tamPagina);
+        comando.Parameters.AddWithValue("@offset", offset);
+
+        using var reader = comando.ExecuteReader();
+
+        while (reader.Read())
+        {
+            lista.Add(LeerInmueble(reader));
+        }
+
+        return lista;
+    }
+
+    public int ObtenerCantidadPorDisponibilidad(bool? disponible)
+    {
+        using var conexion = new MySqlConnection(connectionString);
+        conexion.Open();
+
+        var sql = @"SELECT COUNT(*) FROM Inmueble i
+                    WHERE @disponible IS NULL OR i.Disponible = @disponible;";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        if (disponible.HasValue)
+        {
+            comando.Parameters.AddWithValue("@disponible", disponible.Value);
+        }
+        else
+        {
+            comando.Parameters.AddWithValue("@disponible", DBNull.Value);
+        }
+
+        return Convert.ToInt32(comando.ExecuteScalar());
+    }
 }
