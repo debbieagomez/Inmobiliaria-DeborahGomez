@@ -25,7 +25,17 @@ public class RepositorioPropietario : IRepositorioPropietario
 
         conexion.Open();
 
-        var sql = @"SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email FROM propietario WHERE @busqueda IS NULL OR @busqueda = '' OR Dni LIKE @busqueda OR Nombre LIKE @busqueda ORDER BY IdPropietario LIMIT @tamPagina OFFSET @offset;";
+        var sql = @"
+            SELECT IdPropietario, Nombre, Apellido, Dni, Telefono, Email
+            FROM propietario
+            WHERE @busqueda IS NULL
+            OR @busqueda = ''
+            OR Dni LIKE @busqueda
+            OR Nombre LIKE @busqueda
+            OR Apellido LIKE @busqueda
+            ORDER BY IdPropietario
+            LIMIT @tamPagina OFFSET @offset;
+        ";
 
 
 
@@ -94,6 +104,27 @@ public class RepositorioPropietario : IRepositorioPropietario
         return null;
     }
 
+    public bool TieneInmuebles(int idPropietario)
+    {
+        using var conexion = new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"
+            SELECT COUNT(*)
+            FROM inmueble
+            WHERE PropietarioId = @idPropietario;
+        ";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue("@idPropietario", idPropietario);
+
+        var cantidad = Convert.ToInt32(comando.ExecuteScalar());
+
+        return cantidad > 0;
+    }
+
     public int Alta(Propietario propietario)
     {
         using var conexion = new MySqlConnection(connectionString);
@@ -140,16 +171,19 @@ public class RepositorioPropietario : IRepositorioPropietario
     public int Baja(int id)
     {
         using var conexion = new MySqlConnection(connectionString);
+
         conexion.Open();
 
-        var sql = @"DELETE FROM propietario WHERE IdPropietario = @id;";
+        var sql = @"
+            DELETE FROM propietario
+            WHERE IdPropietario = @id;
+        ";
 
         using var comando = new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue("@id", id);
 
         return comando.ExecuteNonQuery();
-
     }
 
     public int ObtenerCantidad(string? busqueda = null)

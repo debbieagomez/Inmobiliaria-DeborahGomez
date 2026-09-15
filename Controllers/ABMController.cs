@@ -20,7 +20,33 @@ public abstract class ABMController<T> : Controller
     //Indice
     public IActionResult Index(string? busqueda, int pagina = 1)
     {
-        var lista = repositorio.ObtenerLista(busqueda, pagina, 10);
+        const int tamPagina = 10;
+
+        if (pagina < 1)
+        {
+            pagina = 1;
+        }
+
+        var cantidad = repositorio.ObtenerCantidad(busqueda);
+
+        var totalPaginas = cantidad == 0
+        ? 1 : (int)Math.Ceiling((double)cantidad / tamPagina);
+
+        if (pagina > totalPaginas)
+        {
+            pagina = totalPaginas;
+        }
+
+        var lista = repositorio.ObtenerLista(
+            busqueda,
+            pagina,
+            tamPagina
+        );
+
+        ViewBag.Busqueda = busqueda;
+        ViewBag.PaginaActual = pagina;
+        ViewBag.TotalPaginas = totalPaginas;
+        ViewBag.Cantidad = cantidad;
 
         return View(lista);
     }
@@ -160,13 +186,32 @@ public abstract class ABMController<T> : Controller
     }
 
     //POST de Eliminar (se necesita confirmar desde el GET)
-    [HttpPost]
+[HttpPost]
     public IActionResult EliminarConfirmado(int id)
     {
-        
-        repositorio.Baja(id);
-        return RedirectToAction(nameof(Index));
+        var entidad = repositorio.ObtenerPorId(id);
 
+        if (entidad == null)
+        {
+            return NotFound();
+        }
+
+        if (entidad is Propietario propietario)
+        {
+            var repositorioPropietario = (IRepositorioPropietario)repositorio;
+
+            if (repositorioPropietario.TieneInmuebles(propietario.IdPropietario))
+            {
+                TempData["Error"] =
+                    "No se puede eliminar el propietario porque tiene inmuebles asociados.";
+
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
+        repositorio.Baja(id);
+
+        return RedirectToAction(nameof(Index));
     }
 
 
