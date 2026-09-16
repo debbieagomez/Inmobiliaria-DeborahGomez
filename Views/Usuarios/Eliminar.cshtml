@@ -1,0 +1,64 @@
+@model Inmobiliaria_DeborahGomez.Models.Usuario
+
+@{
+    ViewData["Title"] = "Eliminar usuario";
+}
+
+<div class="container mt-4">
+
+    <h2>Eliminar usuario</h2>
+
+    <div class="alert alert-warning">
+        ¿Está seguro de eliminar este usuario?
+    </div>
+
+    <dl class="row">
+
+        <dt class="col-sm-3">
+            ID
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.IdUsuario
+        </dd>
+
+        <dt class="col-sm-3">
+            Email
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.Email
+        </dd>
+
+        <dt class="col-sm-3">
+            Rol
+        </dt>
+
+        <dd class="col-sm-9">
+            @Model.Rol
+        </dd>
+
+    </dl>
+
+    <form asp-action="EliminarConfirmado"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="id"
+               value="@Model.IdUsuario" />
+
+        <button type="submit"
+                class="btn btn-danger">
+            Confirmar eliminación
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    </form>
+
+</div>

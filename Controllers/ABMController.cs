@@ -1,19 +1,18 @@
 using Inmobiliaria_DeborahGomez.Models;
 using Inmobiliaria_DeborahGomez.Repositories;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-
-
 
 namespace Inmobiliaria_DeborahGomez.Controllers;
 
+[Authorize]
 public abstract class ABMController<T> : Controller
 {
     protected readonly IRepositorio<T> repositorio;
 
-    protected ABMController (IRepositorio<T> repositorio) {
-
+    protected ABMController(IRepositorio<T> repositorio)
+    {
         this.repositorio = repositorio;
-        
     }
 
     //metodos------------------------
@@ -186,7 +185,8 @@ public abstract class ABMController<T> : Controller
     }
 
     //POST de Eliminar (se necesita confirmar desde el GET)
-[HttpPost]
+    [HttpPost]
+    [Authorize(Roles = "Administrador")] //SOLO lo hace el administrador
     public IActionResult EliminarConfirmado(int id)
     {
         var entidad = repositorio.ObtenerPorId(id);
@@ -198,9 +198,11 @@ public abstract class ABMController<T> : Controller
 
         if (entidad is Propietario propietario)
         {
-            var repositorioPropietario = (IRepositorioPropietario)repositorio;
+            var repositorioPropietario =
+                (IRepositorioPropietario)repositorio;
 
-            if (repositorioPropietario.TieneInmuebles(propietario.IdPropietario))
+            if (repositorioPropietario.TieneInmuebles(
+                propietario.IdPropietario))
             {
                 TempData["Error"] =
                     "No se puede eliminar el propietario porque tiene inmuebles asociados.";
