@@ -12,6 +12,152 @@ public class RepositorioReserva : IRepositorioReserva
         this.connectionString = connectionString;
     }
 
+    public bool ExisteSolapamiento(
+    int inmuebleId,
+    DateTime fechaDesde,
+    DateTime fechaHasta,
+    int? idReservaExcluir = null)
+    {
+        using var conexion = new MySqlConnection(connectionString);
+        conexion.Open();
+
+        var sql = @"
+            SELECT COUNT(*)
+            FROM Reserva
+            WHERE InmuebleId = @inmuebleId
+            AND FechaDesde < @fechaHasta
+            AND FechaHasta > @fechaDesde
+            AND (@idReservaExcluir IS NULL OR IdReserva <> @idReservaExcluir);
+        ";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue("@inmuebleId", inmuebleId);
+        comando.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+        comando.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+
+        comando.Parameters.AddWithValue(
+            "@idReservaExcluir",
+            idReservaExcluir ?? (object)DBNull.Value
+        );
+
+        var cantidad = Convert.ToInt32(comando.ExecuteScalar());
+
+        return cantidad > 0;
+    }
+
+    public IList<Inmueble> BuscarDisponibles(
+    DateTime fechaDesde,
+    DateTime fechaHasta,
+    int? cupo = null,
+    int? tipoInmuebleId = null,
+    decimal? precioMaximo = null)
+    {
+        var lista = new List<Inmueble>();
+
+        using var conexion = new MySqlConnection(connectionString);
+        conexion.Open();
+
+        var sql = @"
+            SELECT
+                i.IdInmueble,
+                i.Direccion,
+                i.Cupo,
+                i.Latitud,
+                i.Longitud,
+                i.PrecioPorDia,
+                i.PorcentajeSenia,
+                i.Disponible,
+                i.ImagenPortadaUrl,
+                i.PropietarioId,
+                i.TipoInmuebleId,
+                CONCAT(p.Nombre, ' ', p.Apellido) AS propietarioNombre,
+                t.Nombre AS TipoNombre
+            FROM Inmueble i
+            INNER JOIN Propietario p
+                ON i.PropietarioId = p.IdPropietario
+            INNER JOIN TipoInmueble t
+                ON i.TipoInmuebleId = t.IdTipoInmueble
+            WHERE i.Disponible = 1
+
+            AND (@cupo IS NULL OR i.Cupo >= @cupo)
+
+            AND (@tipoInmuebleId IS NULL
+                OR i.TipoInmuebleId = @tipoInmuebleId)
+
+            AND (@precioMaximo IS NULL
+                OR i.PrecioPorDia <= @precioMaximo)
+
+            AND NOT EXISTS
+            (
+                SELECT 1
+                FROM Reserva r
+                WHERE r.InmuebleId = i.IdInmueble
+                    AND r.FechaDesde < @fechaHasta
+                    AND r.FechaHasta > @fechaDesde
+            )
+
+            ORDER BY i.IdInmueble;
+        ";
+
+        using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue("@fechaDesde", fechaDesde);
+        comando.Parameters.AddWithValue("@fechaHasta", fechaHasta);
+
+        comando.Parameters.AddWithValue(
+            "@cupo",
+            cupo ?? (object)DBNull.Value
+        );
+
+        comando.Parameters.AddWithValue(
+            "@tipoInmuebleId",
+            tipoInmuebleId ?? (object)DBNull.Value
+        );
+
+        comando.Parameters.AddWithValue(
+            "@precioMaximo",
+            precioMaximo ?? (object)DBNull.Value
+        );
+
+        using var reader = comando.ExecuteReader();
+
+        while (reader.Read())
+        {
+            lista.Add(new Inmueble
+            {
+                IdInmueble = reader.GetInt32("IdInmueble"),
+                Direccion = reader.GetString("Direccion"),
+                Cupo = reader.GetInt32("Cupo"),
+
+                Latitud = reader.IsDBNull(reader.GetOrdinal("Latitud"))
+                    ? null
+                    : reader.GetDecimal("Latitud"),
+
+                Longitud = reader.IsDBNull(reader.GetOrdinal("Longitud"))
+                    ? null
+                    : reader.GetDecimal("Longitud"),
+
+                PrecioPorDia = reader.GetDecimal("PrecioPorDia"),
+                PorcentajeSenia = reader.GetDecimal("PorcentajeSenia"),
+                Disponible = reader.GetBoolean("Disponible"),
+
+                ImagenPortadaUrl = reader.IsDBNull(
+                    reader.GetOrdinal("ImagenPortadaUrl"))
+                    ? null
+                    : reader.GetString("ImagenPortadaUrl"),
+
+                PropietarioId = reader.GetInt32("PropietarioId"),
+                TipoInmuebleId = reader.GetInt32("TipoInmuebleId"),
+
+                propietarioNombre = reader.GetString("propietarioNombre"),
+                TipoNombre = reader.GetString("TipoNombre")
+            });
+        }
+
+        return lista;
+    }
+
 
     public IList<Reserva> ObtenerLista(
         string? busqueda = null,
