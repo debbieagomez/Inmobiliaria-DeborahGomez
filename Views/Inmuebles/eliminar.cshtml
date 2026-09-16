@@ -1,6 +1,6 @@
 @model Inmobiliaria_DeborahGomez.Models.Inmueble
 
-<h1>Desea Eliminar este inmuble?</><h1/>
+ <h1>¿Desea Eliminar este inmueble?</h1>
 
 <dl>
     <dt>Direccion</dt>
@@ -16,7 +16,7 @@
     <dd>@Model.PrecioPorDia.ToString("c")</dd>
 </dl>
 
-<form asp-controller="Inmueble" asp-action="EliminarConfirmado" method="post">
+<form asp-controller="Inmuebles" asp-action="EliminarConfirmado" method="post">
     <input type="hidden" name="id" value="@Model.IdInmueble"/>
     <button type="submit"> eliminar</button>
     <a asp-action="Index"> Cancelar</a>
