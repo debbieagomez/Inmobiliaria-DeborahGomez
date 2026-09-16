@@ -27,11 +27,13 @@
     </div>
 
     <div>
-        <label>Inmueble</label>
+        <label asp-for="InmuebleId"></label>
 
         <select asp-for="InmuebleId">
 
-            @foreach (var inmueble in (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)ViewBag.Inmuebles)
+            @foreach (var inmueble in
+                (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)
+                ViewBag.Inmuebles)
             {
                 <option value="@inmueble.IdInmueble">
                     @inmueble.Direccion
@@ -44,11 +46,13 @@
     </div>
 
     <div>
-        <label>Inquilino</label>
+        <label asp-for="InquilinoId"></label>
 
         <select asp-for="InquilinoId">
 
-            @foreach (var inquilino in (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)ViewBag.Inquilinos)
+            @foreach (var inquilino in
+                (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)
+                ViewBag.Inquilinos)
             {
                 <option value="@inquilino.IdInquilino">
                     @inquilino.NombreCompleto
@@ -60,15 +64,12 @@
         <span asp-validation-for="InquilinoId" class="text-danger"></span>
     </div>
 
-    <input asp-for="FechaHastaOriginal" type="hidden" />
-    <input asp-for="Finalizada" type="hidden" />
-    <input asp-for="FechaFinalizacionAnticipada" type="hidden" />
-    <input asp-for="MontoMulta" type="hidden" />
-    <input asp-for="UsuarioCreadorId" type="hidden" />
-    <input asp-for="UsuarioFinalizadorId" type="hidden" />
-
     <button type="submit">Guardar</button>
 
     <a asp-action="Index">Cancelar</a>
 
 </form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

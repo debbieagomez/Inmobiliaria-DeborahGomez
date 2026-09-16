@@ -28,17 +28,16 @@
         <label asp-for="InmuebleId"></label>
 
         <select asp-for="InmuebleId">
-
             <option value="0">Seleccione un inmueble</option>
 
             @foreach (var inmueble in
-                (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)ViewBag.Inmuebles)
+                (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)
+                ViewBag.Inmuebles)
             {
                 <option value="@inmueble.IdInmueble">
                     @inmueble.Direccion
                 </option>
             }
-
         </select>
 
         <span asp-validation-for="InmuebleId" class="text-danger"></span>
@@ -48,25 +47,22 @@
         <label asp-for="InquilinoId"></label>
 
         <select asp-for="InquilinoId">
-
             <option value="0">Seleccione un inquilino</option>
 
             @foreach (var inquilino in
-                (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)ViewBag.Inquilinos)
+                (IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)
+                ViewBag.Inquilinos)
             {
                 <option value="@inquilino.IdInquilino">
                     @inquilino.NombreCompleto
                 </option>
             }
-
         </select>
 
         <span asp-validation-for="InquilinoId" class="text-danger"></span>
     </div>
 
     <input asp-for="Finalizada" type="hidden" value="false" />
-
-    <input asp-for="UsuarioCreadorId" type="hidden" value="1" />
 
     <button type="submit">Guardar</button>
 
@@ -77,3 +73,4 @@
 @section Scripts {
     <partial name="_ValidationScriptsPartial" />
 }
+
