@@ -29,7 +29,17 @@
                         <td>@inmueble.propietarioNombre</td>
                         <td>@inmueble.Cupo</td>
                         <td>@inmueble.PrecioPorDia.ToString("C")</td>
-                        <td>@(inmueble.Disponible ? "si" : "NO")</td>
+                        <td>
+                            @if (inmueble.Disponible)
+                    {
+                        <span class="badge bg-success">Disponible</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Suspendido</span>
+                    }
+
+                        </td>
                         <td>
                             <a asp-action= "Editar" asp-route-id= "@inmueble.IdInmueble"> Editar</a>
                             <a asp-action= "Eliminar" asp-route-id= "@inmueble.IdInmueble"> Eliminar</a>
