@@ -1,168 +1,176 @@
--- Esquema (Base de datos) para inicializar en MySQL Workbench
+-- MySQL dump 10.13  Distrib 8.0.46, for Win64 (x86_64)
+--
+-- Host: 127.0.0.1    Database: dbinmobiliaria_deborahgomez
+-- ------------------------------------------------------
+-- Server version	8.0.46
 
-SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
-SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
-SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION';
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!50503 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
--- -----------------------------------------------------
--- Schema DBInmobiliaria_DeborahGomez
--- -----------------------------------------------------
+--
+-- Table structure for table `inmueble`
+--
 
--- -----------------------------------------------------
--- Schema DBInmobiliaria_DeborahGomez
--- -----------------------------------------------------
-CREATE SCHEMA IF NOT EXISTS `DBInmobiliaria_DeborahGomez` DEFAULT CHARACTER SET utf8 ;
-USE `DBInmobiliaria_DeborahGomez` ;
-
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`Propietario`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`Propietario` (
-  `IdPropietario` INT NOT NULL AUTO_INCREMENT,
-  `Nombre` VARCHAR(45) NOT NULL,
-  `Apellido` VARCHAR(45) NOT NULL,
-  `Dni` VARCHAR(45) NOT NULL,
-  `Telefono` VARCHAR(45) NULL,
-  `Email` VARCHAR(45) NULL,
-  PRIMARY KEY (`IdPropietario`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`TipoInmueble`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`TipoInmueble` (
-  `IdTipoInmueble` INT NOT NULL AUTO_INCREMENT,
-  `Nombre` VARCHAR(45) NOT NULL,
-  PRIMARY KEY (`IdTipoInmueble`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`Inmueble`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`Inmueble` (
-  `IdInmueble` INT NOT NULL AUTO_INCREMENT,
-  `Direccion` VARCHAR(45) NOT NULL,
-  `Cupo` INT NOT NULL,
-  `Latitud` DECIMAL(16) NULL,
-  `Longitud` DECIMAL(16) NULL,
-  `PrecioPorDia` DECIMAL(32) NOT NULL,
-  `PorcentajeSenia` DECIMAL(32) NOT NULL,
-  `Disponible` TINYINT NOT NULL DEFAULT 1,
-  `ImagenPortadaUrl` VARCHAR(45) NULL,
-  `PropietarioId` INT NOT NULL,
-  `TipoInmuebleId` INT NOT NULL,
-  `propietarioNombre` VARCHAR(45) NULL,
-  `TipoNombre` VARCHAR(45) NULL,
+DROP TABLE IF EXISTS `inmueble`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inmueble` (
+  `IdInmueble` int NOT NULL AUTO_INCREMENT,
+  `Direccion` varchar(45) NOT NULL,
+  `Cupo` int NOT NULL,
+  `Latitud` decimal(16,0) DEFAULT NULL,
+  `Longitud` decimal(16,0) DEFAULT NULL,
+  `PrecioPorDia` decimal(32,0) NOT NULL,
+  `PorcentajeSenia` decimal(32,0) NOT NULL,
+  `Disponible` tinyint NOT NULL DEFAULT '1',
+  `ImagenPortadaUrl` varchar(45) DEFAULT NULL,
+  `PropietarioId` int NOT NULL,
+  `TipoInmuebleId` int NOT NULL,
+  `propietarioNombre` varchar(45) DEFAULT NULL,
+  `TipoNombre` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`IdInmueble`),
-  INDEX `fk_PropietarioId_idx` (`PropietarioId` ASC) VISIBLE,
-  INDEX `fk_TipoInmuebleId_idx` (`TipoInmuebleId` ASC) VISIBLE,
-  CONSTRAINT `fk_PropietarioId`
-    FOREIGN KEY (`PropietarioId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`Propietario` (`IdPropietario`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_TipoInmuebleId`
-    FOREIGN KEY (`TipoInmuebleId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`TipoInmueble` (`IdTipoInmueble`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+  KEY `fk_PropietarioId_idx` (`PropietarioId`),
+  KEY `fk_TipoInmuebleId_idx` (`TipoInmuebleId`),
+  CONSTRAINT `fk_PropietarioId` FOREIGN KEY (`PropietarioId`) REFERENCES `propietario` (`IdPropietario`),
+  CONSTRAINT `fk_TipoInmuebleId` FOREIGN KEY (`TipoInmuebleId`) REFERENCES `tipoinmueble` (`IdTipoInmueble`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `inquilino`
+--
 
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`Inquilino`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`Inquilino` (
-  `IdInquilino` INT NOT NULL AUTO_INCREMENT,
-  `Dni` VARCHAR(45) NOT NULL,
-  `NombreCompleto` VARCHAR(45) NOT NULL,
-  `Telefono` VARCHAR(45) NULL,
-  `Email` VARCHAR(45) NULL,
-  PRIMARY KEY (`IdInquilino`))
-ENGINE = InnoDB;
+DROP TABLE IF EXISTS `inquilino`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `inquilino` (
+  `IdInquilino` int NOT NULL AUTO_INCREMENT,
+  `Dni` varchar(45) NOT NULL,
+  `NombreCompleto` varchar(45) NOT NULL,
+  `Telefono` varchar(45) DEFAULT NULL,
+  `Email` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`IdInquilino`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `pago`
+--
 
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`Usuario`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`Usuario` (
-  `IdUsuario` INT NOT NULL AUTO_INCREMENT,
-  `Email` VARCHAR(45) NULL,
-  `PasswordHash` VARCHAR(45) NOT NULL,
-  `Rol` ENUM('Administrador', 'Empleado') NOT NULL,
-  `Avatar` VARCHAR(45) NULL,
-  PRIMARY KEY (`IdUsuario`))
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`Reserva`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`Reserva` (
-  `IdReserva` INT NOT NULL AUTO_INCREMENT,
-  `FechaDesde` DATETIME NOT NULL,
-  `FechaHasta` DATETIME NOT NULL,
-  `FechaHastaOriginal` DATETIME NOT NULL,
-  `MontoPorDia` DECIMAL(32) NOT NULL,
-  `Finalizada` TINYINT NOT NULL,
-  `FechaFinalizacionAnticipada` DATETIME NULL,
-  `MontoMulta` DECIMAL(32) NULL,
-  `InmuebleId` INT NOT NULL,
-  `InquilinoId` INT NOT NULL,
-  `UsuarioCreadorId` INT NOT NULL,
-  `UsuarioFinalizadorId` INT NULL,
-  PRIMARY KEY (`IdReserva`),
-  INDEX `fk_InmuebleId_idx` (`InmuebleId` ASC) VISIBLE,
-  INDEX `fk_InquilinoId_idx` (`InquilinoId` ASC) VISIBLE,
-  INDEX `fk_UsuarioCreadorId_idx` (`UsuarioCreadorId` ASC) VISIBLE,
-  CONSTRAINT `fk_InmuebleId`
-    FOREIGN KEY (`InmuebleId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`Inmueble` (`IdInmueble`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_InquilinoId`
-    FOREIGN KEY (`InquilinoId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`Inquilino` (`IdInquilino`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_R_UsuarioCreadorId`
-    FOREIGN KEY (`UsuarioCreadorId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`Usuario` (`IdUsuario`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `DBInmobiliaria_DeborahGomez`.`Pago`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `DBInmobiliaria_DeborahGomez`.`Pago` (
-  `IdPago` INT NOT NULL AUTO_INCREMENT,
-  `Concepto` VARCHAR(45) NOT NULL,
-  `FechaPago` DATETIME NOT NULL,
-  `Importe` DECIMAL(32) NOT NULL,
-  `Anulado` TINYINT NOT NULL,
-  `ReservaId` INT NOT NULL,
-  `UsuarioCreadorId` INT NOT NULL,
-  `UsuarioAnuladorId` INT NULL,
+DROP TABLE IF EXISTS `pago`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `pago` (
+  `IdPago` int NOT NULL AUTO_INCREMENT,
+  `Concepto` varchar(45) NOT NULL,
+  `FechaPago` datetime NOT NULL,
+  `Importe` decimal(32,0) NOT NULL,
+  `Anulado` tinyint NOT NULL,
+  `ReservaId` int NOT NULL,
+  `UsuarioCreadorId` int NOT NULL,
+  `UsuarioAnuladorId` int DEFAULT NULL,
   PRIMARY KEY (`IdPago`),
-  INDEX `fk_ReservaId_idx` (`ReservaId` ASC) VISIBLE,
-  INDEX `fk_UsuarioCreadorId_idx` (`UsuarioCreadorId` ASC) VISIBLE,
-  CONSTRAINT `fk_ReservaId`
-    FOREIGN KEY (`ReservaId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`Reserva` (`IdReserva`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_Pago_UsuarioCreadorId`
-    FOREIGN KEY (`UsuarioCreadorId`)
-    REFERENCES `DBInmobiliaria_DeborahGomez`.`Usuario` (`IdUsuario`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+  KEY `fk_ReservaId_idx` (`ReservaId`),
+  KEY `fk_UsuarioCreadorId_idx` (`UsuarioCreadorId`),
+  CONSTRAINT `fk_Pago_UsuarioCreadorId` FOREIGN KEY (`UsuarioCreadorId`) REFERENCES `usuario` (`IdUsuario`),
+  CONSTRAINT `fk_ReservaId` FOREIGN KEY (`ReservaId`) REFERENCES `reserva` (`IdReserva`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
+--
+-- Table structure for table `propietario`
+--
 
-SET SQL_MODE=@OLD_SQL_MODE;
-SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
-SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+DROP TABLE IF EXISTS `propietario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `propietario` (
+  `IdPropietario` int NOT NULL AUTO_INCREMENT,
+  `Nombre` varchar(45) NOT NULL,
+  `Apellido` varchar(45) NOT NULL,
+  `Dni` varchar(45) NOT NULL,
+  `Telefono` varchar(45) DEFAULT NULL,
+  `Email` varchar(45) DEFAULT NULL,
+  PRIMARY KEY (`IdPropietario`)
+) ENGINE=InnoDB AUTO_INCREMENT=17 DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `reserva`
+--
+
+DROP TABLE IF EXISTS `reserva`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `reserva` (
+  `IdReserva` int NOT NULL AUTO_INCREMENT,
+  `FechaDesde` datetime NOT NULL,
+  `FechaHasta` datetime NOT NULL,
+  `FechaHastaOriginal` datetime NOT NULL,
+  `MontoPorDia` decimal(32,0) NOT NULL,
+  `Finalizada` tinyint NOT NULL,
+  `FechaFinalizacionAnticipada` datetime DEFAULT NULL,
+  `MontoMulta` decimal(32,0) DEFAULT NULL,
+  `InmuebleId` int NOT NULL,
+  `InquilinoId` int NOT NULL,
+  `UsuarioCreadorId` int NOT NULL,
+  `UsuarioFinalizadorId` int DEFAULT NULL,
+  PRIMARY KEY (`IdReserva`),
+  KEY `fk_InmuebleId_idx` (`InmuebleId`),
+  KEY `fk_InquilinoId_idx` (`InquilinoId`),
+  KEY `fk_UsuarioCreadorId_idx` (`UsuarioCreadorId`),
+  CONSTRAINT `fk_InmuebleId` FOREIGN KEY (`InmuebleId`) REFERENCES `inmueble` (`IdInmueble`),
+  CONSTRAINT `fk_InquilinoId` FOREIGN KEY (`InquilinoId`) REFERENCES `inquilino` (`IdInquilino`),
+  CONSTRAINT `fk_R_UsuarioCreadorId` FOREIGN KEY (`UsuarioCreadorId`) REFERENCES `usuario` (`IdUsuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `tipoinmueble`
+--
+
+DROP TABLE IF EXISTS `tipoinmueble`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `tipoinmueble` (
+  `IdTipoInmueble` int NOT NULL AUTO_INCREMENT,
+  `Nombre` varchar(45) NOT NULL,
+  PRIMARY KEY (`IdTipoInmueble`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `usuario`
+--
+
+DROP TABLE IF EXISTS `usuario`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `usuario` (
+  `IdUsuario` int NOT NULL AUTO_INCREMENT,
+  `Email` varchar(100) DEFAULT NULL,
+  `PasswordHash` varchar(255) NOT NULL,
+  `Rol` enum('Administrador','Empleado') NOT NULL,
+  `Avatar` varchar(255) DEFAULT NULL,
+  PRIMARY KEY (`IdUsuario`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+/*!40101 SET character_set_client = @saved_cs_client */;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2026-09-15 20:59:28
