@@ -15,7 +15,7 @@
 
 <form asp-controller="Reservas" asp-action="EliminarConfirmado" method="post">
 
-    <input type="hidden" asp-for="IdReserva" />
+    <input type="hidden" name="id" value="@Model.IdReserva" />
 
     <button type="submit">Eliminar</button>
 
