@@ -1,0 +1,27 @@
+* [33m079e350[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mFunciones[m[33m, [m[1;31morigin/Funciones[m[33m)[m se agrega la vista login con su controlador + el desarrollo de autenticacion
+[31m|[m * [33m70cb925[m[33m ([m[1;31morigin/main[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmain[m[33m)[m Se agrega repositorio y autenticación base de Usuario, se actualiza base de datos .sql
+[31m|[m *   [33meba3eae[m Merge pull request #2 from debbieagomez/Funciones
+[31m|[m [33m|[m[31m\[m  
+[31m|[m [33m|[m[31m/[m  
+[31m|[m[31m/[m[33m|[m   
+* [33m|[m [33meef4bcf[m Se completa la lgica del ABM de propietarios
+[34m|[m * [33m29faf25[m agregado de la parte informes con controller solo se agrego inmueble y sus dueños
+[34m|[m *   [33m197ea58[m Merge pull request #1 from debbieagomez/Funciones
+[34m|[m [35m|[m[36m\[m  
+[34m|[m [35m|[m * [33m6b43f48[m se agrega Seed.sql para colocar objetos de prueba + cambio en la readme para guiar sobre la colocacion de la seed
+[34m|[m [35m|[m[34m/[m  
+[34m|[m[34m/[m[35m|[m   
+* [35m|[m [33m99fc6fd[m Se crea el ABM de reservas con idUsuario 1 de prueba
+[35m|[m[35m/[m  
+* [33m56e5ccf[m completa vista de Inmubles, corrige OnActionExecuting y bugs del formulario
+* [33m03c7b80[m agregar vistas de inmueble: editar, index
+* [33me8b9267[m agregar controlador de reservas
+* [33m4dec932[m se agrego controller y repositorio de inmueble
+* [33m6cd0ed0[m Reserva repositorio/Models
+* [33m74de426[m Se completa ABM de Tipo de INmueble creando el controlador respectivo (heredado) + la view completa (index, crear, editar, eliminar)
+* [33mc3e6603[m Se crea la interfaz y la clase repositorio de TipoInmueble para gestionar las consultas ABM de la tabla
+* [33m6f07552[m Se cambia contrato de REpositorio para que sea generico, al igual que el controlador ABMController, con la finalidad de solo heredar sus metodos
+* [33mdc5be6e[m En layout se agrega las opciones para ingresar a los propietarios e inquilinos desde index
+* [33m9d8f0fd[m Se agrega las view del abm de Inquilinos (el esqueleto)
+* [33m5862b81[m Se agrega funcion editar y eliminar propietarios con sus respectivas view
+* [33m80db094[m Se agrega codigo para la creacion del propietario

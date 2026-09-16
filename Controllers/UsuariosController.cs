@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Inmobiliaria_DeborahGomez.Controllers;
 
-[Authorize(Roles = "Administrador")]
 public class UsuariosController : Controller
 {
     private readonly IRepositorioUsuario repositorioUsuario;
@@ -20,6 +19,7 @@ public class UsuariosController : Controller
         this.passwordHasher = passwordHasher;
     }
 
+    [Authorize(Roles = "Administrador")]
     public IActionResult Index(
         string? busqueda,
         int pagina = 1)
@@ -63,6 +63,15 @@ public class UsuariosController : Controller
     [HttpGet]
     public IActionResult Crear()
     {
+        var cantidad = repositorioUsuario.ObtenerCantidad();
+
+        // Si ya existe al menos un usuario,
+        // solamente un administrador puede crear otros usuarios.
+        if (cantidad > 0 && !User.IsInRole("Administrador"))
+        {
+            return Forbid();
+        }
+
         return View();
     }
 
@@ -72,6 +81,21 @@ public class UsuariosController : Controller
         Usuario usuario,
         string password)
     {
+        var cantidad = repositorioUsuario.ObtenerCantidad();
+
+        // Si ya existen usuarios, solamente un administrador
+        // puede crear otro usuario.
+        if (cantidad > 0 && !User.IsInRole("Administrador"))
+        {
+            return Forbid();
+        }
+
+        // El primer usuario SIEMPRE debe ser Administrador.
+        if (cantidad == 0)
+        {
+            usuario.Rol = "Administrador";
+        }
+
         if (repositorioUsuario.ExisteEmail(usuario.Email))
         {
             ModelState.AddModelError(
@@ -99,9 +123,11 @@ public class UsuariosController : Controller
 
         if (!ModelState.IsValid)
         {
+            ViewBag.PrimerUsuario = cantidad == 0;
             return View(usuario);
         }
 
+        // La contraseña nunca se guarda en texto plano.
         usuario.PasswordHash =
             passwordHasher.HashPassword(
                 usuario,
@@ -110,9 +136,25 @@ public class UsuariosController : Controller
 
         repositorioUsuario.Alta(usuario);
 
+        // Si acabamos de crear el primer usuario,
+        // todavía no está autenticado.
+        if (cantidad == 0)
+        {
+            TempData["Mensaje"] =
+                "Administrador creado correctamente. Ahora puede iniciar sesión.";
+
+            return RedirectToAction(
+                "Login",
+                "Cuenta"
+            );
+        }
+
+        // Si lo creó un administrador autenticado,
+        // volvemos al listado.
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpGet]
     public IActionResult Editar(int id)
     {
@@ -127,6 +169,7 @@ public class UsuariosController : Controller
         return View(usuario);
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult Editar(
@@ -167,6 +210,7 @@ public class UsuariosController : Controller
             return View(usuario);
         }
 
+        // Mantener la contraseña actual si no se escribió una nueva.
         usuario.PasswordHash =
             usuarioActual.PasswordHash;
 
@@ -184,6 +228,7 @@ public class UsuariosController : Controller
         return RedirectToAction(nameof(Index));
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpGet]
     public IActionResult Eliminar(int id)
     {
@@ -198,6 +243,7 @@ public class UsuariosController : Controller
         return View(usuario);
     }
 
+    [Authorize(Roles = "Administrador")]
     [HttpPost]
     [ValidateAntiForgeryToken]
     public IActionResult EliminarConfirmado(int id)

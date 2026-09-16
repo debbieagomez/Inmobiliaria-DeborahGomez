@@ -1,3 +1,4 @@
+
 @{
     ViewData["Title"] = "Iniciar sesión";
 }
@@ -64,9 +65,22 @@
 
                     </form>
 
+                    <div class="text-center mt-3">
+                        <span class="text-muted">
+                            ¿No tiene una cuenta?
+                        </span>
+
+                        <a asp-controller="Usuarios"
+                           asp-action="Crear"
+                           class="btn btn-link">
+                            Registrarse
+                        </a>
+                    </div>
+
                 </div>
             </div>
 
         </div>
     </div>
 </div>
+
