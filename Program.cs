@@ -28,6 +28,10 @@ builder.Services.AddScoped<IRepositorioUsuario>(
 
 builder.Services.AddScoped<IPasswordHasher<Usuario>, PasswordHasher<Usuario>>();
 
+builder.Services.AddScoped<IRepositorioPago>(
+    provider =>
+        new RepositorioPago(connectionString!));
+
 
 builder.Services
     .AddAuthentication(

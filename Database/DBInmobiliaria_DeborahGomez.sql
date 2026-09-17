@@ -80,9 +80,11 @@ CREATE TABLE `pago` (
   PRIMARY KEY (`IdPago`),
   KEY `fk_ReservaId_idx` (`ReservaId`),
   KEY `fk_UsuarioCreadorId_idx` (`UsuarioCreadorId`),
+  KEY `fk_UsuarioAnuladorId_idx` (`UsuarioAnuladorId`),
+  CONSTRAINT `fk_Pago_UsuarioAnuladorId` FOREIGN KEY (`UsuarioAnuladorId`) REFERENCES `usuario` (`IdUsuario`),
   CONSTRAINT `fk_Pago_UsuarioCreadorId` FOREIGN KEY (`UsuarioCreadorId`) REFERENCES `usuario` (`IdUsuario`),
   CONSTRAINT `fk_ReservaId` FOREIGN KEY (`ReservaId`) REFERENCES `reserva` (`IdReserva`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -130,7 +132,7 @@ CREATE TABLE `reserva` (
   CONSTRAINT `fk_InmuebleId` FOREIGN KEY (`InmuebleId`) REFERENCES `inmueble` (`IdInmueble`),
   CONSTRAINT `fk_InquilinoId` FOREIGN KEY (`InquilinoId`) REFERENCES `inquilino` (`IdInquilino`),
   CONSTRAINT `fk_R_UsuarioCreadorId` FOREIGN KEY (`UsuarioCreadorId`) REFERENCES `usuario` (`IdUsuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -161,7 +163,7 @@ CREATE TABLE `usuario` (
   `Rol` enum('Administrador','Empleado') NOT NULL,
   `Avatar` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`IdUsuario`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -173,4 +175,4 @@ CREATE TABLE `usuario` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-15 20:59:28
+-- Dump completed on 2026-09-16 20:59:05
