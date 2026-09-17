@@ -6,7 +6,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Inmobiliaria_DeborahGomez.Controllers;
 
-public class ReservasController : ABMController<Reserva>
+public class ReservasController
+    : ABMController<Reserva>
 {
     private readonly IRepositorioInmueble repositorioInmueble;
     private readonly IRepositorioInquilino repositorioInquilino;
@@ -19,9 +20,14 @@ public class ReservasController : ABMController<Reserva>
         IRepositorioTipoInmueble repositorioTipoInmueble)
         : base(repositorio)
     {
-        this.repositorioInmueble = repositorioInmueble;
-        this.repositorioInquilino = repositorioInquilino;
-        this.repositorioTipoInmueble = repositorioTipoInmueble;
+        this.repositorioInmueble =
+            repositorioInmueble;
+
+        this.repositorioInquilino =
+            repositorioInquilino;
+
+        this.repositorioTipoInmueble =
+            repositorioTipoInmueble;
     }
 
     public override void OnActionExecuting(
@@ -42,14 +48,20 @@ public class ReservasController : ABMController<Reserva>
                 tamPagina: 1000
             );
 
-        base.OnActionExecuting(context);
+        base.OnActionExecuting(
+            context
+        );
     }
 
     [HttpGet]
     public override IActionResult Crear()
     {
-        return View(new Reserva());
+        return View(
+            new Reserva()
+        );
     }
+
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -77,7 +89,8 @@ public class ReservasController : ABMController<Reserva>
         reserva.FechaHastaOriginal =
             reserva.FechaHasta;
 
-        reserva.Finalizada = false;
+        reserva.Finalizada =
+            false;
 
         reserva.FechaFinalizacionAnticipada =
             null;
@@ -88,7 +101,11 @@ public class ReservasController : ABMController<Reserva>
         reserva.UsuarioFinalizadorId =
             null;
 
-        if (reserva.FechaHasta < reserva.FechaDesde)
+        if (
+            reserva.FechaHasta
+            <
+            reserva.FechaDesde
+        )
         {
             ModelState.AddModelError(
                 "FechaHasta",
@@ -97,9 +114,10 @@ public class ReservasController : ABMController<Reserva>
         }
 
         var inmueble =
-            repositorioInmueble.ObtenerPorId(
-                reserva.InmuebleId
-            );
+            repositorioInmueble
+                .ObtenerPorId(
+                    reserva.InmuebleId
+                );
 
         if (inmueble == null)
         {
@@ -111,8 +129,10 @@ public class ReservasController : ABMController<Reserva>
 
         if (inmueble != null)
         {
-            if (inmueble.PorcentajeSenia < 0 ||
-                inmueble.PorcentajeSenia > 100)
+            if (
+                inmueble.PorcentajeSenia < 0 ||
+                inmueble.PorcentajeSenia > 100
+            )
             {
                 ModelState.AddModelError(
                     "InmuebleId",
@@ -124,13 +144,20 @@ public class ReservasController : ABMController<Reserva>
                 inmueble.PrecioPorDia;
         }
 
-        if (inmueble != null &&
-            ModelState.IsValid)
+        if (
+            inmueble != null &&
+            ModelState.IsValid
+        )
         {
-            if (repositorioReserva.ExisteSolapamiento(
-                reserva.InmuebleId,
-                reserva.FechaDesde,
-                reserva.FechaHasta))
+            var existeSolapamiento =
+                repositorioReserva
+                    .ExisteSolapamiento(
+                        reserva.InmuebleId,
+                        reserva.FechaDesde,
+                        reserva.FechaHasta
+                    );
+
+            if (existeSolapamiento)
             {
                 ModelState.AddModelError(
                     "FechaHasta",
@@ -166,11 +193,15 @@ public class ReservasController : ABMController<Reserva>
         );
     }
 
+
     [HttpGet]
-    public override IActionResult Editar(int id)
+    public override IActionResult Editar(
+        int id)
     {
         var reserva =
-            repositorio.ObtenerPorId(id);
+            repositorio.ObtenerPorId(
+                id
+            );
 
         if (reserva == null)
         {
@@ -179,6 +210,7 @@ public class ReservasController : ABMController<Reserva>
 
         return View(reserva);
     }
+
 
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -189,9 +221,10 @@ public class ReservasController : ABMController<Reserva>
             (IRepositorioReserva)repositorio;
 
         var reservaActual =
-            repositorioReserva.ObtenerPorId(
-                reserva.IdReserva
-            );
+            repositorioReserva
+                .ObtenerPorId(
+                    reserva.IdReserva
+                );
 
         if (reservaActual == null)
         {
@@ -216,11 +249,28 @@ public class ReservasController : ABMController<Reserva>
         reserva.MontoMulta =
             reservaActual.MontoMulta;
 
-        if (repositorioReserva.ExisteSolapamiento(
-            reserva.InmuebleId,
-            reserva.FechaDesde,
-            reserva.FechaHasta,
-            reserva.IdReserva))
+        if (
+            reserva.FechaHasta
+            <
+            reserva.FechaDesde
+        )
+        {
+            ModelState.AddModelError(
+                "FechaHasta",
+                "La fecha de finalización no puede ser anterior a la fecha de inicio."
+            );
+        }
+
+        if (
+            ModelState.IsValid &&
+            repositorioReserva
+                .ExisteSolapamiento(
+                    reserva.InmuebleId,
+                    reserva.FechaDesde,
+                    reserva.FechaHasta,
+                    reserva.IdReserva
+                )
+        )
         {
             ModelState.AddModelError(
                 "FechaHasta",
@@ -242,6 +292,7 @@ public class ReservasController : ABMController<Reserva>
         );
     }
 
+  
     [HttpGet]
     public IActionResult BuscarDisponibles(
         DateTime? fechaDesde,
@@ -253,10 +304,16 @@ public class ReservasController : ABMController<Reserva>
         var resultados =
             new List<Inmueble>();
 
-        if (fechaDesde.HasValue &&
-            fechaHasta.HasValue)
+        if (
+            fechaDesde.HasValue &&
+            fechaHasta.HasValue
+        )
         {
-            if (fechaHasta.Value < fechaDesde.Value)
+            if (
+                fechaHasta.Value
+                <
+                fechaDesde.Value
+            )
             {
                 ModelState.AddModelError(
                     "FechaHasta",
@@ -269,13 +326,15 @@ public class ReservasController : ABMController<Reserva>
                     (IRepositorioReserva)repositorio;
 
                 resultados =
-                    repositorioReserva.BuscarDisponibles(
-                        fechaDesde.Value,
-                        fechaHasta.Value,
-                        cupo,
-                        tipoInmuebleId,
-                        precioMaximo
-                    ).ToList();
+                    repositorioReserva
+                        .BuscarDisponibles(
+                            fechaDesde.Value,
+                            fechaHasta.Value,
+                            cupo,
+                            tipoInmuebleId,
+                            precioMaximo
+                        )
+                        .ToList();
             }
         }
 
@@ -294,13 +353,24 @@ public class ReservasController : ABMController<Reserva>
         ViewBag.PrecioMaximo =
             precioMaximo;
 
-        return View(resultados);
+        return View(
+            resultados
+        );
     }
 
-    public IActionResult Detalle(int id)
+
+    public IActionResult Detalle(
+        int id)
     {
-        var reserva = repositorio.ObtenerPorId(id);
-        if (reserva == null) return NotFound();
+        var reserva =
+            repositorio.ObtenerPorId(
+                id
+            );
+
+        if (reserva == null)
+        {
+            return NotFound();
+        }
 
         return View(reserva);
     }
