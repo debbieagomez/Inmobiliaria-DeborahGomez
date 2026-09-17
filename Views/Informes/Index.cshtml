@@ -10,16 +10,14 @@
             Inmuebles y su dueño (filtrado por disponibilidad)
         </a>
     </li>
+    <li> <a asp-controller="Informes" asp-action="InmueblesPorPropietario"> Inmuebles de un propietario específico </a> </li>
     <li>
-        Inmuebles de un propietario específico <em>(próximamente)</em>
+        <a asp-controller="Informes" asp-action="InmueblesMasReservados">Inmuebles más reservados en los últimos 365 días</a>
     </li>
     <li>
-        Inmuebles más reservados en los últimos 365 días <em>(próximamente)</em>
+        <a asp-controller="Informes" asp-action="InmueblesSinReservas">Inmuebles sin reservas en los últimos X días</a>
     </li>
     <li>
-        Inmuebles sin reservas en los últimos X días <em>(próximamente)</em>
-    </li>
-    <li>
-        Inmuebles disponibles entre dos fechas <em>(próximamente)</em>
+        <a asp-controller="Informes" asp-action="InmueblesDisponiblesEntreFechas">Inmuebles disponibles entre dos fechas</a>
     </li>
 </ul>

@@ -79,6 +79,12 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Reservas" asp-action="Index">Reservas</a>
                         </li>
+                        @if (User.Identity != null && User.Identity.IsAuthenticated)
+{
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-controller="Informes" asp-action="Index">Informes</a>
+                        </li>
+}
                     </ul>
                 </div>
             </div>
