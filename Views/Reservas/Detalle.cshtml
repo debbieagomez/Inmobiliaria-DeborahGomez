@@ -1,9 +1,9 @@
 @model Inmobiliaria_DeborahGomez.Models.Reserva
 
 @{
-    var inmueble = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)ViewBag.Inmueble)
+    var inmueble = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)ViewBag.Inmuebles)
         .FirstOrDefault(i => i.IdInmueble == Model.InmuebleId);
-    var Inquilino = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)ViewBag.Inquilino)
+    var Inquilino = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)ViewBag.Inquilinos)
         .FirstOrDefault(q => q.IdInquilino == Model.InquilinoId);
 }
 

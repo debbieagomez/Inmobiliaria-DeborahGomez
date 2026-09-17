@@ -15,8 +15,6 @@
 
         <h1>Reservas</h1>
 
-        @await Html.PartialAsync("_Buscador")
-
         <a asp-action="Crear"
            class="btn btn-primary">
             Nueva Reserva
@@ -149,6 +147,12 @@
                             </td>
 
                             <td>
+
+                                <a asp-action="Detalle"
+                                   asp-route-id="@reserva.IdReserva"
+                                   class="btn btn-sm btn-outline-info">
+                                   Ver  
+                                   </a>
 
                                 <a asp-action="Editar"
                                    asp-route-id="@reserva.IdReserva"
