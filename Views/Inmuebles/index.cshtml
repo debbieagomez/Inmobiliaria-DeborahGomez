@@ -8,8 +8,6 @@
 
 <h1>Inmuebles</h1>
 
-@await Html.PartialAsync("_Buscador")
-
 <a asp-controller="Inmuebles"
    asp-action="Crear">
     Nuevo Inmueble
@@ -31,6 +29,15 @@
         Limpiar
     </a>
 </form>
+
+@if (!Model.Any())
+{
+    <div class="alert alert-info">
+        No hay inmuebles registrados.
+    </div>
+}
+else
+{
 
 <table>
     <thead>
@@ -149,4 +156,5 @@
             </a>
         }
     </nav>
+}
 }

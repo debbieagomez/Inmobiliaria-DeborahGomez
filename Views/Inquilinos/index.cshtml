@@ -8,6 +8,14 @@
         Nuevo inquilino
     </a>
 
+    @if (!Model.Any())
+    {
+    <div class="alert alert-info">
+        No hay inquilinos registrados.
+    </div>
+    }
+    else
+    {
     <table>
         <thead> 
             <tr> 
@@ -63,3 +71,4 @@
         </tbody>
 
     </table>
+}

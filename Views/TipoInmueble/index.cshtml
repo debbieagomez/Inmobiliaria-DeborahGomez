@@ -1,3 +1,4 @@
+@using System.Diagnostics.Eventing.Reader
 @model IEnumerable<Inmobiliaria_DeborahGomez.Models.TipoInmueble>
 
     <h1>Tipos de Inmueble</h1>
@@ -8,7 +9,15 @@
         Nuevo tipo de inmueble
     </a>
 
-    <table>
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+        No hay tipos de inmueble registrados.
+    </div>
+    }
+    else
+    {
+     <table>
         <thead> 
             <tr> 
                 <th>
@@ -35,9 +44,15 @@
                     </td>
                     <td>
                         <a asp-action="Editar" asp-route-id="@tipoInmueble.IdTipoInmueble"> Editar </a>
-                        <a asp-action="Eliminar" asp-route-id="@tipoInmueble.IdTipoInmueble"> Eliminar </a>
+                        @if (User.IsInRole("Administrador"))
+                        {
+                            <a asp-action="Eliminar" asp-route-id="@tipoInmueble.IdTipoInmueble"> Eliminar </a>
+                        }
+                        
                     </td>
                 </tr>
             }
         </tbody>
     </table>
+    
+}

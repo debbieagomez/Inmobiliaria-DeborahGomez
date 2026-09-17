@@ -8,6 +8,13 @@
         Nuevo propietario
     </a>
 
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info"> No hay Propietarios registrados 
+        </div>
+    }
+    else
+    {
     <table>
         <thead> 
             <tr> 
@@ -70,3 +77,4 @@
 
     </table>
 
+}
