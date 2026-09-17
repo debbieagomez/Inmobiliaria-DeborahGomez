@@ -24,16 +24,23 @@ public class ReservasController : ABMController<Reserva>
         this.repositorioTipoInmueble = repositorioTipoInmueble;
     }
 
-    public override void OnActionExecuting(ActionExecutingContext context)
+    public override void OnActionExecuting(
+        ActionExecutingContext context)
     {
         ViewBag.Inmuebles =
-            repositorioInmueble.ObtenerLista(tamPagina: 1000);
+            repositorioInmueble.ObtenerLista(
+                tamPagina: 1000
+            );
 
         ViewBag.Inquilinos =
-            repositorioInquilino.ObtenerLista(tamPagina: 1000);
+            repositorioInquilino.ObtenerLista(
+                tamPagina: 1000
+            );
 
         ViewBag.TiposInmueble =
-            repositorioTipoInmueble.ObtenerLista(tamPagina: 1000);
+            repositorioTipoInmueble.ObtenerLista(
+                tamPagina: 1000
+            );
 
         base.OnActionExecuting(context);
     }
@@ -46,35 +53,90 @@ public class ReservasController : ABMController<Reserva>
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public override IActionResult Crear(Reserva reserva)
+    public override IActionResult Crear(
+        Reserva reserva)
     {
         var repositorioReserva =
             (IRepositorioReserva)repositorio;
 
         var claimUsuarioId =
-            User.FindFirstValue(ClaimTypes.NameIdentifier);
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier
+            );
 
-        if (!int.TryParse(claimUsuarioId, out var usuarioId))
+        if (!int.TryParse(
+            claimUsuarioId,
+            out var usuarioId))
         {
             return Unauthorized();
         }
 
-        reserva.UsuarioCreadorId = usuarioId;
-        reserva.FechaHastaOriginal = reserva.FechaHasta;
-        reserva.Finalizada = false;
-        reserva.FechaFinalizacionAnticipada = null;
-        reserva.MontoMulta = null;
-        reserva.UsuarioFinalizadorId = null;
+        reserva.UsuarioCreadorId =
+            usuarioId;
 
-        if (repositorioReserva.ExisteSolapamiento(
-            reserva.InmuebleId,
-            reserva.FechaDesde,
-            reserva.FechaHasta))
+        reserva.FechaHastaOriginal =
+            reserva.FechaHasta;
+
+        reserva.Finalizada = false;
+
+        reserva.FechaFinalizacionAnticipada =
+            null;
+
+        reserva.MontoMulta =
+            null;
+
+        reserva.UsuarioFinalizadorId =
+            null;
+
+        if (reserva.FechaHasta < reserva.FechaDesde)
         {
             ModelState.AddModelError(
                 "FechaHasta",
-                "El inmueble ya está reservado en esas fechas."
+                "La fecha de finalización no puede ser anterior a la fecha de inicio."
             );
+        }
+
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(
+                reserva.InmuebleId
+            );
+
+        if (inmueble == null)
+        {
+            ModelState.AddModelError(
+                "InmuebleId",
+                "El inmueble seleccionado no existe."
+            );
+        }
+
+        if (inmueble != null)
+        {
+            if (inmueble.PorcentajeSenia < 0 ||
+                inmueble.PorcentajeSenia > 100)
+            {
+                ModelState.AddModelError(
+                    "InmuebleId",
+                    "El porcentaje de seña del inmueble debe estar entre 0 y 100."
+                );
+            }
+
+            reserva.MontoPorDia =
+                inmueble.PrecioPorDia;
+        }
+
+        if (inmueble != null &&
+            ModelState.IsValid)
+        {
+            if (repositorioReserva.ExisteSolapamiento(
+                reserva.InmuebleId,
+                reserva.FechaDesde,
+                reserva.FechaHasta))
+            {
+                ModelState.AddModelError(
+                    "FechaHasta",
+                    "El inmueble ya está reservado en esas fechas."
+                );
+            }
         }
 
         if (!ModelState.IsValid)
@@ -82,9 +144,26 @@ public class ReservasController : ABMController<Reserva>
             return View(reserva);
         }
 
-        repositorioReserva.Alta(reserva);
+        try
+        {
+            repositorioReserva.AltaConSena(
+                reserva,
+                inmueble!.PorcentajeSenia
+            );
+        }
+        catch
+        {
+            ModelState.AddModelError(
+                "",
+                "No se pudo crear la reserva y su pago de seña."
+            );
 
-        return RedirectToAction(nameof(Index));
+            return View(reserva);
+        }
+
+        return RedirectToAction(
+            nameof(Index)
+        );
     }
 
     [HttpGet]
@@ -103,7 +182,8 @@ public class ReservasController : ABMController<Reserva>
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public override IActionResult Editar(Reserva reserva)
+    public override IActionResult Editar(
+        Reserva reserva)
     {
         var repositorioReserva =
             (IRepositorioReserva)repositorio;
@@ -153,9 +233,13 @@ public class ReservasController : ABMController<Reserva>
             return View(reserva);
         }
 
-        repositorioReserva.Modificacion(reserva);
+        repositorioReserva.Modificacion(
+            reserva
+        );
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(
+            nameof(Index)
+        );
     }
 
     [HttpGet]
@@ -195,11 +279,20 @@ public class ReservasController : ABMController<Reserva>
             }
         }
 
-        ViewBag.FechaDesde = fechaDesde;
-        ViewBag.FechaHasta = fechaHasta;
-        ViewBag.Cupo = cupo;
-        ViewBag.TipoInmuebleId = tipoInmuebleId;
-        ViewBag.PrecioMaximo = precioMaximo;
+        ViewBag.FechaDesde =
+            fechaDesde;
+
+        ViewBag.FechaHasta =
+            fechaHasta;
+
+        ViewBag.Cupo =
+            cupo;
+
+        ViewBag.TipoInmuebleId =
+            tipoInmuebleId;
+
+        ViewBag.PrecioMaximo =
+            precioMaximo;
 
         return View(resultados);
     }
