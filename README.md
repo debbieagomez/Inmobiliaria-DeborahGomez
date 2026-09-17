@@ -8,7 +8,7 @@
 
 * **Dario Godoy** - *dariogodoy0896@gmail.com* - [@GodoyDario](https://github.com/GodoyDario)
 * **Deborah Gomez** - *deborahgomez71@gmail.com* - [@debbieagomez](https://github.com/debbieagomez)
-* **Ian Quimey Pereyra ** - *0108.facultad@gamil.com* - [@necoian](https://github.com/necoian)
+* **Ian Quimey Pereyra ** - *0108.facultad@gmail.com* - [@necoian](https://github.com/necoian)
 
 ---
 
@@ -119,29 +119,27 @@ classDiagram
 
 ### Pasos para ingresar a MySQL Workbench e inicializar localmente la base de datos:
 
-### Pasos para ingresar a MySQL Workbench e inicializar localmente la base de datos:
-
 1. Abrir **MySQL Workbench** y seleccionar la conexión correspondiente al servidor MySQL local.
 
 2. Ir a:
 
-   `Server -> Data Import`
+   `File -> Open SQL Script...`
 
-3. Seleccionar **Import from Self-Contained File** y elegir:
+3. Seleccionar el archivo:
 
    `Database/DBInmobiliaria_DeborahGomez.sql`
 
-4. Presionar **Start Import** para importar la estructura de la base de datos.
+4. Cuando les abra la ventana con la query colocar en ejecutar todo.
 
 5. Actualizar la sección **Schemas -> Refresh All** y verificar que exista la base:
 
    `DBInmobiliaria_DeborahGomez`
 
-6. Volver a:
+6. Dirigirse a:
 
    `Server -> Data Import`
 
-7. Seleccionar nuevamente **Import from Self-Contained File** y elegir:
+7. Seleccionar **Import from Self-Contained File** y elegir:
 
    `Database/Seed.sql`
 
