@@ -1,5 +1,6 @@
 using Inmobiliaria_DeborahGomez.Models;
 using Inmobiliaria_DeborahGomez.Repositories;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Inmobiliaria_DeborahGomez.Controllers;
@@ -25,5 +26,13 @@ public class ReservasController : ABMController<Reserva>
         ViewBag.Inquilinos = repositorioInquilino.ObtenerLista(tamPagina: 1000);
 
         base.OnActionExecuting(context);
+    }
+
+    public IActionResult Detalle(int id)
+    {
+        var Reserva = repositorio.ObtenerPorId(id);
+        if (Reserva == null) return NotFound();
+
+        return View(Reserva);
     }
 }
