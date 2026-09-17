@@ -7,19 +7,17 @@ public class Reserva : IValidatableObject
     public int IdReserva { get; set; }
 
     [Display(Name = "Fecha de inicio")]
-    [Required(ErrorMessage = "Debe indicar la fecha de inicio.")]
+    [Required]
     public DateTime FechaDesde { get; set; }
 
     [Display(Name = "Fecha de finalización")]
-    [Required(ErrorMessage = "Debe indicar la fecha de finalización.")]
+    [Required]
     public DateTime FechaHasta { get; set; }
 
-    [Display(Name = "Fecha de finalización original")]
     public DateTime FechaHastaOriginal { get; set; }
 
-    [Display(Name = "Monto por día")]
-    [Range(0.01, double.MaxValue, ErrorMessage = "El monto por día debe ser mayor que 0.")]
-    [Required(ErrorMessage = "Debe indicar un monto de la reserva.")]
+    [Range(0.01, double.MaxValue)]
+    [Required]
     public decimal MontoPorDia { get; set; }
 
     public bool Finalizada { get; set; }
@@ -28,18 +26,21 @@ public class Reserva : IValidatableObject
 
     public decimal? MontoMulta { get; set; }
 
-    [Display(Name = "Inmueble")]
-    [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un inmueble.")]
+    [Range(1, int.MaxValue)]
     public int InmuebleId { get; set; }
 
-    [Display(Name = "Inquilino")]
-    [Range(1, int.MaxValue, ErrorMessage = "Debe seleccionar un inquilino.")]
+    [Range(1, int.MaxValue)]
     public int InquilinoId { get; set; }
 
     public int UsuarioCreadorId { get; set; }
 
     public int? UsuarioFinalizadorId { get; set; }
 
+    public string? DireccionInmueble { get; set; }
+
+    public string? NombreInquilino { get; set; }
+
+    public decimal? MontoSena { get; set; }
 
     public IEnumerable<ValidationResult> Validate(
         ValidationContext validationContext)

@@ -18,4 +18,9 @@ public interface IRepositorioReserva : IRepositorio<Reserva>
         int? tipoInmuebleId = null,
         decimal? precioMaximo = null
     );
+
+    int AltaConSena(
+        Reserva reserva,
+        decimal porcentajeSena
+    );
 }

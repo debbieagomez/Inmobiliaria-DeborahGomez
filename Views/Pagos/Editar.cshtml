@@ -1,0 +1,95 @@
+@model Inmobiliaria_DeborahGomez.Models.Pago
+
+@{
+    ViewData["Title"] = "Editar pago";
+
+    var reserva =
+        ViewBag.Reserva as Inmobiliaria_DeborahGomez.Models.Reserva;
+}
+
+<div class="container mt-4">
+
+    <h1>Editar pago</h1>
+
+    @if (reserva != null)
+    {
+        <div class="alert alert-info">
+            Reserva #@reserva.IdReserva
+        </div>
+    }
+
+    <div class="alert alert-warning">
+        Solo se puede modificar el concepto del pago.
+        La fecha y el importe no pueden modificarse.
+    </div>
+
+    <form asp-action="Editar"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="id"
+               value="@Model.IdPago" />
+
+        <div asp-validation-summary="ModelOnly"
+             class="text-danger mb-3">
+        </div>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Fecha de pago
+            </label>
+
+            <input class="form-control"
+                   value="@Model.FechaPago.ToString("dd/MM/yyyy HH:mm")"
+                   readonly />
+
+        </div>
+
+        <div class="mb-3">
+
+            <label class="form-label">
+                Importe
+            </label>
+
+            <input class="form-control"
+                   value="$ @Model.Importe.ToString("N2")"
+                   readonly />
+
+        </div>
+
+        <div class="mb-3">
+
+            <label for="concepto"
+                   class="form-label">
+                Concepto
+            </label>
+
+            <input id="concepto"
+                   name="concepto"
+                   value="@Model.Concepto"
+                   maxlength="100"
+                   class="form-control" />
+
+            <span asp-validation-for="Concepto"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            Guardar cambios
+        </button>
+
+        <a asp-action="Index"
+           asp-route-reservaId="@Model.ReservaId"
+           class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    </form>
+
+</div>

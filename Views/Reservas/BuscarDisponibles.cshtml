@@ -1,0 +1,121 @@
+@model IList<Inmobiliaria_DeborahGomez.Models.Inmueble>
+
+<h1>Buscar inmuebles disponibles</h1>
+
+<form asp-controller="Reservas"
+      asp-action="BuscarDisponibles"
+      method="get">
+
+    <div>
+        <label>Fecha desde</label>
+        <input type="datetime-local"
+               name="fechaDesde"
+               value="@ViewBag.FechaDesde?.ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+
+    <div>
+        <label>Fecha hasta</label>
+        <input type="datetime-local"
+               name="fechaHasta"
+               value="@ViewBag.FechaHasta?.ToString("yyyy-MM-ddTHH:mm")" />
+    </div>
+
+    <div>
+        <label>Cupo</label>
+        <input type="number"
+               name="cupo"
+               value="@ViewBag.Cupo" />
+    </div>
+
+    <div>
+        <label>Tipo de inmueble</label>
+
+        <select name="tipoInmuebleId">
+            <option value="">Todos</option>
+
+            @foreach (var tipo in
+                (IEnumerable<Inmobiliaria_DeborahGomez.Models.TipoInmueble>)
+                ViewBag.TiposInmueble)
+            {
+                if (ViewBag.TipoInmuebleId == tipo.IdTipoInmueble)
+                {
+                    <option value="@tipo.IdTipoInmueble" selected>
+                        @tipo.Nombre
+                    </option>
+                }
+                else
+                {
+                    <option value="@tipo.IdTipoInmueble">
+                        @tipo.Nombre
+                    </option>
+                }
+            }
+
+        </select>
+    </div>
+
+    <div>
+        <label>Precio máximo por día</label>
+
+        <input type="number"
+               step="0.01"
+               name="precioMaximo"
+               value="@ViewBag.PrecioMaximo" />
+    </div>
+
+    <button type="submit">
+        Buscar
+    </button>
+
+</form>
+
+<hr />
+
+<div asp-validation-summary="All" class="text-danger"></div>
+
+@if (Model != null && Model.Count > 0)
+{
+    <h2>Inmuebles encontrados</h2>
+
+    <table class="table">
+
+        <thead>
+            <tr>
+                <th>Dirección</th>
+                <th>Cupo</th>
+                <th>Tipo</th>
+                <th>Precio por día</th>
+                <th>Disponible</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.Cupo</td>
+                    <td>@inmueble.TipoNombre</td>
+                    <td>@inmueble.PrecioPorDia</td>
+                    <td>
+                        @(inmueble.Disponible ? "Sí" : "No")
+                    </td>
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+else if (ViewBag.FechaDesde != null &&
+         ViewBag.FechaHasta != null)
+{
+    <p>
+        No se encontraron inmuebles disponibles con esos criterios.
+    </p>
+}
+
+<a asp-action="Index">
+    Volver a reservas
+</a>

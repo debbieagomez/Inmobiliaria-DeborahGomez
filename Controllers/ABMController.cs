@@ -15,9 +15,9 @@ public abstract class ABMController<T> : Controller
         this.repositorio = repositorio;
     }
 
-    //metodos------------------------
-    //Indice
-    public IActionResult Index(string? busqueda, int pagina = 1)
+    public IActionResult Index(
+        string? busqueda,
+        int pagina = 1)
     {
         const int tamPagina = 10;
 
@@ -26,21 +26,26 @@ public abstract class ABMController<T> : Controller
             pagina = 1;
         }
 
-        var cantidad = repositorio.ObtenerCantidad(busqueda);
+        var cantidad =
+            repositorio.ObtenerCantidad(busqueda);
 
         var totalPaginas = cantidad == 0
-        ? 1 : (int)Math.Ceiling((double)cantidad / tamPagina);
+            ? 1
+            : (int)Math.Ceiling(
+                (double)cantidad / tamPagina
+            );
 
         if (pagina > totalPaginas)
         {
             pagina = totalPaginas;
         }
 
-        var lista = repositorio.ObtenerLista(
-            busqueda,
-            pagina,
-            tamPagina
-        );
+        var lista =
+            repositorio.ObtenerLista(
+                busqueda,
+                pagina,
+                tamPagina
+            );
 
         ViewBag.Busqueda = busqueda;
         ViewBag.PaginaActual = pagina;
@@ -50,65 +55,84 @@ public abstract class ABMController<T> : Controller
         return View(lista);
     }
 
-    //GET de crear
     [HttpGet]
-    public IActionResult Crear()
+    public virtual IActionResult Crear()
     {
         return View();
     }
 
-    //POST de crear
     [HttpPost]
-    public IActionResult Crear(T entidad)
+    [ValidateAntiForgeryToken]
+    public virtual IActionResult Crear(T entidad)
     {
-        
-        if (entidad is Propietario propietario) 
+        if (entidad is Propietario propietario)
         {
-            var repositorioPropietario = (IRepositorioPropietario)repositorio;
-            if (repositorioPropietario.ExisteDni(propietario.Dni))
+            var repositorioPropietario =
+                (IRepositorioPropietario)repositorio;
+
+            if (repositorioPropietario.ExisteDni(
+                propietario.Dni))
             {
-                ModelState.AddModelError("Dni", "El Dni ya existe");
+                ModelState.AddModelError(
+                    "Dni",
+                    "El Dni ya existe"
+                );
             }
+
             if (propietario.Email != null)
             {
-                if (repositorioPropietario.ExisteEmail(propietario.Email))
+                if (repositorioPropietario.ExisteEmail(
+                    propietario.Email))
                 {
-                    ModelState.AddModelError("Email", "El email ya existe");
+                    ModelState.AddModelError(
+                        "Email",
+                        "El email ya existe"
+                    );
                 }
-            } 
-        } 
+            }
+        }
         else if (entidad is Inquilino inquilino)
         {
+            var repositorioInquilino =
+                (IRepositorioInquilino)repositorio;
 
-            var repositorioInquilino = (IRepositorioInquilino)repositorio;
-            if (repositorioInquilino.ExisteDni(inquilino.Dni))
+            if (repositorioInquilino.ExisteDni(
+                inquilino.Dni))
             {
-                ModelState.AddModelError("Dni", "El Dni ya existe");
+                ModelState.AddModelError(
+                    "Dni",
+                    "El Dni ya existe"
+                );
             }
+
             if (inquilino.Email != null)
             {
-                if (repositorioInquilino.ExisteEmail(inquilino.Email))
+                if (repositorioInquilino.ExisteEmail(
+                    inquilino.Email))
                 {
-                    ModelState.AddModelError("Email", "El email ya existe");
+                    ModelState.AddModelError(
+                        "Email",
+                        "El email ya existe"
+                    );
                 }
-            } 
+            }
         }
+
         if (!ModelState.IsValid)
         {
             return View(entidad);
-
         }
-       
+
         repositorio.Alta(entidad);
 
         return RedirectToAction(nameof(Index));
     }
 
-    //GET de Editar
     [HttpGet]
-    public IActionResult Editar(int id)
+    public virtual IActionResult Editar(int id)
     {
-        var entidad = repositorio.ObtenerPorId(id);
+        var entidad =
+            repositorio.ObtenerPorId(id);
 
         if (entidad == null)
         {
@@ -116,80 +140,100 @@ public abstract class ABMController<T> : Controller
         }
 
         return View(entidad);
-
     }
 
-    //POST de Editar
     [HttpPost]
-    public IActionResult Editar(T entidad)
+    [ValidateAntiForgeryToken]
+    public virtual IActionResult Editar(T entidad)
     {
-
-        if (entidad is Propietario propietario) 
+        if (entidad is Propietario propietario)
         {
-            var repositorioPropietario = (IRepositorioPropietario)repositorio;
-            if (repositorioPropietario.ExisteDni(propietario.Dni, propietario.IdPropietario))
+            var repositorioPropietario =
+                (IRepositorioPropietario)repositorio;
+
+            if (repositorioPropietario.ExisteDni(
+                propietario.Dni,
+                propietario.IdPropietario))
             {
-                ModelState.AddModelError("Dni", "El Dni ya existe");
+                ModelState.AddModelError(
+                    "Dni",
+                    "El Dni ya existe"
+                );
             }
+
             if (propietario.Email != null)
             {
-                if (repositorioPropietario.ExisteEmail(propietario.Email, propietario.IdPropietario))
+                if (repositorioPropietario.ExisteEmail(
+                    propietario.Email,
+                    propietario.IdPropietario))
                 {
-                    ModelState.AddModelError("Email", "El email ya existe");
+                    ModelState.AddModelError(
+                        "Email",
+                        "El email ya existe"
+                    );
                 }
-            } 
-        } 
+            }
+        }
         else if (entidad is Inquilino inquilino)
         {
-            var repositorioInquilino = (IRepositorioInquilino)repositorio;
+            var repositorioInquilino =
+                (IRepositorioInquilino)repositorio;
 
-            if (repositorioInquilino.ExisteDni(inquilino.Dni,inquilino.IdInquilino))
+            if (repositorioInquilino.ExisteDni(
+                inquilino.Dni,
+                inquilino.IdInquilino))
             {
-                ModelState.AddModelError("Dni", "El Dni ya existe");
+                ModelState.AddModelError(
+                    "Dni",
+                    "El Dni ya existe"
+                );
             }
+
             if (inquilino.Email != null)
             {
-                if (repositorioInquilino.ExisteEmail(inquilino.Email, inquilino.IdInquilino))
+                if (repositorioInquilino.ExisteEmail(
+                    inquilino.Email,
+                    inquilino.IdInquilino))
                 {
-                    ModelState.AddModelError("Email", "El email ya existe");
+                    ModelState.AddModelError(
+                        "Email",
+                        "El email ya existe"
+                    );
                 }
-            } 
+            }
         }
+
         if (!ModelState.IsValid)
         {
             return View(entidad);
-
         }
 
         repositorio.Modificacion(entidad);
 
         return RedirectToAction(nameof(Index));
-
-
     }
 
-    //GET de Eliminar
     [HttpGet]
     public IActionResult Eliminar(int id)
     {
-        var entidad = repositorio.ObtenerPorId(id);
+        var entidad =
+            repositorio.ObtenerPorId(id);
 
-        if (entidad == null) 
+        if (entidad == null)
         {
             return NotFound();
         }
 
         return View(entidad);
-
-
     }
 
-    //POST de Eliminar (se necesita confirmar desde el GET)
     [HttpPost]
-    [Authorize(Roles = "Administrador")] //SOLO lo hace el administrador
+    [ValidateAntiForgeryToken]
+    [Authorize(Roles = "Administrador")]
     public IActionResult EliminarConfirmado(int id)
     {
-        var entidad = repositorio.ObtenerPorId(id);
+        var entidad =
+            repositorio.ObtenerPorId(id);
 
         if (entidad == null)
         {
@@ -215,6 +259,5 @@ public abstract class ABMController<T> : Controller
 
         return RedirectToAction(nameof(Index));
     }
-
-
 }
+

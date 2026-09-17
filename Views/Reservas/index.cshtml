@@ -1,51 +1,213 @@
 @model IEnumerable<Inmobiliaria_DeborahGomez.Models.Reserva>
 
-<h1>Reservas</h1>
+@{
+    ViewData["Title"] = "Reservas";
 
-<p>
-    <a asp-action="Crear">Nueva Reserva</a>
-</p>
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
 
-<table>
+    string? busqueda = ViewBag.Busqueda;
+}
 
-    <thead>
-        <tr>
-            <th>Id</th>
-            <th>Desde</th>
-            <th>Hasta</th>
-            <th>Monto por día</th>
-            <th>Inmueble</th>
-            <th>Inquilino</th>
-            <th>Finalizada</th>
-            <th></th>
-        </tr>
-    </thead>
+<div class="container mt-4">
 
-    <tbody>
+    <div class="d-flex justify-content-between align-items-center mb-4">
 
-        @foreach (var reserva in Model)
-        {
-            <tr>
-                <td>@reserva.IdReserva</td>
-                <td>@reserva.FechaDesde</td>
-                <td>@reserva.FechaHasta</td>
-                <td>@reserva.MontoPorDia</td>
-                <td>@reserva.InmuebleId</td>
-                <td>@reserva.InquilinoId</td>
-                <td>@reserva.Finalizada</td>
+        <h1>Reservas</h1>
 
-                <td>
-                    <a asp-action="Editar" asp-route-id="@reserva.IdReserva">
-                        Editar
-                    </a>
+        <a asp-action="Crear"
+           class="btn btn-primary">
+            Nueva Reserva
+        </a>
 
-                    <a asp-action="Eliminar" asp-route-id="@reserva.IdReserva">
-                        Eliminar
-                    </a>
-                </td>
-            </tr>
-        }
+    </div>
 
-    </tbody>
+    <form asp-action="Index"
+          method="get"
+          class="row g-2 mb-4">
 
-</table>
+        <div class="col-md-8">
+
+            <input type="text"
+                   name="busqueda"
+                   value="@busqueda"
+                   class="form-control"
+                   placeholder="Buscar por inmueble o inquilino..." />
+
+        </div>
+
+        <div class="col-md-4">
+
+            <button type="submit"
+                    class="btn btn-outline-primary">
+                Buscar
+            </button>
+
+            <a asp-action="Index"
+               class="btn btn-outline-secondary">
+                Limpiar
+            </a>
+
+        </div>
+
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            No hay reservas registradas.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+
+            <table class="table table-striped table-hover align-middle">
+
+                <thead>
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Desde</th>
+                        <th>Hasta</th>
+                        <th>Inmueble</th>
+                        <th>Inquilino</th>
+                        <th>Monto por día</th>
+                        <th>Seña</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+
+                    </tr>
+                </thead>
+
+                <tbody>
+
+                    @foreach (var reserva in Model)
+                    {
+                        <tr>
+
+                            <td>
+                                #@reserva.IdReserva
+                            </td>
+
+                            <td>
+                                @reserva.FechaDesde.ToString(
+                                    "dd/MM/yyyy"
+                                )
+                            </td>
+
+                            <td>
+                                @reserva.FechaHasta.ToString(
+                                    "dd/MM/yyyy"
+                                )
+                            </td>
+
+                            <td>
+                                @reserva.DireccionInmueble
+                            </td>
+
+                            <td>
+                                @reserva.NombreInquilino
+                            </td>
+
+                            <td>
+                                $ @reserva.MontoPorDia.ToString("N2")
+                            </td>
+
+                            <td>
+                                @if (reserva.MontoSena.HasValue)
+                                {
+                                    <span>
+                                        $ @reserva.MontoSena.Value.ToString("N2")
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="text-muted">
+                                        Sin seña
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+
+                                @if (reserva.Finalizada)
+                                {
+                                    <span class="badge bg-secondary">
+                                        Finalizada
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">
+                                        Activa
+                                    </span>
+                                }
+
+                            </td>
+
+                            <td>
+
+                                <a asp-action="Editar"
+                                   asp-route-id="@reserva.IdReserva"
+                                   class="btn btn-sm btn-outline-primary">
+                                    Editar
+                                </a>
+
+                                <a asp-controller="Pagos"
+                                   asp-action="Index"
+                                   asp-route-reservaId="@reserva.IdReserva"
+                                   class="btn btn-sm btn-outline-success">
+                                    Pagos
+                                </a>
+
+                                <a asp-action="Eliminar"
+                                   asp-route-id="@reserva.IdReserva"
+                                   class="btn btn-sm btn-outline-danger">
+                                    Eliminar
+                                </a>
+
+                            </td>
+
+                        </tr>
+                    }
+
+                </tbody>
+
+            </table>
+
+        </div>
+    }
+
+    @if (totalPaginas > 1)
+    {
+        <nav class="mt-3">
+
+            <ul class="pagination">
+
+                @for (
+                    int i = 1;
+                    i <= totalPaginas;
+                    i++
+                )
+                {
+                    <li class="page-item @(i == paginaActual ? "active" : "")">
+
+                        <a class="page-link"
+                           asp-action="Index"
+                           asp-route-pagina="@i"
+                           asp-route-busqueda="@busqueda">
+
+                            @i
+
+                        </a>
+
+                    </li>
+                }
+
+            </ul>
+
+        </nav>
+    }
+
+</div>
