@@ -1,0 +1,71 @@
+@model IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>
+
+@{
+    ViewData["Title"] = "Inmuebles por propietario";
+    var propietarios = (IEnumerable<Inmobiliaria_DeborahGomez.Models.Propietario>)ViewBag.Propietarios;
+    int? propietarioSeleccionado = ViewBag.PropietarioIdSeleccionado;
+    int pagina = ViewBag.Pagina;
+    int totalPaginas = ViewBag.TotalPaginas;
+}
+
+<h2>Inmuebles por propietario</h2>
+
+<form asp-action="InmueblesPorPropietario" method="get" class="mb-3">
+    <label for="propietarioId">Elegir propietario:</label>
+    <select name="propietarioId" id="propietarioId" onchange="this.form.submit()">
+        <option value="">-- Seleccionar --</option>
+        @foreach (var p in propietarios)
+        {
+            <option value="@p.IdPropietario" selected="@(propietarioSeleccionado == p.IdPropietario)">
+                @p.Nombre @p.Apellido
+            </option>
+        }
+    </select>
+</form>
+
+@if (propietarioSeleccionado == null)
+{
+    <p>Elegí un propietario para ver sus inmuebles.</p>
+}
+else if (!Model.Any())
+{
+    <p>Este propietario no tiene inmuebles cargados.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Dirección</th>
+                <th>Tipo</th>
+                <th>Precio por día</th>
+                <th>Disponible</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.TipoNombre</td>
+                    <td>@inmueble.PrecioPorDia</td>
+                    <td>@(inmueble.Disponible ? "Sí" : "No")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        @if (pagina > 1)
+        {
+            <a asp-action="InmueblesPorPropietario" asp-route-propietarioId="@propietarioSeleccionado" asp-route-pagina="@(pagina - 1)">Anterior</a>
+        }
+        <span> Página @pagina de @totalPaginas </span>
+        @if (pagina < totalPaginas)
+        {
+            <a asp-action="InmueblesPorPropietario" asp-route-propietarioId="@propietarioSeleccionado" asp-route-pagina="@(pagina + 1)">Siguiente</a>
+        }
+    </div>
+}
+
+<a asp-action="Index">Volver a Informes</a>

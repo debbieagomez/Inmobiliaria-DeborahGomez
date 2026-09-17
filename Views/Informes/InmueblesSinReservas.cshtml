@@ -1,0 +1,60 @@
+@model IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>
+
+@{
+    ViewData["Title"] = "Inmuebles sin reservas";
+    int dias = ViewBag.Dias;
+    int pagina = ViewBag.Pagina;
+    int totalPaginas = ViewBag.TotalPaginas;
+}
+
+<h2>Inmuebles sin reservas</h2>
+
+<form asp-action="InmueblesSinReservas" method="get" class="mb-3">
+    <label for="dias">En los últimos</label>
+    <input type="number" name="dias" id="dias" value="@dias" min="1" style="width: 80px;" />
+    <label for="dias">días</label>
+    <button type="submit">Aplicar</button>
+</form>
+
+@if (!Model.Any())
+{
+    <p>Todos los inmuebles tuvieron al menos una reserva en el período seleccionado.</p>
+}
+else
+{
+    <table>
+        <thead>
+            <tr>
+                <th>Dirección</th>
+                <th>Propietario</th>
+                <th>Tipo</th>
+                <th>Precio por día</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var inmueble in Model)
+            {
+                <tr>
+                    <td>@inmueble.Direccion</td>
+                    <td>@inmueble.propietarioNombre</td>
+                    <td>@inmueble.TipoNombre</td>
+                    <td>@inmueble.PrecioPorDia</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="mt-3">
+        @if (pagina > 1)
+        {
+            <a asp-action="InmueblesSinReservas" asp-route-dias="@dias" asp-route-pagina="@(pagina - 1)">Anterior</a>
+        }
+        <span> Página @pagina de @totalPaginas </span>
+        @if (pagina < totalPaginas)
+        {
+            <a asp-action="InmueblesSinReservas" asp-route-dias="@dias" asp-route-pagina="@(pagina + 1)">Siguiente</a>
+        }
+    </div>
+}
+
+<a asp-action="Index">Volver a Informes</a>
