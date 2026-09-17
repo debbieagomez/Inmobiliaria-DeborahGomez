@@ -24,11 +24,13 @@
 
 
                 <dt class="col-sm-4">
-                    Fecha
+                    Fecha de pago
                 </dt>
 
                 <dd class="col-sm-8">
-                    @Model.FechaPago.ToString("dd/MM/yyyy HH:mm")
+                    @Model.FechaPago.ToString(
+                        "dd/MM/yyyy HH:mm"
+                    )
                 </dd>
 
 
@@ -88,6 +90,17 @@
 
                     <dd class="col-sm-8">
                         @(Model.UsuarioAnuladorId?.ToString() ?? "No anulado")
+                    </dd>
+
+
+                    <dt class="col-sm-4">
+                        Fecha de anulación
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @(Model.FechaAnulacion?.ToString(
+                            "dd/MM/yyyy HH:mm"
+                        ) ?? "No anulado")
                     </dd>
                 }
 

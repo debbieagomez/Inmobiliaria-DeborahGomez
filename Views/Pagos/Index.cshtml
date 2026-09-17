@@ -10,12 +10,14 @@
     int paginaActual = ViewBag.PaginaActual ?? 1;
     int totalPaginas = ViewBag.TotalPaginas ?? 1;
     int cantidad = ViewBag.Cantidad ?? 0;
+
     string? busqueda = ViewBag.Busqueda;
 }
 
 <div class="container mt-4">
 
     <div class="d-flex justify-content-between align-items-center mb-3">
+
         <div>
             <h1>Pagos de la reserva</h1>
 
@@ -32,6 +34,7 @@
            class="btn btn-primary">
             Nuevo pago
         </a>
+
     </div>
 
     <form asp-action="Index"
@@ -43,14 +46,17 @@
                value="@reservaId" />
 
         <div class="col-md-8">
+
             <input type="text"
                    name="busqueda"
                    value="@busqueda"
                    class="form-control"
                    placeholder="Buscar por concepto..." />
+
         </div>
 
         <div class="col-md-4">
+
             <button type="submit"
                     class="btn btn-outline-primary">
                 Buscar
@@ -61,7 +67,9 @@
                class="btn btn-outline-secondary">
                 Limpiar
             </a>
+
         </div>
+
     </form>
 
     @if (TempData["Error"] != null)
@@ -89,6 +97,7 @@
 
                 <thead>
                     <tr>
+
                         <th>Concepto</th>
                         <th>Fecha</th>
                         <th>Importe</th>
@@ -100,6 +109,7 @@
                         }
 
                         <th></th>
+
                     </tr>
                 </thead>
 
@@ -114,7 +124,9 @@
                             </td>
 
                             <td>
-                                @pago.FechaPago.ToString("dd/MM/yyyy HH:mm")
+                                @pago.FechaPago.ToString(
+                                    "dd/MM/yyyy HH:mm"
+                                )
                             </td>
 
                             <td>
@@ -142,13 +154,35 @@
                             {
                                 <td>
                                     <small>
+
                                         Creador:
                                         @pago.UsuarioCreadorId
 
                                         <br />
 
-                                        Anulador:
-                                        @(pago.UsuarioAnuladorId?.ToString() ?? "-")
+                                        @if (pago.Anulado)
+                                        {
+                                            <span>
+                                                Anulador:
+                                                @(pago.UsuarioAnuladorId?.ToString() ?? "-")
+                                            </span>
+
+                                            <br />
+
+                                            <span>
+                                                Fecha anulación:
+                                                @(pago.FechaAnulacion?.ToString(
+                                                    "dd/MM/yyyy HH:mm"
+                                                ) ?? "-")
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span>
+                                                Anulador: -
+                                            </span>
+                                        }
+
                                     </small>
                                 </td>
                             }
@@ -203,6 +237,7 @@
     @if (totalPaginas > 1)
     {
         <nav>
+
             <ul class="pagination">
 
                 @for (int i = 1; i <= totalPaginas; i++)
@@ -223,6 +258,7 @@
                 }
 
             </ul>
+
         </nav>
     }
 

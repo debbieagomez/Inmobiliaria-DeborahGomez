@@ -24,6 +24,7 @@ public class RepositorioPago : IRepositorioPago
                 FechaPago,
                 Importe,
                 Anulado,
+                FechaAnulacion,
                 ReservaId,
                 UsuarioCreadorId,
                 UsuarioAnuladorId
@@ -34,6 +35,7 @@ public class RepositorioPago : IRepositorioPago
                 @fechaPago,
                 @importe,
                 0,
+                NULL,
                 @reservaId,
                 @usuarioCreadorId,
                 NULL
@@ -76,10 +78,14 @@ public class RepositorioPago : IRepositorioPago
         conexion.Open();
 
         // La narrativa permite modificar solamente el concepto.
+        // Un pago anulado no puede volver a modificarse.
         var sql = @"
             UPDATE Pago
-            SET Concepto = @concepto
-            WHERE IdPago = @idPago;
+            SET
+                Concepto = @concepto
+            WHERE
+                IdPago = @idPago
+                AND Anulado = 0;
         ";
 
         using var comando = new MySqlCommand(sql, conexion);
@@ -109,6 +115,7 @@ public class RepositorioPago : IRepositorioPago
             UPDATE Pago
             SET
                 Anulado = 1,
+                FechaAnulacion = @fechaAnulacion,
                 UsuarioAnuladorId = @usuarioAnuladorId
             WHERE
                 IdPago = @idPago
@@ -116,6 +123,11 @@ public class RepositorioPago : IRepositorioPago
         ";
 
         using var comando = new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue(
+            "@fechaAnulacion",
+            DateTime.Now
+        );
 
         comando.Parameters.AddWithValue(
             "@usuarioAnuladorId",
@@ -148,6 +160,7 @@ public class RepositorioPago : IRepositorioPago
                 p.FechaPago,
                 p.Importe,
                 p.Anulado,
+                p.FechaAnulacion,
                 p.ReservaId,
                 p.UsuarioCreadorId,
                 p.UsuarioAnuladorId,
@@ -176,7 +189,9 @@ public class RepositorioPago : IRepositorioPago
                 OR p.Concepto LIKE CONCAT('%', @busqueda, '%')
             )
 
-            ORDER BY p.FechaPago DESC, p.IdPago DESC
+            ORDER BY
+                p.FechaPago DESC,
+                p.IdPago DESC
 
             LIMIT @tamPagina
             OFFSET @offset;
@@ -227,6 +242,13 @@ public class RepositorioPago : IRepositorioPago
 
                 Anulado =
                     reader.GetBoolean("Anulado"),
+
+                FechaAnulacion =
+                    reader.IsDBNull(
+                        reader.GetOrdinal("FechaAnulacion")
+                    )
+                        ? null
+                        : reader.GetDateTime("FechaAnulacion"),
 
                 ReservaId =
                     reader.GetInt32("ReservaId"),
@@ -318,9 +340,11 @@ public class RepositorioPago : IRepositorioPago
                 FechaPago,
                 Importe,
                 Anulado,
+                FechaAnulacion,
                 ReservaId,
                 UsuarioCreadorId,
                 UsuarioAnuladorId
+
             FROM Pago
 
             WHERE
@@ -328,7 +352,9 @@ public class RepositorioPago : IRepositorioPago
                 OR @busqueda = ''
                 OR Concepto LIKE CONCAT('%', @busqueda, '%')
 
-            ORDER BY FechaPago DESC, IdPago DESC
+            ORDER BY
+                FechaPago DESC,
+                IdPago DESC
 
             LIMIT @tamPagina
             OFFSET @offset;
@@ -361,14 +387,34 @@ public class RepositorioPago : IRepositorioPago
         {
             lista.Add(new Pago
             {
-                IdPago = reader.GetInt32("IdPago"),
-                Concepto = reader.GetString("Concepto"),
-                FechaPago = reader.GetDateTime("FechaPago"),
-                Importe = reader.GetDecimal("Importe"),
-                Anulado = reader.GetBoolean("Anulado"),
-                ReservaId = reader.GetInt32("ReservaId"),
+                IdPago =
+                    reader.GetInt32("IdPago"),
+
+                Concepto =
+                    reader.GetString("Concepto"),
+
+                FechaPago =
+                    reader.GetDateTime("FechaPago"),
+
+                Importe =
+                    reader.GetDecimal("Importe"),
+
+                Anulado =
+                    reader.GetBoolean("Anulado"),
+
+                FechaAnulacion =
+                    reader.IsDBNull(
+                        reader.GetOrdinal("FechaAnulacion")
+                    )
+                        ? null
+                        : reader.GetDateTime("FechaAnulacion"),
+
+                ReservaId =
+                    reader.GetInt32("ReservaId"),
+
                 UsuarioCreadorId =
                     reader.GetInt32("UsuarioCreadorId"),
+
                 UsuarioAnuladorId =
                     reader.IsDBNull(
                         reader.GetOrdinal("UsuarioAnuladorId")
@@ -422,6 +468,7 @@ public class RepositorioPago : IRepositorioPago
                 p.FechaPago,
                 p.Importe,
                 p.Anulado,
+                p.FechaAnulacion,
                 p.ReservaId,
                 p.UsuarioCreadorId,
                 p.UsuarioAnuladorId,
@@ -440,7 +487,8 @@ public class RepositorioPago : IRepositorioPago
             INNER JOIN Inquilino q
                 ON r.InquilinoId = q.IdInquilino
 
-            WHERE p.IdPago = @id;
+            WHERE
+                p.IdPago = @id;
         ";
 
         using var comando = new MySqlCommand(sql, conexion);
@@ -474,6 +522,13 @@ public class RepositorioPago : IRepositorioPago
             Anulado =
                 reader.GetBoolean("Anulado"),
 
+            FechaAnulacion =
+                reader.IsDBNull(
+                    reader.GetOrdinal("FechaAnulacion")
+                )
+                    ? null
+                    : reader.GetDateTime("FechaAnulacion"),
+
             ReservaId =
                 reader.GetInt32("ReservaId"),
 
@@ -505,6 +560,7 @@ public class RepositorioPago : IRepositorioPago
 
     public int Baja(int id)
     {
+
 
         return 0;
     }

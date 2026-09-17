@@ -102,7 +102,9 @@ public class PagosController : Controller
         {
             ReservaId = reservaId,
             FechaPago = DateTime.Now,
-            Anulado = false
+            Anulado = false,
+            FechaAnulacion = null,
+            UsuarioAnuladorId = null
         };
 
         ViewBag.Reserva = reserva;
@@ -138,11 +140,13 @@ public class PagosController : Controller
 
         pago.UsuarioCreadorId = usuarioId;
         pago.Anulado = false;
+        pago.FechaAnulacion = null;
         pago.UsuarioAnuladorId = null;
 
         if (!ModelState.IsValid)
         {
             ViewBag.Reserva = reserva;
+
             return View(pago);
         }
 
@@ -166,6 +170,20 @@ public class PagosController : Controller
         if (pago == null)
         {
             return NotFound();
+        }
+
+        if (pago.Anulado)
+        {
+            TempData["Error"] =
+                "No se puede editar un pago anulado.";
+
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    reservaId = pago.ReservaId
+                }
+            );
         }
 
         ViewBag.Reserva =
@@ -204,6 +222,8 @@ public class PagosController : Controller
             );
         }
 
+        concepto = concepto?.Trim() ?? string.Empty;
+
         if (string.IsNullOrWhiteSpace(concepto))
         {
             ModelState.AddModelError(
@@ -219,9 +239,39 @@ public class PagosController : Controller
             return View(pago);
         }
 
-        pago.Concepto = concepto.Trim();
+        if (concepto.Length > 100)
+        {
+            ModelState.AddModelError(
+                "concepto",
+                "El concepto no puede superar los 100 caracteres."
+            );
 
-        repositorioPago.Modificacion(pago);
+            ViewBag.Reserva =
+                repositorioReserva.ObtenerPorId(
+                    pago.ReservaId
+                );
+
+            return View(pago);
+        }
+
+        pago.Concepto = concepto;
+
+        var resultado =
+            repositorioPago.Modificacion(pago);
+
+        if (resultado == 0)
+        {
+            TempData["Error"] =
+                "No se pudo modificar el pago.";
+
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    reservaId = pago.ReservaId
+                }
+            );
+        }
 
         return RedirectToAction(
             nameof(Index),
@@ -268,10 +318,25 @@ public class PagosController : Controller
             return Unauthorized();
         }
 
-        repositorioPago.Anular(
-            pago.IdPago,
-            usuarioId
-        );
+        var resultado =
+            repositorioPago.Anular(
+                pago.IdPago,
+                usuarioId
+            );
+
+        if (resultado == 0)
+        {
+            TempData["Error"] =
+                "No se pudo anular el pago.";
+
+            return RedirectToAction(
+                nameof(Index),
+                new
+                {
+                    reservaId = pago.ReservaId
+                }
+            );
+        }
 
         return RedirectToAction(
             nameof(Index),

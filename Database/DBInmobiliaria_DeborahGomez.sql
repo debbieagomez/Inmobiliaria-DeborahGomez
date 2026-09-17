@@ -70,10 +70,11 @@ DROP TABLE IF EXISTS `pago`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `pago` (
   `IdPago` int NOT NULL AUTO_INCREMENT,
-  `Concepto` varchar(45) NOT NULL,
+  `Concepto` varchar(100) NOT NULL,
   `FechaPago` datetime NOT NULL,
-  `Importe` decimal(32,0) NOT NULL,
-  `Anulado` tinyint NOT NULL,
+  `Importe` decimal(12,2) NOT NULL,
+  `Anulado` tinyint NOT NULL DEFAULT '0',
+  `FechaAnulacion` datetime DEFAULT NULL,
   `ReservaId` int NOT NULL,
   `UsuarioCreadorId` int NOT NULL,
   `UsuarioAnuladorId` int DEFAULT NULL,
@@ -175,4 +176,4 @@ CREATE TABLE `usuario` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-16 20:59:05
+-- Dump completed on 2026-09-16 21:19:39
