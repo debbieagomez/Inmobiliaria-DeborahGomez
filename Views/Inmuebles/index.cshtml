@@ -1,53 +1,150 @@
 @model IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>
 
-    <h1>Inmuebles</h1>
+@{
+    int paginaActual = ViewBag.PaginaActual ?? 1;
+    int totalPaginas = ViewBag.TotalPaginas ?? 1;
+    string? busqueda = ViewBag.Busqueda;
+}
 
-    <a asp-controller="Inmuebles" asp-action="Crear">
-        Nuevo Inmueble
-        </a>
+<h1>Inmuebles</h1>
 
-        <table>
-            <thead>
-                <tr>
-                    <th>Id</th>
-                    <th>Direccion</th>
-                    <th>Tipo</th>
-                    <th>Propietario</th>
-                    <th>Cupo</th>
-                    <th>Precio</th>
-                    <th>Disponible</th>
-                    <th>Acciones</th>
-                </tr>  
-            </thead>
-            <tbody>
-                @foreach (var inmueble in Model)
-                {
-                    <tr>
-                        <td>@inmueble.IdInmueble</td>
-                        <td>@inmueble.Direccion</td>
-                        <td>@inmueble.TipoNombre</td>
-                        <td>@inmueble.propietarioNombre</td>
-                        <td>@inmueble.Cupo</td>
-                        <td>@inmueble.PrecioPorDia.ToString("C")</td>
-                        <td>
-                            @if (inmueble.Disponible)
+<a asp-controller="Inmuebles"
+   asp-action="Crear">
+    Nuevo Inmueble
+</a>
+
+<form asp-action="Index"
+      method="get">
+
+    <input type="text"
+           name="busqueda"
+           value="@busqueda"
+           placeholder="Buscar por dirección" />
+
+    <button type="submit">
+        Buscar
+    </button>
+
+    <a asp-action="Index">
+        Limpiar
+    </a>
+</form>
+
+<table>
+    <thead>
+        <tr>
+            <th>Imagen</th>
+            <th>Id</th>
+            <th>Dirección</th>
+            <th>Tipo</th>
+            <th>Propietario</th>
+            <th>Cupo</th>
+            <th>Precio</th>
+            <th>Disponible</th>
+            <th>Acciones</th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var inmueble in Model)
+        {
+            var portada =
+                inmueble.Imagenes
+                    .FirstOrDefault(
+                        i => i.EsPortada
+                    );
+
+            <tr>
+
+                <td>
+                    @if (portada != null)
                     {
-                        <span class="badge bg-success">Disponible</span>
+                        <img src="@portada.Url"
+                             alt="Portada del inmueble"
+                             style="width:120px;height:80px;object-fit:cover;" />
                     }
                     else
                     {
-                        <span class="badge bg-secondary">Suspendido</span>
+                        <span>Sin imagen</span>
                     }
+                </td>
 
-                        </td>
-                        <td>
-                            <a asp-action= "Editar" asp-route-id= "@inmueble.IdInmueble"> Editar</a>
-                            <a asp-action= "Eliminar" asp-route-id= "@inmueble.IdInmueble"> Eliminar</a>
-                        </td>
-            
-                    </tr>
-                }
-                
-            </tbody>
+                <td>
+                    @inmueble.IdInmueble
+                </td>
 
-        </table>
+                <td>
+                    @inmueble.Direccion
+                </td>
+
+                <td>
+                    @inmueble.TipoNombre
+                </td>
+
+                <td>
+                    @inmueble.propietarioNombre
+                </td>
+
+                <td>
+                    @inmueble.Cupo
+                </td>
+
+                <td>
+                    @inmueble.PrecioPorDia.ToString("C")
+                </td>
+
+                <td>
+                    @if (inmueble.Disponible)
+                    {
+                        <span class="badge bg-success">
+                            Disponible
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">
+                            Suspendido
+                        </span>
+                    }
+                </td>
+
+                <td>
+
+                    <a asp-action="Detalle"
+                       asp-route-id="@inmueble.IdInmueble">
+                        Detalle
+                    </a>
+
+                    <a asp-action="Editar"
+                       asp-route-id="@inmueble.IdInmueble">
+                        Editar
+                    </a>
+
+                    <a asp-action="Eliminar"
+                       asp-route-id="@inmueble.IdInmueble">
+                        Eliminar
+                    </a>
+
+                </td>
+
+            </tr>
+        }
+    </tbody>
+</table>
+
+@if (totalPaginas > 1)
+{
+    <nav>
+        @for (
+            int i = 1;
+            i <= totalPaginas;
+            i++)
+        {
+            <a asp-action="Index"
+               asp-route-pagina="@i"
+               asp-route-busqueda="@busqueda">
+                @i
+            </a>
+        }
+    </nav>
+}

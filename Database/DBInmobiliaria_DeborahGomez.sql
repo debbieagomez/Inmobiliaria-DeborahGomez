@@ -16,6 +16,24 @@
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
 --
+-- Table structure for table `imageninmueble`
+--
+
+DROP TABLE IF EXISTS `imageninmueble`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `imageninmueble` (
+  `IdImagenInmueble` int NOT NULL AUTO_INCREMENT,
+  `InmuebleId` int NOT NULL,
+  `Url` varchar(500) NOT NULL,
+  `EsPortada` tinyint NOT NULL DEFAULT '0',
+  PRIMARY KEY (`IdImagenInmueble`),
+  KEY `fk_ImagenInmueble_Inmueble_idx` (`InmuebleId`),
+  CONSTRAINT `fk_ImagenInmueble_Inmueble` FOREIGN KEY (`InmuebleId`) REFERENCES `inmueble` (`IdInmueble`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `inmueble`
 --
 
@@ -24,18 +42,15 @@ DROP TABLE IF EXISTS `inmueble`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `inmueble` (
   `IdInmueble` int NOT NULL AUTO_INCREMENT,
-  `Direccion` varchar(45) NOT NULL,
+  `Direccion` varchar(255) NOT NULL,
   `Cupo` int NOT NULL,
-  `Latitud` decimal(16,0) DEFAULT NULL,
-  `Longitud` decimal(16,0) DEFAULT NULL,
-  `PrecioPorDia` decimal(32,0) NOT NULL,
-  `PorcentajeSenia` decimal(32,0) NOT NULL,
+  `Latitud` decimal(10,7) DEFAULT NULL,
+  `Longitud` decimal(10,7) DEFAULT NULL,
+  `PrecioPorDia` decimal(12,2) NOT NULL,
+  `PorcentajeSenia` decimal(5,2) NOT NULL,
   `Disponible` tinyint NOT NULL DEFAULT '1',
-  `ImagenPortadaUrl` varchar(45) DEFAULT NULL,
   `PropietarioId` int NOT NULL,
   `TipoInmuebleId` int NOT NULL,
-  `propietarioNombre` varchar(45) DEFAULT NULL,
-  `TipoNombre` varchar(45) DEFAULT NULL,
   PRIMARY KEY (`IdInmueble`),
   KEY `fk_PropietarioId_idx` (`PropietarioId`),
   KEY `fk_TipoInmuebleId_idx` (`TipoInmuebleId`),
@@ -85,7 +100,7 @@ CREATE TABLE `pago` (
   CONSTRAINT `fk_Pago_UsuarioAnuladorId` FOREIGN KEY (`UsuarioAnuladorId`) REFERENCES `usuario` (`IdUsuario`),
   CONSTRAINT `fk_Pago_UsuarioCreadorId` FOREIGN KEY (`UsuarioCreadorId`) REFERENCES `usuario` (`IdUsuario`),
   CONSTRAINT `fk_ReservaId` FOREIGN KEY (`ReservaId`) REFERENCES `reserva` (`IdReserva`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -133,7 +148,7 @@ CREATE TABLE `reserva` (
   CONSTRAINT `fk_InmuebleId` FOREIGN KEY (`InmuebleId`) REFERENCES `inmueble` (`IdInmueble`),
   CONSTRAINT `fk_InquilinoId` FOREIGN KEY (`InquilinoId`) REFERENCES `inquilino` (`IdInquilino`),
   CONSTRAINT `fk_R_UsuarioCreadorId` FOREIGN KEY (`UsuarioCreadorId`) REFERENCES `usuario` (`IdUsuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -176,4 +191,4 @@ CREATE TABLE `usuario` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-09-16 21:19:39
+-- Dump completed on 2026-09-17  0:12:46

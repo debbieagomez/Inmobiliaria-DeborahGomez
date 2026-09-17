@@ -1,0 +1,123 @@
+@model Inmobiliaria_DeborahGomez.Models.Inmueble
+
+<h1>Detalle del inmueble</h1>
+
+<h2>
+    @Model.Direccion
+</h2>
+
+<p>
+    <strong>Tipo:</strong>
+    @Model.TipoNombre
+</p>
+
+<p>
+    <strong>Propietario:</strong>
+    @Model.propietarioNombre
+</p>
+
+<p>
+    <strong>Cupo:</strong>
+    @Model.Cupo
+</p>
+
+<p>
+    <strong>Precio por día:</strong>
+    @Model.PrecioPorDia.ToString("C")
+</p>
+
+<p>
+    <strong>Seña:</strong>
+    @Model.PorcentajeSenia%
+</p>
+
+<p>
+    <strong>Estado:</strong>
+    @(Model.Disponible ? "Disponible" : "Suspendido")
+</p>
+
+<h3>Imágenes</h3>
+
+@if (!Model.Imagenes.Any())
+{
+    <p>
+        Este inmueble no tiene imágenes cargadas.
+    </p>
+}
+else
+{
+    <div style="
+        display:flex;
+        flex-wrap:wrap;
+        gap:20px;
+    ">
+
+        @foreach (var imagen in Model.Imagenes)
+        {
+            <div>
+
+                <img src="@imagen.Url"
+                     alt="Imagen del inmueble"
+                     style="
+                        width:250px;
+                        height:180px;
+                        object-fit:cover;
+                     " />
+
+                @if (imagen.EsPortada)
+                {
+                    <p>
+                        <strong>Portada</strong>
+                    </p>
+                }
+                else
+                {
+                    <form asp-action="EstablecerPortada"
+                          method="post">
+
+                        <input type="hidden"
+                               name="id"
+                               value="@imagen.IdImagenInmueble" />
+
+                        <input type="hidden"
+                               name="inmuebleId"
+                               value="@Model.IdInmueble" />
+
+                        <button type="submit">
+                            Usar como portada
+                        </button>
+                    </form>
+                }
+
+                <form asp-action="EliminarImagen"
+                      method="post">
+
+                    <input type="hidden"
+                           name="id"
+                           value="@imagen.IdImagenInmueble" />
+
+                    <input type="hidden"
+                           name="inmuebleId"
+                           value="@Model.IdInmueble" />
+
+                    <button type="submit">
+                        Eliminar imagen
+                    </button>
+                </form>
+
+            </div>
+        }
+
+    </div>
+}
+
+<br />
+
+<a asp-action="Editar"
+   asp-route-id="@Model.IdInmueble">
+    Editar inmueble
+</a>
+
+<a asp-action="Index">
+    Volver
+</a>

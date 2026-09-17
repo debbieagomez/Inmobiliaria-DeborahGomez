@@ -15,9 +15,9 @@ public abstract class ABMController<T> : Controller
         this.repositorio = repositorio;
     }
 
-    public IActionResult Index(
-        string? busqueda,
-        int pagina = 1)
+    public virtual IActionResult Index(
+    string? busqueda,
+    int pagina = 1)
     {
         const int tamPagina = 10;
 
@@ -54,7 +54,6 @@ public abstract class ABMController<T> : Controller
 
         return View(lista);
     }
-
     [HttpGet]
     public virtual IActionResult Crear()
     {

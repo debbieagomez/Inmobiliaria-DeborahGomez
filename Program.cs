@@ -32,6 +32,11 @@ builder.Services.AddScoped<IRepositorioPago>(
     provider =>
         new RepositorioPago(connectionString!));
 
+builder.Services.AddScoped<IRepositorioImagenInmueble>(
+    provider =>
+        new RepositorioImagenInmueble(
+            connectionString!));
+
 
 builder.Services
     .AddAuthentication(
