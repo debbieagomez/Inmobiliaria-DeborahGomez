@@ -296,4 +296,12 @@ public class ReservasController : ABMController<Reserva>
 
         return View(resultados);
     }
+
+    public IActionResult Detalle(int id)
+    {
+        var reserva = repositorio.ObtenerPorId(id);
+        if (reserva == null) return NotFound();
+
+        return View(reserva);
+    }
 }

@@ -1,0 +1,45 @@
+@model Inmobiliaria_DeborahGomez.Models.Reserva
+
+@{
+    var inmueble = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)ViewBag.Inmueble)
+        .FirstOrDefault(i => i.IdInmueble == Model.InmuebleId);
+    var Inquilino = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)ViewBag.Inquilino)
+        .FirstOrDefault(q => q.IdInquilino == Model.InquilinoId);
+}
+
+<dl>
+    <dt>Inmueble</dt>
+    <dd>@(inmueble?.Direccion ?? "(no encontrado)")</dd>
+
+    <dt>Inquilino</dt>
+    <dd>@(Inquilino?.NombreCompleto ?? "(no encontrado)")</dd>
+
+    <dt>Fecha desde</dt>
+    <dd>@Model.FechaDesde.ToShortDateString()</dd>
+
+    <dt>Fecha hasta</dt>
+    <dd>@Model.FechaHasta.ToShortDateString()</dd>
+
+    <dt>Monto por dia</dt>
+    <dd>@Model.MontoPorDia.ToString()</dd>
+
+    <dt>Finalizada</dt>
+    <dd>@(Model.Finalizada ? "Si" : "NO")</dd>
+</dl>
+
+@if (User.IsInRole("Administrador"))
+{
+    <div class="border rounded p-3 mt-3 bg-light">
+        <h5>Auditoria (solo administradores)</h5>
+        <dl class="mb-0">
+            <dt>Usuario que creo la reserva</dt>
+            <dd>@Model.UsuarioCreadorId</dd>
+
+            <dt>Usuario que la finalizo</dt>
+            <dd>@(Model.UsuarioFinalizadorId?.ToString() ?? "no finalizada")</dd>
+        </dl>
+
+    </div>
+}
+
+<a asp-action="Index">Volver</a>
