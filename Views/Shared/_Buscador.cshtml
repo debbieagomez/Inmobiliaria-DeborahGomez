@@ -1,0 +1,18 @@
+@* 
+   Formulario de busqueda reutilizable.
+   method="get" (no "post"): asi el termino de busqueda queda visible
+   en la URL como ?busqueda=texto, lo cual permite compartir el link,
+   recargar la pagina sin perder la busqueda, y coincide con como
+   el ABMController.Index ya espera recibir el parametro "busqueda".
+*@
+
+<form method="get" class="mb-3 d-flex gap-2">
+    <input
+        type="text"
+        name="busqueda"
+        value="@Context.Request.Query["busqueda"]"
+        placeholder="Buscar..."
+        class="form-control"
+    />
+    <button type="submit" class="btn btn-outline-primary">Buscar</button>
+</form>

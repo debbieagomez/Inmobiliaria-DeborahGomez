@@ -1,6 +1,8 @@
 @model IEnumerable<Inmobiliaria_DeborahGomez.Models.Propietario>
 
-    <h1>Propietarios</h1>
+    <h1> Propietarios</h1>
+
+    @await Html.PartialAsync("_Buscador")
 
     <a asp-controller="Propietarios" asp-action="Crear">
         Nuevo propietario
