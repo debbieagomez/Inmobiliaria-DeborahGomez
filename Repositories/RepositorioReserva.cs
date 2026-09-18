@@ -1083,4 +1083,252 @@ public class RepositorioReserva : IRepositorioReserva
                 ?? (object)DBNull.Value
         );
     }
+
+    public int FinalizarAnticipadamente(
+    int idReserva,
+    DateTime fechaFinalizacion,
+    int usuarioFinalizadorId)
+    {
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        using var transaccion =
+            conexion.BeginTransaction();
+
+        try
+        {
+            var reserva = ObtenerPorId(idReserva);
+
+            if (reserva == null)
+            {
+                throw new InvalidOperationException(
+                    "La reserva no existe."
+                );
+            }
+
+            if (reserva.Finalizada)
+            {
+                throw new InvalidOperationException(
+                    "La reserva ya está finalizada."
+                );
+            }
+
+            if (
+                fechaFinalizacion <= reserva.FechaDesde ||
+                fechaFinalizacion >= reserva.FechaHastaOriginal
+            )
+            {
+                throw new InvalidOperationException(
+                    "La fecha de finalización anticipada no es válida."
+                );
+            }
+
+            var diasTotales =
+                (
+                    reserva.FechaHastaOriginal.Date -
+                    reserva.FechaDesde.Date
+                ).Days;
+
+            var diasTranscurridos =
+                (
+                    fechaFinalizacion.Date -
+                    reserva.FechaDesde.Date
+                ).Days;
+
+            var diasRestantes =
+                (
+                    reserva.FechaHastaOriginal.Date -
+                    fechaFinalizacion.Date
+                ).Days;
+
+            if (diasTotales <= 0)
+            {
+                throw new InvalidOperationException(
+                    "La duración de la reserva no es válida."
+                );
+            }
+
+            decimal porcentajeMulta;
+
+            if (
+                diasTranscurridos <
+                diasTotales / 2.0
+            )
+            {
+                porcentajeMulta = 50m;
+            }
+            else
+            {
+                porcentajeMulta = 25m;
+            }
+
+            var montoBase =
+                reserva.MontoPorDia *
+                diasRestantes;
+
+            var montoMulta =
+                Math.Round(
+                    montoBase *
+                    porcentajeMulta /
+                    100m,
+                    2,
+                    MidpointRounding.AwayFromZero
+                );
+
+            var sqlReserva = @"
+                UPDATE Reserva
+                SET
+                    FechaFinalizacionAnticipada =
+                        @fechaFinalizacion,
+
+                    MontoMulta =
+                        @montoMulta,
+
+                    Finalizada =
+                        1,
+
+                    UsuarioFinalizadorId =
+                        @usuarioFinalizadorId
+
+                WHERE
+                    IdReserva = @idReserva
+                    AND Finalizada = 0;
+            ";
+
+            using var comandoReserva =
+                new MySqlCommand(
+                    sqlReserva,
+                    conexion,
+                    transaccion
+                );
+
+            comandoReserva.Parameters.AddWithValue(
+                "@fechaFinalizacion",
+                fechaFinalizacion
+            );
+
+            comandoReserva.Parameters.AddWithValue(
+                "@montoMulta",
+                montoMulta
+            );
+
+            comandoReserva.Parameters.AddWithValue(
+                "@usuarioFinalizadorId",
+                usuarioFinalizadorId
+            );
+
+            comandoReserva.Parameters.AddWithValue(
+                "@idReserva",
+                idReserva
+            );
+
+            var filas =
+                comandoReserva.ExecuteNonQuery();
+
+            if (filas == 0)
+            {
+                throw new InvalidOperationException(
+                    "No se pudo finalizar la reserva."
+                );
+            }
+
+            var sqlPago = @"
+                INSERT INTO Pago
+                (
+                    Concepto,
+                    FechaPago,
+                    Importe,
+                    Anulado,
+                    FechaAnulacion,
+                    ReservaId,
+                    UsuarioCreadorId,
+                    UsuarioAnuladorId
+                )
+                VALUES
+                (
+                    'Multa',
+                    @fechaPago,
+                    @importe,
+                    0,
+                    NULL,
+                    @reservaId,
+                    @usuarioCreadorId,
+                    NULL
+                );
+            ";
+
+            using var comandoPago =
+                new MySqlCommand(
+                    sqlPago,
+                    conexion,
+                    transaccion
+                );
+
+            comandoPago.Parameters.AddWithValue(
+                "@fechaPago",
+                DateTime.Now
+            );
+
+            comandoPago.Parameters.AddWithValue(
+                "@importe",
+                montoMulta
+            );
+
+            comandoPago.Parameters.AddWithValue(
+                "@reservaId",
+                idReserva
+            );
+
+            comandoPago.Parameters.AddWithValue(
+                "@usuarioCreadorId",
+                usuarioFinalizadorId
+            );
+
+            comandoPago.ExecuteNonQuery();
+
+            transaccion.Commit();
+
+            return 1;
+        }
+        catch
+        {
+            transaccion.Rollback();
+            throw;
+        }
+    }
+
+    public bool TienePagos(
+    int idReserva)
+    {
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Pago
+                WHERE ReservaId = @idReserva
+            );
+        ";
+
+        using var comando =
+            new MySqlCommand(
+                sql,
+                conexion
+            );
+
+        comando.Parameters.AddWithValue(
+            "@idReserva",
+            idReserva
+        );
+
+        return Convert.ToBoolean(
+            comando.ExecuteScalar()
+        );
+    }
+
 }

@@ -1,0 +1,52 @@
+@model Inmobiliaria_DeborahGomez.Models.Reserva
+
+<h2>Finalizar reserva anticipadamente</h2>
+
+<dl>
+    <dt>Fecha desde</dt>
+    <dd>@Model.FechaDesde.ToShortDateString()</dd>
+
+    <dt>Fecha hasta original</dt>
+    <dd>@Model.FechaHastaOriginal.ToShortDateString()</dd>
+
+    <dt>Monto por día</dt>
+    <dd>@Model.MontoPorDia.ToString("C")</dd>
+</dl>
+
+<form asp-action="Finalizar" method="post">
+    <input type="hidden" name="id" value="@Model.IdReserva" />
+
+    <div class="mb-3">
+        <label for="fechaFinalizacion" class="form-label">
+            Fecha de finalización anticipada
+        </label>
+
+        <input
+            type="date"
+            id="fechaFinalizacion"
+            name="fechaFinalizacion"
+            class="form-control"
+            min="@Model.FechaDesde.ToString("yyyy-MM-dd")"
+            max="@Model.FechaHastaOriginal.AddDays(-1).ToString("yyyy-MM-dd")"
+            required
+        />
+
+        <span
+            asp-validation-for="FechaFinalizacionAnticipada"
+            class="text-danger">
+        </span>
+    </div>
+
+    <div asp-validation-summary="All" class="text-danger"></div>
+
+    <button type="submit" class="btn btn-danger">
+        Finalizar reserva
+    </button>
+
+    <a
+        asp-action="Detalle"
+        asp-route-id="@Model.IdReserva"
+        class="btn btn-secondary">
+        Cancelar
+    </a>
+</form>

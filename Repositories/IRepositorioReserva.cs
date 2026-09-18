@@ -23,4 +23,14 @@ public interface IRepositorioReserva : IRepositorio<Reserva>
         Reserva reserva,
         decimal porcentajeSena
     );
+
+    int FinalizarAnticipadamente(
+        int idReserva,
+        DateTime fechaFinalizacion,
+        int usuarioFinalizadorId
+    );
+
+    bool TienePagos(
+        int idReserva
+    );
 }

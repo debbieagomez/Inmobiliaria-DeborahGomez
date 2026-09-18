@@ -254,9 +254,26 @@ public abstract class ABMController<T> : Controller
             }
         }
 
+        if (entidad is Reserva reserva)
+        {
+            var repositorioReserva =
+                (IRepositorioReserva)repositorio;
+
+            if (repositorioReserva.TienePagos(
+                reserva.IdReserva))
+            {
+                TempData["Error"] =
+                    "No se puede eliminar la reserva porque tiene pagos asociados. Los pagos deben conservarse como historial.";
+
+                return RedirectToAction(nameof(Index));
+            }
+        }
+
         repositorio.Baja(id);
 
         return RedirectToAction(nameof(Index));
+
+
     }
 }
 
