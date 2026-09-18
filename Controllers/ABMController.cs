@@ -10,14 +10,15 @@ public abstract class ABMController<T> : Controller
 {
     protected readonly IRepositorio<T> repositorio;
 
-    protected ABMController(IRepositorio<T> repositorio)
+    protected ABMController(
+        IRepositorio<T> repositorio)
     {
         this.repositorio = repositorio;
     }
 
     public virtual IActionResult Index(
-    string? busqueda,
-    int pagina = 1)
+        string? busqueda,
+        int pagina = 1)
     {
         const int tamPagina = 10;
 
@@ -27,13 +28,17 @@ public abstract class ABMController<T> : Controller
         }
 
         var cantidad =
-            repositorio.ObtenerCantidad(busqueda);
-
-        var totalPaginas = cantidad == 0
-            ? 1
-            : (int)Math.Ceiling(
-                (double)cantidad / tamPagina
+            repositorio.ObtenerCantidad(
+                busqueda
             );
+
+        var totalPaginas =
+            cantidad == 0
+                ? 1
+                : (int)Math.Ceiling(
+                    (double)cantidad /
+                    tamPagina
+                );
 
         if (pagina > totalPaginas)
         {
@@ -47,13 +52,21 @@ public abstract class ABMController<T> : Controller
                 tamPagina
             );
 
-        ViewBag.Busqueda = busqueda;
-        ViewBag.PaginaActual = pagina;
-        ViewBag.TotalPaginas = totalPaginas;
-        ViewBag.Cantidad = cantidad;
+        ViewBag.Busqueda =
+            busqueda;
+
+        ViewBag.PaginaActual =
+            pagina;
+
+        ViewBag.TotalPaginas =
+            totalPaginas;
+
+        ViewBag.Cantidad =
+            cantidad;
 
         return View(lista);
     }
+
     [HttpGet]
     public virtual IActionResult Crear()
     {
@@ -62,7 +75,8 @@ public abstract class ABMController<T> : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public virtual IActionResult Crear(T entidad)
+    public virtual IActionResult Crear(
+        T entidad)
     {
         if (entidad is Propietario propietario)
         {
@@ -122,13 +136,18 @@ public abstract class ABMController<T> : Controller
             return View(entidad);
         }
 
-        repositorio.Alta(entidad);
+        repositorio.Alta(
+            entidad
+        );
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(
+            nameof(Index)
+        );
     }
 
     [HttpGet]
-    public virtual IActionResult Editar(int id)
+    public virtual IActionResult Editar(
+        int id)
     {
         var entidad =
             repositorio.ObtenerPorId(id);
@@ -143,7 +162,8 @@ public abstract class ABMController<T> : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public virtual IActionResult Editar(T entidad)
+    public virtual IActionResult Editar(
+        T entidad)
     {
         if (entidad is Propietario propietario)
         {
@@ -207,13 +227,18 @@ public abstract class ABMController<T> : Controller
             return View(entidad);
         }
 
-        repositorio.Modificacion(entidad);
+        repositorio.Modificacion(
+            entidad
+        );
 
-        return RedirectToAction(nameof(Index));
+        return RedirectToAction(
+            nameof(Index)
+        );
     }
 
     [HttpGet]
-    public IActionResult Eliminar(int id)
+    public IActionResult Eliminar(
+        int id)
     {
         var entidad =
             repositorio.ObtenerPorId(id);
@@ -229,7 +254,8 @@ public abstract class ABMController<T> : Controller
     [HttpPost]
     [ValidateAntiForgeryToken]
     [Authorize(Roles = "Administrador")]
-    public IActionResult EliminarConfirmado(int id)
+    public IActionResult EliminarConfirmado(
+        int id)
     {
         var entidad =
             repositorio.ObtenerPorId(id);
@@ -247,10 +273,33 @@ public abstract class ABMController<T> : Controller
             if (repositorioPropietario.TieneInmuebles(
                 propietario.IdPropietario))
             {
+                TempData.Remove("Error");
+
                 TempData["Error"] =
                     "No se puede eliminar el propietario porque tiene inmuebles asociados.";
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(
+                    nameof(Index)
+                );
+            }
+        }
+
+        if (entidad is Inmueble inmueble)
+        {
+            var repositorioInmueble =
+                (IRepositorioInmueble)repositorio;
+
+            if (repositorioInmueble.TieneReservas(
+                inmueble.IdInmueble))
+            {
+                TempData.Remove("Error");
+
+                TempData["Error"] =
+                    "No se puede eliminar el inmueble porque tiene reservas asociadas.";
+
+                return RedirectToAction(
+                    nameof(Index)
+                );
             }
         }
 
@@ -262,18 +311,39 @@ public abstract class ABMController<T> : Controller
             if (repositorioReserva.TienePagos(
                 reserva.IdReserva))
             {
+                TempData.Remove("Error");
+
                 TempData["Error"] =
                     "No se puede eliminar la reserva porque tiene pagos asociados. Los pagos deben conservarse como historial.";
 
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(
+                    nameof(Index)
+                );
             }
         }
 
-        repositorio.Baja(id);
+        var resultado =
+            repositorio.Baja(id);
 
-        return RedirectToAction(nameof(Index));
+        if (resultado == 0)
+        {
+            TempData.Remove("Error");
 
+            TempData["Error"] =
+                "No se pudo eliminar el registro.";
 
+            return RedirectToAction(
+                nameof(Index)
+            );
+        }
+
+        TempData.Remove("Success");
+
+        TempData["Success"] =
+            "El registro se eliminó correctamente.";
+
+        return RedirectToAction(
+            nameof(Index)
+        );
     }
 }
-

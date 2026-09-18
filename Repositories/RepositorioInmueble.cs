@@ -314,7 +314,6 @@ public class RepositorioInmueble : IRepositorioInmueble
         );
     }
 
-
     public IList<Inmueble> ObtenerPorDisponibilidad(
         bool? disponible,
         int pagina = 1,
@@ -513,7 +512,6 @@ public class RepositorioInmueble : IRepositorioInmueble
         return lista;
     }
 
-
     public IList<InmuebleConReservas> ObtenerMasReservados(
         int dias = 365,
         int pagina = 1,
@@ -662,7 +660,6 @@ public class RepositorioInmueble : IRepositorioInmueble
         );
     }
 
-  
     public IList<Inmueble> ObtenerSinReservas(
         int dias,
         int pagina = 1,
@@ -791,7 +788,6 @@ public class RepositorioInmueble : IRepositorioInmueble
             comando.ExecuteScalar()
         );
     }
-
 
     public IList<Inmueble> ObtenerDisponiblesEntreFechas(
         DateTime fechaDesde,
@@ -967,6 +963,38 @@ public class RepositorioInmueble : IRepositorioInmueble
         );
 
         return Convert.ToInt32(
+            comando.ExecuteScalar()
+        );
+    }
+
+    public bool TieneReservas(
+        int inmuebleId)
+    {
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Reserva
+                WHERE InmuebleId = @inmuebleId
+            );
+        ";
+
+        using var comando =
+            new MySqlCommand(
+                sql,
+                conexion
+            );
+
+        comando.Parameters.AddWithValue(
+            "@inmuebleId",
+            inmuebleId
+        );
+
+        return Convert.ToBoolean(
             comando.ExecuteScalar()
         );
     }
