@@ -19,6 +19,12 @@
                     @User.Identity.Name
                 </span>
 
+                <a asp-controller="Cuenta"
+                asp-action="Perfil"
+                class="nav-link d-inline">
+                    Mi perfil
+                </a>
+
                 @if (User.IsInRole("Administrador"))
                 {
                     <a asp-controller="Usuarios"

@@ -1,0 +1,114 @@
+@model Inmobiliaria_DeborahGomez.Models.Usuario
+
+@{
+    ViewData["Title"] = "Mi perfil";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+
+            <h2>Mi perfil</h2>
+
+            @if (TempData["Mensaje"] != null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Mensaje"]
+                </div>
+            }
+
+            <form asp-controller="Cuenta"
+                  asp-action="Perfil"
+                  method="post">
+
+                @Html.AntiForgeryToken()
+
+                <div asp-validation-summary="All"
+                     class="text-danger mb-3">
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Email
+                    </label>
+
+                    <input type="email"
+                           name="email"
+                           value="@Model.Email"
+                           class="form-control"
+                           autocomplete="email"
+                           required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Rol
+                    </label>
+
+                    <input type="text"
+                           value="@Model.Rol"
+                           class="form-control"
+                           disabled />
+                </div>
+
+                <hr />
+
+                <h4>Cambiar contraseña</h4>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Contraseña actual
+                    </label>
+
+                    <input type="password"
+                           name="passwordActual"
+                           class="form-control"
+                           autocomplete="current-password" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Nueva contraseña
+                    </label>
+
+                    <input type="password"
+                           name="passwordNueva"
+                           class="form-control"
+                           autocomplete="new-password" />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">
+                        Confirmar nueva contraseña
+                    </label>
+
+                    <input type="password"
+                           name="confirmarPassword"
+                           class="form-control"
+                           autocomplete="new-password" />
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary">
+                    Guardar cambios
+                </button>
+
+                <a asp-controller="Home"
+                   asp-action="Index"
+                   class="btn btn-secondary">
+                    Volver
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync(
+            "_ValidationScriptsPartial"
+        );
+    }
+}
