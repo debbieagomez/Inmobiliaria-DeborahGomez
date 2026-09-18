@@ -512,6 +512,7 @@ public class RepositorioInmueble : IRepositorioInmueble
         return lista;
     }
 
+
     public IList<InmuebleConReservas> ObtenerMasReservados(
         int dias = 365,
         int pagina = 1,
@@ -527,6 +528,9 @@ public class RepositorioInmueble : IRepositorioInmueble
 
         var fechaCorte =
             DateTime.Now.AddDays(-dias);
+
+        var fechaHasta =
+            DateTime.Now;
 
         var sql = @"
             SELECT
@@ -566,8 +570,13 @@ public class RepositorioInmueble : IRepositorioInmueble
                     InmuebleId,
                     COUNT(*) AS CantidadReservas,
                     MAX(FechaDesde) AS UltimaFecha
+
                 FROM Reserva
-                WHERE FechaDesde >= @fechaCorte
+
+                WHERE
+                    FechaDesde >= @fechaCorte
+                    AND FechaDesde <= @fechaHasta
+
                 GROUP BY InmuebleId
             ) r
                 ON r.InmuebleId = i.IdInmueble
@@ -581,11 +590,19 @@ public class RepositorioInmueble : IRepositorioInmueble
         ";
 
         using var comando =
-            new MySqlCommand(sql, conexion);
+            new MySqlCommand(
+                sql,
+                conexion
+            );
 
         comando.Parameters.AddWithValue(
             "@fechaCorte",
             fechaCorte
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            fechaHasta
         );
 
         comando.Parameters.AddWithValue(
@@ -636,23 +653,40 @@ public class RepositorioInmueble : IRepositorioInmueble
         var fechaCorte =
             DateTime.Now.AddDays(-dias);
 
+        var fechaHasta =
+            DateTime.Now;
+
         var sql = @"
             SELECT COUNT(*)
+
             FROM
             (
                 SELECT InmuebleId
+
                 FROM Reserva
-                WHERE FechaDesde >= @fechaCorte
+
+                WHERE
+                    FechaDesde >= @fechaCorte
+                    AND FechaDesde <= @fechaHasta
+
                 GROUP BY InmuebleId
             ) AS sub;
         ";
 
         using var comando =
-            new MySqlCommand(sql, conexion);
+            new MySqlCommand(
+                sql,
+                conexion
+            );
 
         comando.Parameters.AddWithValue(
             "@fechaCorte",
             fechaCorte
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            fechaHasta
         );
 
         return Convert.ToInt32(
@@ -675,6 +709,9 @@ public class RepositorioInmueble : IRepositorioInmueble
 
         var fechaCorte =
             DateTime.Now.AddDays(-dias);
+
+        var fechaHasta =
+            DateTime.Now;
 
         var sql = @"
             SELECT
@@ -708,24 +745,36 @@ public class RepositorioInmueble : IRepositorioInmueble
             WHERE NOT EXISTS
             (
                 SELECT 1
+
                 FROM Reserva r
 
-                WHERE r.InmuebleId = i.IdInmueble
-                  AND r.FechaDesde >= @fechaCorte
+                WHERE
+                    r.InmuebleId = i.IdInmueble
+                    AND r.FechaDesde >= @fechaCorte
+                    AND r.FechaDesde <= @fechaHasta
             )
 
-            ORDER BY i.Direccion
+            ORDER BY
+                i.Direccion
 
             LIMIT @tamPagina
             OFFSET @offset;
         ";
 
         using var comando =
-            new MySqlCommand(sql, conexion);
+            new MySqlCommand(
+                sql,
+                conexion
+            );
 
         comando.Parameters.AddWithValue(
             "@fechaCorte",
             fechaCorte
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            fechaHasta
         );
 
         comando.Parameters.AddWithValue(
@@ -762,33 +811,47 @@ public class RepositorioInmueble : IRepositorioInmueble
         var fechaCorte =
             DateTime.Now.AddDays(-dias);
 
+        var fechaHasta =
+            DateTime.Now;
+
         var sql = @"
             SELECT COUNT(*)
+
             FROM Inmueble i
 
             WHERE NOT EXISTS
             (
                 SELECT 1
+
                 FROM Reserva r
 
-                WHERE r.InmuebleId = i.IdInmueble
-                  AND r.FechaDesde >= @fechaCorte
+                WHERE
+                    r.InmuebleId = i.IdInmueble
+                    AND r.FechaDesde >= @fechaCorte
+                    AND r.FechaDesde <= @fechaHasta
             );
         ";
 
         using var comando =
-            new MySqlCommand(sql, conexion);
+            new MySqlCommand(
+                sql,
+                conexion
+            );
 
         comando.Parameters.AddWithValue(
             "@fechaCorte",
             fechaCorte
         );
 
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            fechaHasta
+        );
+
         return Convert.ToInt32(
             comando.ExecuteScalar()
         );
     }
-
     public IList<Inmueble> ObtenerDisponiblesEntreFechas(
         DateTime fechaDesde,
         DateTime fechaHasta,
