@@ -2,22 +2,60 @@
     ViewData["Title"] = "Informes";
 }
 
-<h2>Informes</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">📊 Informes</h2>
 
-<ul>
-    <li>
-        <a asp-controller="Informes" asp-action="InmueblesPorDisponibilidad">
-            Inmuebles y su dueño (filtrado por disponibilidad)
-        </a>
-    </li>
-    <li> <a asp-controller="Informes" asp-action="InmueblesPorPropietario"> Inmuebles de un propietario específico </a> </li>
-    <li>
-        <a asp-controller="Informes" asp-action="InmueblesMasReservados">Inmuebles más reservados en los últimos 365 días</a>
-    </li>
-    <li>
-        <a asp-controller="Informes" asp-action="InmueblesSinReservas">Inmuebles sin reservas en los últimos X días</a>
-    </li>
-    <li>
-        <a asp-controller="Informes" asp-action="InmueblesDisponiblesEntreFechas">Inmuebles disponibles entre dos fechas</a>
-    </li>
-</ul>
+    <div class="row row-cols-1 row-cols-md-2 g-3">
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">🏠 Inmuebles y su dueño</h5>
+                    <p class="card-text text-muted">Listado completo filtrado por disponibilidad.</p>
+                    <a asp-controller="Informes" asp-action="InmueblesPorDisponibilidad" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">👤 Inmuebles por propietario</h5>
+                    <p class="card-text text-muted">Elegí un propietario y mirá todas sus propiedades.</p>
+                    <a asp-controller="Informes" asp-action="InmueblesPorPropietario" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">🔥 Más reservados</h5>
+                    <p class="card-text text-muted">Los inmuebles con más reservas en los últimos 365 días.</p>
+                    <a asp-controller="Informes" asp-action="InmueblesMasReservados" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">📭 Sin reservas</h5>
+                    <p class="card-text text-muted">Inmuebles sin ninguna reserva en los últimos X días.</p>
+                    <a asp-controller="Informes" asp-action="InmueblesSinReservas" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">📅 Disponibles entre fechas</h5>
+                    <p class="card-text text-muted">Buscá qué inmuebles están libres en un rango de fechas.</p>
+                    <a asp-controller="Informes" asp-action="InmueblesDisponiblesEntreFechas" class="stretched-link"></a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
