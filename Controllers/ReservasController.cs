@@ -88,18 +88,24 @@ public class ReservasController : ABMController<Reserva>
             reserva.FechaHasta;
 
         reserva.Finalizada = false;
-        reserva.FechaFinalizacionAnticipada = null;
-        reserva.MontoMulta = null;
-        reserva.UsuarioFinalizadorId = null;
+
+        reserva.FechaFinalizacionAnticipada =
+            null;
+
+        reserva.MontoMulta =
+            null;
+
+        reserva.UsuarioFinalizadorId =
+            null;
 
         if (
-            reserva.FechaHasta <
+            reserva.FechaHasta <=
             reserva.FechaDesde
         )
         {
             ModelState.AddModelError(
                 "FechaHasta",
-                "La fecha de finalización no puede ser anterior a la fecha de inicio."
+                "La fecha de finalización debe ser posterior a la fecha de inicio."
             );
         }
 
@@ -233,13 +239,13 @@ public class ReservasController : ABMController<Reserva>
             reservaActual.MontoMulta;
 
         if (
-            reserva.FechaHasta <
+            reserva.FechaHasta <=
             reserva.FechaDesde
         )
         {
             ModelState.AddModelError(
                 "FechaHasta",
-                "La fecha de finalización no puede ser anterior a la fecha de inicio."
+                "La fecha de finalización debe ser posterior a la fecha de inicio."
             );
         }
 
@@ -290,13 +296,13 @@ public class ReservasController : ABMController<Reserva>
         )
         {
             if (
-                fechaHasta.Value <
+                fechaHasta.Value <=
                 fechaDesde.Value
             )
             {
                 ModelState.AddModelError(
                     "FechaHasta",
-                    "La fecha de finalización no puede ser anterior a la fecha de inicio."
+                    "La fecha de finalización debe ser posterior a la fecha de inicio."
                 );
             }
             else
@@ -317,11 +323,20 @@ public class ReservasController : ABMController<Reserva>
             }
         }
 
-        ViewBag.FechaDesde = fechaDesde;
-        ViewBag.FechaHasta = fechaHasta;
-        ViewBag.Cupo = cupo;
-        ViewBag.TipoInmuebleId = tipoInmuebleId;
-        ViewBag.PrecioMaximo = precioMaximo;
+        ViewBag.FechaDesde =
+            fechaDesde;
+
+        ViewBag.FechaHasta =
+            fechaHasta;
+
+        ViewBag.Cupo =
+            cupo;
+
+        ViewBag.TipoInmuebleId =
+            tipoInmuebleId;
+
+        ViewBag.PrecioMaximo =
+            precioMaximo;
 
         return View(resultados);
     }
@@ -339,6 +354,294 @@ public class ReservasController : ABMController<Reserva>
         }
 
         return View(reserva);
+    }
+
+    [HttpGet]
+    public IActionResult Renovar(
+        int id)
+    {
+        var reservaOriginal =
+            repositorio.ObtenerPorId(id);
+
+        if (reservaOriginal == null)
+        {
+            return NotFound();
+        }
+
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(
+                reservaOriginal.InmuebleId
+            );
+
+        if (inmueble == null)
+        {
+            return NotFound();
+        }
+
+        var inquilino =
+            repositorioInquilino.ObtenerPorId(
+                reservaOriginal.InquilinoId
+            );
+
+        if (inquilino == null)
+        {
+            return NotFound();
+        }
+
+        var fechaInicioNueva =
+            reservaOriginal.FechaFinalizacionAnticipada
+            ?? reservaOriginal.FechaHasta;
+
+        var nuevaReserva =
+            new Reserva
+            {
+                IdReserva =
+                    reservaOriginal.IdReserva,
+
+                InmuebleId =
+                    reservaOriginal.InmuebleId,
+
+                InquilinoId =
+                    reservaOriginal.InquilinoId,
+
+                FechaDesde =
+                    fechaInicioNueva,
+
+                FechaHasta =
+                    fechaInicioNueva.AddDays(1),
+
+                FechaHastaOriginal =
+                    fechaInicioNueva.AddDays(1),
+
+                MontoPorDia =
+                    inmueble.PrecioPorDia,
+
+                Finalizada =
+                    false,
+
+                FechaFinalizacionAnticipada =
+                    null,
+
+                MontoMulta =
+                    null,
+
+                UsuarioCreadorId =
+                    0,
+
+                UsuarioFinalizadorId =
+                    null
+            };
+
+        ViewBag.Inmueble =
+            inmueble;
+
+        ViewBag.Inquilino =
+            inquilino;
+
+        ViewBag.FechaInicioMinima =
+            fechaInicioNueva;
+
+        return View(
+            nuevaReserva
+        );
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult Renovar(
+        Reserva reserva)
+    {
+        var reservaOriginal =
+            repositorio.ObtenerPorId(
+                reserva.IdReserva
+            );
+
+        if (reservaOriginal == null)
+        {
+            return NotFound();
+        }
+
+        var claimUsuarioId =
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier
+            );
+
+        if (!int.TryParse(
+            claimUsuarioId,
+            out var usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(
+                reservaOriginal.InmuebleId
+            );
+
+        if (inmueble == null)
+        {
+            return NotFound();
+        }
+
+        var inquilino =
+            repositorioInquilino.ObtenerPorId(
+                reservaOriginal.InquilinoId
+            );
+
+        if (inquilino == null)
+        {
+            return NotFound();
+        }
+
+        var fechaInicioMinima =
+            reservaOriginal.FechaFinalizacionAnticipada
+            ?? reservaOriginal.FechaHasta;
+
+        reserva.InmuebleId =
+            reservaOriginal.InmuebleId;
+
+        reserva.InquilinoId =
+            reservaOriginal.InquilinoId;
+
+        if (
+            reserva.FechaDesde <
+            fechaInicioMinima
+        )
+        {
+            ModelState.AddModelError(
+                "FechaDesde",
+                $"La nueva reserva debe comenzar el {fechaInicioMinima:dd/MM/yyyy} o después."
+            );
+        }
+
+        if (
+            reserva.FechaHasta <=
+            reserva.FechaDesde
+        )
+        {
+            ModelState.AddModelError(
+                "FechaHasta",
+                "La fecha de finalización debe ser posterior a la fecha de inicio."
+            );
+        }
+
+        if (
+            reserva.MontoPorDia <= 0
+        )
+        {
+            ModelState.AddModelError(
+                "MontoPorDia",
+                "El monto por día debe ser mayor a cero."
+            );
+        }
+
+        var repositorioReserva =
+            (IRepositorioReserva)repositorio;
+
+        if (
+            ModelState.IsValid &&
+            repositorioReserva.ExisteSolapamiento(
+                reserva.InmuebleId,
+                reserva.FechaDesde,
+                reserva.FechaHasta
+            )
+        )
+        {
+            ModelState.AddModelError(
+                "FechaHasta",
+                "El inmueble ya está reservado en esas fechas."
+            );
+        }
+
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Inmueble =
+                inmueble;
+
+            ViewBag.Inquilino =
+                inquilino;
+
+            ViewBag.FechaInicioMinima =
+                fechaInicioMinima;
+
+            return View(
+                reserva
+            );
+        }
+
+        var nuevaReserva =
+            new Reserva
+            {
+                FechaDesde =
+                    reserva.FechaDesde,
+
+                FechaHasta =
+                    reserva.FechaHasta,
+
+                FechaHastaOriginal =
+                    reserva.FechaHasta,
+
+                MontoPorDia =
+                    reserva.MontoPorDia,
+
+                Finalizada =
+                    false,
+
+                FechaFinalizacionAnticipada =
+                    null,
+
+                MontoMulta =
+                    null,
+
+                InmuebleId =
+                    reservaOriginal.InmuebleId,
+
+                InquilinoId =
+                    reservaOriginal.InquilinoId,
+
+                UsuarioCreadorId =
+                    usuarioId,
+
+                UsuarioFinalizadorId =
+                    null
+            };
+
+        try
+        {
+            repositorioReserva.AltaConSena(
+                nuevaReserva,
+                inmueble.PorcentajeSenia
+            );
+        }
+        catch
+        {
+            ModelState.AddModelError(
+                "",
+                "No se pudo crear la nueva reserva."
+            );
+
+            ViewBag.Inmueble =
+                inmueble;
+
+            ViewBag.Inquilino =
+                inquilino;
+
+            ViewBag.FechaInicioMinima =
+                fechaInicioMinima;
+
+            return View(
+                reserva
+            );
+        }
+
+        return RedirectToAction(
+            nameof(Detalle),
+            new
+            {
+                id =
+                    nuevaReserva.IdReserva
+            }
+        );
     }
 
     [HttpGet]
@@ -361,9 +664,15 @@ public class ReservasController : ABMController<Reserva>
             );
         }
 
-        ViewBag.MontoMultaCalculada = 0m;
-        ViewBag.PorcentajeMulta = 0m;
-        ViewBag.MultaAbonada = false;
+        ViewBag.MontoMultaCalculada =
+            0m;
+
+        ViewBag.PorcentajeMulta =
+            0m;
+
+        ViewBag.MultaAbonada =
+            false;
+
         ViewBag.FechaFinalizacion =
             fechaFinalizacion;
 
@@ -509,7 +818,10 @@ public class ReservasController : ABMController<Reserva>
 
         return RedirectToAction(
             nameof(Detalle),
-            new { id }
+            new
+            {
+                id
+            }
         );
     }
 

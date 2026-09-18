@@ -1,0 +1,203 @@
+@model Inmobiliaria_DeborahGomez.Models.Reserva
+
+@{
+    ViewData["Title"] = "Renovar reserva";
+
+    var inmueble =
+        ViewBag.Inmueble as Inmobiliaria_DeborahGomez.Models.Inmueble;
+
+    var inquilino =
+        ViewBag.Inquilino as Inmobiliaria_DeborahGomez.Models.Inquilino;
+
+    DateTime fechaInicioMinima =
+        ViewBag.FechaInicioMinima;
+}
+
+<div class="container mt-4">
+
+    <h2>Renovar reserva</h2>
+
+    <div class="card mb-4">
+
+        <div class="card-header">
+            Reserva original
+        </div>
+
+        <div class="card-body">
+
+            <dl class="row mb-0">
+
+                <dt class="col-sm-4">
+                    Inmueble
+                </dt>
+
+                <dd class="col-sm-8">
+                    @(inmueble?.Direccion ?? "No encontrado")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Inquilino
+                </dt>
+
+                <dd class="col-sm-8">
+                    @(inquilino?.NombreCompleto ?? "No encontrado")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Última fecha disponible
+                </dt>
+
+                <dd class="col-sm-8">
+                    @fechaInicioMinima.ToString("dd/MM/yyyy")
+                </dd>
+
+            </dl>
+
+        </div>
+
+    </div>
+
+    <div asp-validation-summary="All"
+         class="text-danger mb-3">
+    </div>
+
+    <form asp-action="Renovar"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input asp-for="IdReserva"
+               type="hidden" />
+
+        <input asp-for="InmuebleId"
+               type="hidden" />
+
+        <input asp-for="InquilinoId"
+               type="hidden" />
+
+        <div class="mb-3">
+
+            <label asp-for="FechaDesde"
+                   class="form-label">
+                Nueva fecha de inicio
+            </label>
+
+            <input asp-for="FechaDesde"
+                   type="date"
+                   class="form-control"
+                   min="@fechaInicioMinima.ToString("yyyy-MM-dd")" />
+
+            <span asp-validation-for="FechaDesde"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label asp-for="FechaHasta"
+                   class="form-label">
+                Nueva fecha de finalización
+            </label>
+
+            <input asp-for="FechaHasta"
+                   type="date"
+                   class="form-control"
+                   min="@fechaInicioMinima.AddDays(1).ToString("yyyy-MM-dd")" />
+
+            <span asp-validation-for="FechaHasta"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <div class="mb-3">
+
+            <label asp-for="MontoPorDia"
+                   class="form-label">
+                Nuevo monto por día
+            </label>
+
+            <input asp-for="MontoPorDia"
+                   type="number"
+                   step="0.01"
+                   class="form-control" />
+
+            <span asp-validation-for="MontoPorDia"
+                  class="text-danger">
+            </span>
+
+        </div>
+
+        <div class="alert alert-info">
+
+            Inmueble:
+            @(inmueble?.Direccion ?? "No encontrado")
+
+            <br />
+
+            Inquilino:
+            @(inquilino?.NombreCompleto ?? "No encontrado")
+
+        </div>
+
+        <button type="submit"
+                class="btn btn-primary">
+            Crear nueva reserva
+        </button>
+
+        <a asp-action="Detalle"
+           asp-route-id="@Model.IdReserva"
+           class="btn btn-secondary">
+            Cancelar
+        </a>
+
+    </form>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const fechaDesde =
+            document.getElementById("FechaDesde");
+
+        const fechaHasta =
+            document.getElementById("FechaHasta");
+
+        if (fechaDesde && fechaHasta) {
+            fechaDesde.addEventListener(
+                "change",
+                function () {
+                    const fecha =
+                        new Date(
+                            fechaDesde.value +
+                            "T00:00:00"
+                        );
+
+                    fecha.setDate(
+                        fecha.getDate() + 1
+                    );
+
+                    const minimo =
+                        fecha
+                            .toISOString()
+                            .split("T")[0];
+
+                    fechaHasta.min =
+                        minimo;
+
+                    if (
+                        fechaHasta.value &&
+                        fechaHasta.value < minimo
+                    ) {
+                        fechaHasta.value =
+                            minimo;
+                    }
+                }
+            );
+        }
+    </script>
+}

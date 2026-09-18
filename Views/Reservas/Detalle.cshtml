@@ -303,6 +303,13 @@
         }
 
         <a
+            asp-action="Renovar"
+            asp-route-id="@Model.IdReserva"
+            class="btn btn-primary">
+            Renovar reserva
+        </a>
+
+        <a
             asp-controller="Pagos"
             asp-action="Index"
             asp-route-reservaId="@Model.IdReserva"
