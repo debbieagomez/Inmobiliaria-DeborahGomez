@@ -128,6 +128,18 @@ classDiagram
 
 </details>
 
+## Credenciales de prueba
+
+### Administrador
+
+- Usuario: `admin@gmail.com`
+- Contraseña: `123456`
+
+### Empleado
+
+- Usuario: `empleado@gmail.com`
+- Contraseña: `123456`
+
 ### Pasos para ingresar a MySQL Workbench e inicializar localmente la base de datos:
 
 1. Abrir **MySQL Workbench** y seleccionar la conexión correspondiente al servidor MySQL local.

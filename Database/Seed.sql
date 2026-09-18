@@ -16,6 +16,10 @@ TRUNCATE TABLE `propietario`;
 TRUNCATE TABLE `tipoinmueble`;
 TRUNCATE TABLE `usuario`;
 
+INSERT INTO `usuario` (`IdUsuario`, `Email`, `PasswordHash`, `Rol`, `Avatar`) VALUES
+(3, 'admin@gmail.com', 'AQAAAAIAAYagAAAAECTU2a+OTSNOE1i9/n9uJV+Qg/ILegmXVU3PHZS0L+pL+EMtOZPJRoj6ZJkqBdRbmw==', 'Administrador', NULL),
+(4, 'empleado@gmail.com', 'AQAAAAIAAYagAAAAEIqvMzW2IRixz4umgkUgqhdDwyJerCR0CeElm5yHOH47ef0MtXuj2//6IcURw4Br9g==', 'Empleado', NULL);
+
 INSERT INTO `propietario` (`IdPropietario`, `Nombre`, `Apellido`, `Dni`, `Telefono`, `Email`) VALUES
 (4, 'Juan', 'Dominguez', '32100300', '2664768863', 'juandd24@gmail.com'),
 (5, 'Candela', 'Gutierrez', '35432324', '2664221589', 'gugucande@hotmail.com'),
@@ -89,6 +93,30 @@ INSERT INTO `imageninmueble` (`IdImagenInmueble`, `InmuebleId`, `Url`, `EsPortad
 (17, 14, 'https://images.unsplash.com/photo-1600047509358-9dc75507daeb', 1),
 (18, 15, 'https://images.unsplash.com/photo-1600566753190-17f0baa2a6c3', 1),
 (19, 16, 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c', 1);
+
+INSERT INTO `reserva` (`IdReserva`, `FechaDesde`, `FechaHasta`, `FechaHastaOriginal`, `MontoPorDia`, `Finalizada`, `FechaFinalizacionAnticipada`, `MontoMulta`, `InmuebleId`, `InquilinoId`, `UsuarioCreadorId`, `UsuarioFinalizadorId`) VALUES
+(1, '2026-07-01 10:00:00', '2026-07-10 10:00:00', '2026-07-10 10:00:00', 45000.00, 1, NULL, NULL, 2, 3, 3, 3),
+(2, '2026-07-15 10:00:00', '2026-08-04 10:00:00', '2026-08-04 10:00:00', 39000.00, 1, NULL, NULL, 5, 6, 3, 3),
+(3, '2026-08-01 10:00:00', '2026-08-31 10:00:00', '2026-08-31 10:00:00', 35000.00, 1, '2026-08-20 10:00:00', 271250.00, 7, 8, 3, 3),
+(4, '2026-08-10 10:00:00', '2026-08-24 10:00:00', '2026-08-24 10:00:00', 58000.00, 1, NULL, NULL, 4, 5, 3, 3),
+(5, '2026-09-01 10:00:00', '2026-09-30 10:00:00', '2026-09-30 10:00:00', 52000.00, 1, '2026-09-10 10:00:00', 780000.00, 6, 7, 3, 3),
+(6, '2026-09-20 10:00:00', '2026-09-27 10:00:00', '2026-09-27 10:00:00', 32000.00, 0, NULL, NULL, 3, 4, 3, NULL),
+(7, '2026-10-01 10:00:00', '2026-10-15 10:00:00', '2026-10-15 10:00:00', 58000.00, 0, NULL, NULL, 4, 10, 3, NULL),
+(8, '2026-10-20 10:00:00', '2026-10-27 10:00:00', '2026-10-27 10:00:00', 61000.00, 0, NULL, NULL, 9, 11, 3, NULL);
+
+INSERT INTO `pago` (`IdPago`, `Concepto`, `FechaPago`, `Importe`, `Anulado`, `FechaAnulacion`, `ReservaId`, `UsuarioCreadorId`, `UsuarioAnuladorId`) VALUES
+(1, 'Seña', '2026-06-20 12:00:00', 135000.00, 0, NULL, 1, 3, NULL),
+(2, 'Saldo de reserva', '2026-06-30 12:00:00', 315000.00, 0, NULL, 1, 3, NULL),
+(3, 'Seña', '2026-07-01 13:00:00', 117000.00, 0, NULL, 2, 3, NULL),
+(4, 'Saldo de reserva', '2026-07-10 13:00:00', 663000.00, 0, NULL, 2, 3, NULL),
+(5, 'Seña', '2026-07-20 11:00:00', 271250.00, 0, NULL, 3, 3, NULL),
+(6, 'Multa por terminación anticipada', '2026-08-20 16:00:00', 271250.00, 0, NULL, 3, 3, NULL),
+(7, 'Seña', '2026-07-30 12:00:00', 203000.00, 0, NULL, 4, 3, NULL),
+(8, 'Saldo de reserva', '2026-08-05 12:00:00', 609000.00, 0, NULL, 4, 3, NULL),
+(9, 'Seña', '2026-08-20 10:00:00', 520000.00, 1, '2026-09-05 14:00:00', 5, 3, 3),
+(10, 'Seña', '2026-09-05 10:00:00', 56000.00, 0, NULL, 6, 3, NULL),
+(11, 'Seña', '2026-09-15 10:00:00', 203000.00, 0, NULL, 7, 3, NULL),
+(12, 'Seña', '2026-09-16 10:00:00', 122000.00, 0, NULL, 8, 3, NULL);
 
 SET FOREIGN_KEY_CHECKS = 1;
 SET UNIQUE_CHECKS = 1;
