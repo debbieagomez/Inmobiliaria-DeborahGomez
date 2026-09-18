@@ -38,4 +38,21 @@ public interface IRepositorioReserva : IRepositorio<Reserva>
     bool TienePagos(
         int idReserva
     );
+
+    IList<Reserva> ObtenerVigentes(
+        int pagina = 1,
+        int tamPagina = 10
+    );
+
+    int ObtenerCantidadVigentes();
+
+    IList<Reserva> ObtenerQueTerminanEn(
+        int dias,
+        int pagina = 1,
+        int tamPagina = 10
+    );
+
+    int ObtenerCantidadQueTerminanEn(
+        int dias
+    );
 }

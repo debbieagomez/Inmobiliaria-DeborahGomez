@@ -1379,4 +1379,387 @@ public class RepositorioReserva : IRepositorioReserva
         );
     }
 
+    public IList<Reserva> ObtenerVigentes(
+        int pagina = 1,
+        int tamPagina = 10)
+    {
+        var lista = new List<Reserva>();
+
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var hoy = DateTime.Now.Date;
+
+        var sql = @"
+            SELECT
+                r.IdReserva,
+                r.FechaDesde,
+                r.FechaHasta,
+                r.FechaHastaOriginal,
+                r.MontoPorDia,
+                r.Finalizada,
+                r.FechaFinalizacionAnticipada,
+                r.MontoMulta,
+                r.InmuebleId,
+                r.InquilinoId,
+                r.UsuarioCreadorId,
+                r.UsuarioFinalizadorId,
+
+                i.Direccion AS DireccionInmueble,
+                q.NombreCompleto AS NombreInquilino
+
+            FROM Reserva r
+
+            INNER JOIN Inmueble i
+                ON r.InmuebleId = i.IdInmueble
+
+            INNER JOIN Inquilino q
+                ON r.InquilinoId = q.IdInquilino
+
+            WHERE
+                r.Finalizada = 0
+
+                AND DATE(r.FechaDesde) <= @hoy
+
+                AND DATE(
+                    COALESCE(
+                        r.FechaFinalizacionAnticipada,
+                        r.FechaHasta
+                    )
+                ) >= @hoy
+
+            ORDER BY
+                r.FechaHasta ASC
+
+            LIMIT @tamPagina
+            OFFSET @offset;
+        ";
+
+        using var comando =
+            new MySqlCommand(
+                sql,
+                conexion
+            );
+
+        comando.Parameters.AddWithValue(
+            "@hoy",
+            hoy
+        );
+
+        comando.Parameters.AddWithValue(
+            "@tamPagina",
+            tamPagina
+        );
+
+        comando.Parameters.AddWithValue(
+            "@offset",
+            (pagina - 1) * tamPagina
+        );
+
+        using var reader =
+            comando.ExecuteReader();
+
+        while (reader.Read())
+        {
+            lista.Add(
+                LeerReservaConDatos(
+                    reader
+                )
+            );
+        }
+
+        return lista;
+    }
+    public int ObtenerCantidadVigentes()
+    {
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var hoy = DateTime.Now.Date;
+
+        var sql = @"
+            SELECT COUNT(*)
+
+            FROM Reserva r
+
+            WHERE
+                r.Finalizada = 0
+
+                AND DATE(r.FechaDesde) <= @hoy
+
+                AND DATE(
+                    COALESCE(
+                        r.FechaFinalizacionAnticipada,
+                        r.FechaHasta
+                    )
+                ) >= @hoy;
+        ";
+
+        using var comando =
+            new MySqlCommand(
+                sql,
+                conexion
+            );
+
+        comando.Parameters.AddWithValue(
+            "@hoy",
+            hoy
+        );
+
+        return Convert.ToInt32(
+            comando.ExecuteScalar()
+        );
+    }
+    public IList<Reserva> ObtenerQueTerminanEn(
+        int dias,
+        int pagina = 1,
+        int tamPagina = 10)
+    {
+        var lista = new List<Reserva>();
+
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var fechaDesde = DateTime.Now;
+        var fechaHasta = DateTime.Now.AddDays(dias);
+
+        var sql = @"
+            SELECT
+                r.IdReserva,
+                r.FechaDesde,
+                r.FechaHasta,
+                r.FechaHastaOriginal,
+                r.MontoPorDia,
+                r.Finalizada,
+                r.FechaFinalizacionAnticipada,
+                r.MontoMulta,
+                r.InmuebleId,
+                r.InquilinoId,
+                r.UsuarioCreadorId,
+                r.UsuarioFinalizadorId,
+
+                i.Direccion AS DireccionInmueble,
+                q.NombreCompleto AS NombreInquilino
+
+            FROM Reserva r
+
+            INNER JOIN Inmueble i
+                ON r.InmuebleId = i.IdInmueble
+
+            INNER JOIN Inquilino q
+                ON r.InquilinoId = q.IdInquilino
+
+            WHERE
+                r.Finalizada = 0
+
+                AND COALESCE(
+                    r.FechaFinalizacionAnticipada,
+                    r.FechaHasta
+                ) >= @fechaDesde
+
+                AND COALESCE(
+                    r.FechaFinalizacionAnticipada,
+                    r.FechaHasta
+                ) <= @fechaHasta
+
+            ORDER BY
+                COALESCE(
+                    r.FechaFinalizacionAnticipada,
+                    r.FechaHasta
+                ) ASC
+
+            LIMIT @tamPagina
+            OFFSET @offset;
+        ";
+
+        using var comando =
+            new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue(
+            "@fechaDesde",
+            fechaDesde
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            fechaHasta
+        );
+
+        comando.Parameters.AddWithValue(
+            "@tamPagina",
+            tamPagina
+        );
+
+        comando.Parameters.AddWithValue(
+            "@offset",
+            (pagina - 1) * tamPagina
+        );
+
+        using var reader =
+            comando.ExecuteReader();
+
+        while (reader.Read())
+        {
+            lista.Add(
+                LeerReservaConDatos(
+                    reader
+                )
+            );
+        }
+
+        return lista;
+    }
+
+    public int ObtenerCantidadQueTerminanEn(
+        int dias)
+    {
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var fechaDesde = DateTime.Now;
+        var fechaHasta = DateTime.Now.AddDays(dias);
+
+        var sql = @"
+            SELECT COUNT(*)
+
+            FROM Reserva r
+
+            WHERE
+                r.Finalizada = 0
+
+                AND COALESCE(
+                    r.FechaFinalizacionAnticipada,
+                    r.FechaHasta
+                ) >= @fechaDesde
+
+                AND COALESCE(
+                    r.FechaFinalizacionAnticipada,
+                    r.FechaHasta
+                ) <= @fechaHasta;
+        ";
+
+        using var comando =
+            new MySqlCommand(
+                sql,
+                conexion
+            );
+
+        comando.Parameters.AddWithValue(
+            "@fechaDesde",
+            fechaDesde
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            fechaHasta
+        );
+
+        return Convert.ToInt32(
+            comando.ExecuteScalar()
+        );
+    }
+
+    private static Reserva LeerReservaConDatos(
+        MySqlDataReader reader)
+    {
+        return new Reserva
+        {
+            IdReserva =
+                reader.GetInt32(
+                    "IdReserva"
+                ),
+
+            FechaDesde =
+                reader.GetDateTime(
+                    "FechaDesde"
+                ),
+
+            FechaHasta =
+                reader.GetDateTime(
+                    "FechaHasta"
+                ),
+
+            FechaHastaOriginal =
+                reader.GetDateTime(
+                    "FechaHastaOriginal"
+                ),
+
+            MontoPorDia =
+                reader.GetDecimal(
+                    "MontoPorDia"
+                ),
+
+            Finalizada =
+                reader.GetBoolean(
+                    "Finalizada"
+                ),
+
+            FechaFinalizacionAnticipada =
+                reader.IsDBNull(
+                    reader.GetOrdinal(
+                        "FechaFinalizacionAnticipada"
+                    )
+                )
+                    ? null
+                    : reader.GetDateTime(
+                        "FechaFinalizacionAnticipada"
+                    ),
+
+            MontoMulta =
+                reader.IsDBNull(
+                    reader.GetOrdinal(
+                        "MontoMulta"
+                    )
+                )
+                    ? null
+                    : reader.GetDecimal(
+                        "MontoMulta"
+                    ),
+
+            InmuebleId =
+                reader.GetInt32(
+                    "InmuebleId"
+                ),
+
+            InquilinoId =
+                reader.GetInt32(
+                    "InquilinoId"
+                ),
+
+            UsuarioCreadorId =
+                reader.GetInt32(
+                    "UsuarioCreadorId"
+                ),
+
+            UsuarioFinalizadorId =
+                reader.IsDBNull(
+                    reader.GetOrdinal(
+                        "UsuarioFinalizadorId"
+                    )
+                )
+                    ? null
+                    : reader.GetInt32(
+                        "UsuarioFinalizadorId"
+                    ),
+
+            DireccionInmueble =
+                reader.GetString(
+                    "DireccionInmueble"
+                ),
+
+            NombreInquilino =
+                reader.GetString(
+                    "NombreInquilino"
+                )
+        };
+    }
+
 }

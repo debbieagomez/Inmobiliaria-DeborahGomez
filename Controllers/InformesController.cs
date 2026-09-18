@@ -10,16 +10,20 @@ public class InformesController : Controller
 {
     private readonly IRepositorioInmueble repositorioInmueble;
     private readonly IRepositorioPropietario repositorioPropietario;
+    private readonly IRepositorioReserva repositorioReserva;
 
     public InformesController(
         IRepositorioInmueble repositorioInmueble,
-        IRepositorioPropietario repositorioPropietario)
+        IRepositorioPropietario repositorioPropietario, 
+        IRepositorioReserva repositorioReserva)
     {
         this.repositorioInmueble =
             repositorioInmueble;
 
         this.repositorioPropietario =
             repositorioPropietario;
+
+        this.repositorioReserva = repositorioReserva;
     }
 
     public IActionResult Index()
@@ -290,6 +294,90 @@ public class InformesController : Controller
                 cantidad /
                 (double)tamPagina
             );
+
+        return View(lista);
+    }
+
+    public IActionResult ReservasVigentes(
+    int pagina = 1)
+    {
+        pagina = Math.Max(
+            pagina,
+            1
+        );
+
+        const int tamPagina = 10;
+
+        var cantidad =
+            repositorioReserva.ObtenerCantidadVigentes();
+
+        var totalPaginas =
+            cantidad == 0
+                ? 1
+                : (int)Math.Ceiling(
+                    cantidad / (double)tamPagina
+                );
+
+        if (pagina > totalPaginas)
+        {
+            pagina = totalPaginas;
+        }
+
+        var lista =
+            repositorioReserva.ObtenerVigentes(
+                pagina,
+                tamPagina
+            );
+
+        ViewBag.Pagina = pagina;
+        ViewBag.TotalPaginas = totalPaginas;
+
+        return View(lista);
+    }
+
+    public IActionResult ReservasQueTerminan(
+        int dias = 7,
+        int pagina = 1)
+    {
+        pagina = Math.Max(
+            pagina,
+            1
+        );
+
+        if (dias <= 0)
+        {
+            dias = 7;
+        }
+
+        const int tamPagina = 10;
+
+        var cantidad =
+            repositorioReserva.ObtenerCantidadQueTerminanEn(
+                dias
+            );
+
+        var totalPaginas =
+            cantidad == 0
+                ? 1
+                : (int)Math.Ceiling(
+                    cantidad / (double)tamPagina
+                );
+
+        if (pagina > totalPaginas)
+        {
+            pagina = totalPaginas;
+        }
+
+        var lista =
+            repositorioReserva.ObtenerQueTerminanEn(
+                dias,
+                pagina,
+                tamPagina
+            );
+
+        ViewBag.Dias = dias;
+        ViewBag.Pagina = pagina;
+        ViewBag.TotalPaginas = totalPaginas;
 
         return View(lista);
     }

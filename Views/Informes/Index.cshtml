@@ -57,5 +57,35 @@
             </div>
         </div>
 
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Reservas vigentes</h5>
+                    <p class="card-text text-muted">
+                        Reservas activas según la fecha actual.
+                    </p>
+                    <a asp-controller="Informes"
+                    asp-action="ReservasVigentes"
+                    class="stretched-link">
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <h5 class="card-title">Reservas que terminan</h5>
+                    <p class="card-text text-muted">
+                        Reservas que terminan dentro de un plazo determinado.
+                    </p>
+                    <a asp-controller="Informes"
+                    asp-action="ReservasQueTerminan"
+                    class="stretched-link">
+                    </a>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
