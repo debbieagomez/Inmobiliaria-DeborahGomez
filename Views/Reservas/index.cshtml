@@ -10,7 +10,12 @@
 }
 
 <div class="container mt-4">
-
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-warning">
+            @error
+        </div>
+    }
     <div class="d-flex justify-content-between align-items-center mb-4">
 
         <h1>Reservas</h1>
@@ -166,6 +171,16 @@
                                    class="btn btn-sm btn-outline-success">
                                     Pagos
                                 </a>
+
+                                @if (!reserva.Finalizada)
+                                {
+                                    <a
+                                        asp-action="Finalizar"
+                                        asp-route-id="@reserva.IdReserva"
+                                        class="btn btn-warning">
+                                        Finalizar
+                                    </a>
+                                }
 
                                 <a asp-action="Eliminar"
                                    asp-route-id="@reserva.IdReserva"

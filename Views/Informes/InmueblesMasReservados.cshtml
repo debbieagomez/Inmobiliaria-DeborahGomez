@@ -29,16 +29,33 @@ else
                 <th>Propietario</th>
                 <th>Tipo</th>
                 <th>Cantidad de reservas</th>
+                <th>Última reserva</th>
             </tr>
         </thead>
+
         <tbody>
             @foreach (var item in Model)
             {
                 <tr>
-                    <td>@item.Inmueble.Direccion</td>
-                    <td>@item.Inmueble.propietarioNombre</td>
-                    <td>@item.Inmueble.TipoNombre</td>
-                    <td>@item.CantidadReservas</td>
+                    <td>
+                        @item.Inmueble.Direccion
+                    </td>
+
+                    <td>
+                        @item.Inmueble.propietarioNombre
+                    </td>
+
+                    <td>
+                        @item.Inmueble.TipoNombre
+                    </td>
+
+                    <td>
+                        @item.CantidadReservas
+                    </td>
+
+                    <td>
+                        @item.UltimaFecha.ToString("dd/MM/yyyy")
+                    </td>
                 </tr>
             }
         </tbody>
