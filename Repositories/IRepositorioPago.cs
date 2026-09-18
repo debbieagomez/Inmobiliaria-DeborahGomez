@@ -20,4 +20,9 @@ public interface IRepositorioPago : IRepositorio<Pago>
         int idPago,
         int usuarioAnuladorId
     );
+
+    bool ExistePagoMulta(
+        int reservaId,
+        decimal importe
+    );
 }

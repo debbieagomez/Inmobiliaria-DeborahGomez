@@ -1,180 +1,321 @@
 @model Inmobiliaria_DeborahGomez.Models.Reserva
 
 @{
-    var inmueble = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)ViewBag.Inmuebles)
-        .FirstOrDefault(i => i.IdInmueble == Model.InmuebleId);
+    var inmueble =
+        ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inmueble>)
+        ViewBag.Inmuebles)
+        .FirstOrDefault(
+            i => i.IdInmueble == Model.InmuebleId
+        );
 
-    var inquilino = ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)ViewBag.Inquilinos)
-        .FirstOrDefault(q => q.IdInquilino == Model.InquilinoId);
+    var inquilino =
+        ((IEnumerable<Inmobiliaria_DeborahGomez.Models.Inquilino>)
+        ViewBag.Inquilinos)
+        .FirstOrDefault(
+            q => q.IdInquilino == Model.InquilinoId
+        );
 
-    var diasOriginales = (Model.FechaHastaOriginal.Date - Model.FechaDesde.Date).Days + 1;
+    var diasOriginales =
+        (
+            Model.FechaHastaOriginal.Date -
+            Model.FechaDesde.Date
+        ).Days;
 
-    var diasRealizados = Model.Finalizada && Model.FechaFinalizacionAnticipada.HasValue
-        ? (Model.FechaFinalizacionAnticipada.Value.Date - Model.FechaDesde.Date).Days + 1
-        : diasOriginales;
+    var diasRealizados =
+        Model.Finalizada &&
+        Model.FechaFinalizacionAnticipada.HasValue
+            ? (
+                Model.FechaFinalizacionAnticipada.Value.Date -
+                Model.FechaDesde.Date
+              ).Days
+            : diasOriginales;
 
-    var montoTotalOriginal = diasOriginales * Model.MontoPorDia;
+    var diasRestantes =
+        Math.Max(
+            diasOriginales -
+            diasRealizados,
+            0
+        );
 
-    var montoTotalRealizado = diasRealizados * Model.MontoPorDia;
+    var montoTotalOriginal =
+        diasOriginales *
+        Model.MontoPorDia;
 
-    var porcentajeMulta = Model.MontoMulta.HasValue && Model.MontoMulta.Value > 0
-        ? (Model.MontoMulta.Value / montoTotalRealizado) * 100
-        : 0;
+    var montoTotalRealizado =
+        diasRealizados *
+        Model.MontoPorDia;
+
+    var montoAlquilerRestante =
+        diasRestantes *
+        Model.MontoPorDia;
+
+    var porcentajeMulta =
+        Model.MontoMulta.HasValue &&
+        montoAlquilerRestante > 0
+            ? (
+                Model.MontoMulta.Value /
+                montoAlquilerRestante
+              ) * 100
+            : 0;
 }
 
-<h2>Detalle de la reserva</h2>
+<div class="container mt-4">
 
-<div class="card mb-4">
-    <div class="card-header">
-        <h5 class="mb-0">Información de la reserva</h5>
-    </div>
+    <h2>Detalle de la reserva #@Model.IdReserva</h2>
 
-    <div class="card-body">
-        <dl class="row mb-0">
-
-            <dt class="col-sm-4">ID de reserva</dt>
-            <dd class="col-sm-8">@Model.IdReserva</dd>
-
-            <dt class="col-sm-4">Inmueble</dt>
-            <dd class="col-sm-8">
-                @(inmueble?.Direccion ?? "(no encontrado)")
-            </dd>
-
-            <dt class="col-sm-4">Inquilino</dt>
-            <dd class="col-sm-8">
-                @(inquilino?.NombreCompleto ?? "(no encontrado)")
-            </dd>
-
-            <dt class="col-sm-4">Fecha de inicio</dt>
-            <dd class="col-sm-8">
-                @Model.FechaDesde.ToShortDateString()
-            </dd>
-
-            <dt class="col-sm-4">Fecha hasta original</dt>
-            <dd class="col-sm-8">
-                @Model.FechaHastaOriginal.ToShortDateString()
-            </dd>
-
-            <dt class="col-sm-4">Monto por día</dt>
-            <dd class="col-sm-8">
-                @Model.MontoPorDia.ToString("C")
-            </dd>
-
-            <dt class="col-sm-4">Días originales</dt>
-            <dd class="col-sm-8">
-                @diasOriginales
-            </dd>
-
-            <dt class="col-sm-4">Monto total original</dt>
-            <dd class="col-sm-8">
-                @montoTotalOriginal.ToString("C")
-            </dd>
-
-            <dt class="col-sm-4">Estado</dt>
-            <dd class="col-sm-8">
-                @if (Model.Finalizada)
-                {
-                    <span class="badge bg-secondary">Finalizada</span>
-                }
-                else
-                {
-                    <span class="badge bg-success">Activa</span>
-                }
-            </dd>
-
-        </dl>
-    </div>
-</div>
-
-@if (Model.Finalizada)
-{
     <div class="card mb-4">
+
         <div class="card-header">
-            <h5 class="mb-0">Finalización de la reserva</h5>
+            <h5 class="mb-0">
+                Información de la reserva
+            </h5>
         </div>
 
         <div class="card-body">
+
             <dl class="row mb-0">
 
-                <dt class="col-sm-4">Fecha de finalización</dt>
+                <dt class="col-sm-4">
+                    Inmueble
+                </dt>
+
                 <dd class="col-sm-8">
-                    @(Model.FechaFinalizacionAnticipada?.ToShortDateString() ?? "No informada")
+                    @(inmueble?.Direccion ?? "(no encontrado)")
                 </dd>
 
-                <dt class="col-sm-4">Días utilizados</dt>
+                <dt class="col-sm-4">
+                    Inquilino
+                </dt>
+
                 <dd class="col-sm-8">
-                    @diasRealizados
+                    @(inquilino?.NombreCompleto ?? "(no encontrado)")
                 </dd>
 
-                <dt class="col-sm-4">Monto correspondiente a los días utilizados</dt>
+                <dt class="col-sm-4">
+                    Fecha de inicio
+                </dt>
+
                 <dd class="col-sm-8">
-                    @montoTotalRealizado.ToString("C")
+                    @Model.FechaDesde.ToString("dd/MM/yyyy")
                 </dd>
 
-                <dt class="col-sm-4">Multa</dt>
+                <dt class="col-sm-4">
+                    Fecha hasta original
+                </dt>
+
                 <dd class="col-sm-8">
-                    @if (Model.MontoMulta.HasValue && Model.MontoMulta.Value > 0)
+                    @Model.FechaHastaOriginal.ToString("dd/MM/yyyy")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Monto por día
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.MontoPorDia.ToString("C")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Días originales
+                </dt>
+
+                <dd class="col-sm-8">
+                    @diasOriginales
+                </dd>
+
+                <dt class="col-sm-4">
+                    Monto total original
+                </dt>
+
+                <dd class="col-sm-8">
+                    @montoTotalOriginal.ToString("C")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Estado
+                </dt>
+
+                <dd class="col-sm-8">
+
+                    @if (Model.Finalizada)
                     {
-                        <strong>@Model.MontoMulta.Value.ToString("C")</strong>
+                        <span class="badge bg-secondary">
+                            Finalizada
+                        </span>
                     }
                     else
                     {
-                        <span>Sin multa</span>
+                        <span class="badge bg-success">
+                            Activa
+                        </span>
                     }
-                </dd>
 
-                <dt class="col-sm-4">Porcentaje de multa aproximado</dt>
-                <dd class="col-sm-8">
-                    @porcentajeMulta.ToString("0.##") %
                 </dd>
 
             </dl>
+
         </div>
+
     </div>
-}
 
-@if (User.IsInRole("Administrador"))
-{
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5 class="mb-0">Auditoría</h5>
-        </div>
-
-        <div class="card-body">
-            <dl class="row mb-0">
-
-                <dt class="col-sm-4">Usuario que creó la reserva</dt>
-                <dd class="col-sm-8">
-                    @Model.UsuarioCreadorId
-                </dd>
-
-                <dt class="col-sm-4">Usuario que finalizó la reserva</dt>
-                <dd class="col-sm-8">
-                    @(Model.UsuarioFinalizadorId?.ToString() ?? "No finalizada")
-                </dd>
-
-            </dl>
-        </div>
-    </div>
-}
-
-<div class="mt-3">
-
-    @if (!Model.Finalizada)
+    @if (Model.Finalizada)
     {
-        <a
-            asp-action="Finalizar"
-            asp-route-id="@Model.IdReserva"
-            class="btn btn-warning">
-            Finalizar anticipadamente
-        </a>
+        <div class="card mb-4">
+
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Finalización anticipada
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <dl class="row mb-0">
+
+                    <dt class="col-sm-4">
+                        Fecha de finalización
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @(Model.FechaFinalizacionAnticipada?.ToString("dd/MM/yyyy")
+                            ?? "No informada")
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Días utilizados
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @diasRealizados
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Días restantes
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @diasRestantes
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Monto de días utilizados
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @montoTotalRealizado.ToString("C")
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Alquiler restante original
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @montoAlquilerRestante.ToString("C")
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Multa
+                    </dt>
+
+                    <dd class="col-sm-8">
+
+                        @if (
+                            Model.MontoMulta.HasValue &&
+                            Model.MontoMulta.Value > 0
+                        )
+                        {
+                            <strong>
+                                @Model.MontoMulta.Value.ToString("C")
+                            </strong>
+                        }
+                        else
+                        {
+                            <span>
+                                Sin multa
+                            </span>
+                        }
+
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Porcentaje aplicado
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @porcentajeMulta.ToString("0.##") %
+                    </dd>
+
+                </dl>
+
+            </div>
+
+        </div>
     }
 
-    <a
-        asp-action="Index"
-        class="btn btn-secondary">
-        Volver
-    </a>
+    @if (User.IsInRole("Administrador"))
+    {
+        <div class="card mb-4">
+
+            <div class="card-header">
+                <h5 class="mb-0">
+                    Auditoría
+                </h5>
+            </div>
+
+            <div class="card-body">
+
+                <dl class="row mb-0">
+
+                    <dt class="col-sm-4">
+                        Usuario que creó la reserva
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @Model.UsuarioCreadorId
+                    </dd>
+
+                    <dt class="col-sm-4">
+                        Usuario que finalizó la reserva
+                    </dt>
+
+                    <dd class="col-sm-8">
+                        @(Model.UsuarioFinalizadorId?.ToString()
+                            ?? "No finalizada")
+                    </dd>
+
+                </dl>
+
+            </div>
+
+        </div>
+    }
+
+    <div class="mt-3">
+
+        @if (!Model.Finalizada)
+        {
+            <a
+                asp-action="Finalizar"
+                asp-route-id="@Model.IdReserva"
+                class="btn btn-warning">
+                Finalizar anticipadamente
+            </a>
+        }
+
+        <a
+            asp-controller="Pagos"
+            asp-action="Index"
+            asp-route-reservaId="@Model.IdReserva"
+            class="btn btn-success">
+            Ver pagos
+        </a>
+
+        <a
+            asp-action="Index"
+            class="btn btn-secondary">
+            Volver
+        </a>
+
+    </div>
 
 </div>
-

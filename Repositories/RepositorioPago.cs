@@ -14,7 +14,9 @@ public class RepositorioPago : IRepositorioPago
 
     public int Alta(Pago pago)
     {
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -42,7 +44,8 @@ public class RepositorioPago : IRepositorioPago
             );
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue(
             "@concepto",
@@ -74,11 +77,11 @@ public class RepositorioPago : IRepositorioPago
 
     public int Modificacion(Pago pago)
     {
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
-        // La narrativa permite modificar solamente el concepto.
-        // Un pago anulado no puede volver a modificarse.
         var sql = @"
             UPDATE Pago
             SET
@@ -88,7 +91,8 @@ public class RepositorioPago : IRepositorioPago
                 AND Anulado = 0;
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue(
             "@concepto",
@@ -105,10 +109,11 @@ public class RepositorioPago : IRepositorioPago
 
     public int Anular(
         int idPago,
-        int usuarioAnuladorId
-    )
+        int usuarioAnuladorId)
     {
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -122,7 +127,8 @@ public class RepositorioPago : IRepositorioPago
                 AND Anulado = 0;
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue(
             "@fechaAnulacion",
@@ -148,9 +154,12 @@ public class RepositorioPago : IRepositorioPago
         int pagina = 1,
         int tamPagina = 10)
     {
-        var lista = new List<Pago>();
+        var lista =
+            new List<Pago>();
 
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -164,7 +173,6 @@ public class RepositorioPago : IRepositorioPago
                 p.ReservaId,
                 p.UsuarioCreadorId,
                 p.UsuarioAnuladorId,
-
                 i.Direccion AS DireccionInmueble,
                 q.NombreCompleto AS NombreInquilino
 
@@ -182,12 +190,16 @@ public class RepositorioPago : IRepositorioPago
             WHERE
                 p.ReservaId = @reservaId
 
-            AND
-            (
-                @busqueda IS NULL
-                OR @busqueda = ''
-                OR p.Concepto LIKE CONCAT('%', @busqueda, '%')
-            )
+                AND
+                (
+                    @busqueda IS NULL
+                    OR @busqueda = ''
+                    OR p.Concepto LIKE CONCAT(
+                        '%',
+                        @busqueda,
+                        '%'
+                    )
+                )
 
             ORDER BY
                 p.FechaPago DESC,
@@ -197,9 +209,11 @@ public class RepositorioPago : IRepositorioPago
             OFFSET @offset;
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
-        var offset = (pagina - 1) * tamPagina;
+        var offset =
+            (pagina - 1) * tamPagina;
 
         comando.Parameters.AddWithValue(
             "@reservaId",
@@ -223,62 +237,82 @@ public class RepositorioPago : IRepositorioPago
             offset
         );
 
-        using var reader = comando.ExecuteReader();
+        using var reader =
+            comando.ExecuteReader();
 
         while (reader.Read())
         {
-            var pago = new Pago
-            {
-                IdPago = reader.GetInt32("IdPago"),
+            lista.Add(
+                new Pago
+                {
+                    IdPago =
+                        reader.GetInt32("IdPago"),
 
-                Concepto =
-                    reader.GetString("Concepto"),
+                    Concepto =
+                        reader.GetString("Concepto"),
 
-                FechaPago =
-                    reader.GetDateTime("FechaPago"),
+                    FechaPago =
+                        reader.GetDateTime("FechaPago"),
 
-                Importe =
-                    reader.GetDecimal("Importe"),
+                    Importe =
+                        reader.GetDecimal("Importe"),
 
-                Anulado =
-                    reader.GetBoolean("Anulado"),
+                    Anulado =
+                        reader.GetBoolean("Anulado"),
 
-                FechaAnulacion =
-                    reader.IsDBNull(
-                        reader.GetOrdinal("FechaAnulacion")
-                    )
-                        ? null
-                        : reader.GetDateTime("FechaAnulacion"),
+                    FechaAnulacion =
+                        reader.IsDBNull(
+                            reader.GetOrdinal(
+                                "FechaAnulacion"
+                            )
+                        )
+                            ? null
+                            : reader.GetDateTime(
+                                "FechaAnulacion"
+                            ),
 
-                ReservaId =
-                    reader.GetInt32("ReservaId"),
+                    ReservaId =
+                        reader.GetInt32("ReservaId"),
 
-                UsuarioCreadorId =
-                    reader.GetInt32("UsuarioCreadorId"),
+                    UsuarioCreadorId =
+                        reader.GetInt32(
+                            "UsuarioCreadorId"
+                        ),
 
-                UsuarioAnuladorId =
-                    reader.IsDBNull(
-                        reader.GetOrdinal("UsuarioAnuladorId")
-                    )
-                        ? null
-                        : reader.GetInt32("UsuarioAnuladorId"),
+                    UsuarioAnuladorId =
+                        reader.IsDBNull(
+                            reader.GetOrdinal(
+                                "UsuarioAnuladorId"
+                            )
+                        )
+                            ? null
+                            : reader.GetInt32(
+                                "UsuarioAnuladorId"
+                            ),
 
-                DireccionInmueble =
-                    reader.IsDBNull(
-                        reader.GetOrdinal("DireccionInmueble")
-                    )
-                        ? null
-                        : reader.GetString("DireccionInmueble"),
+                    DireccionInmueble =
+                        reader.IsDBNull(
+                            reader.GetOrdinal(
+                                "DireccionInmueble"
+                            )
+                        )
+                            ? null
+                            : reader.GetString(
+                                "DireccionInmueble"
+                            ),
 
-                NombreInquilino =
-                    reader.IsDBNull(
-                        reader.GetOrdinal("NombreInquilino")
-                    )
-                        ? null
-                        : reader.GetString("NombreInquilino")
-            };
-
-            lista.Add(pago);
+                    NombreInquilino =
+                        reader.IsDBNull(
+                            reader.GetOrdinal(
+                                "NombreInquilino"
+                            )
+                        )
+                            ? null
+                            : reader.GetString(
+                                "NombreInquilino"
+                            )
+                }
+            );
         }
 
         return lista;
@@ -288,7 +322,9 @@ public class RepositorioPago : IRepositorioPago
         int reservaId,
         string? busqueda = null)
     {
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -296,15 +332,21 @@ public class RepositorioPago : IRepositorioPago
             FROM Pago p
             WHERE
                 p.ReservaId = @reservaId
-            AND
-            (
-                @busqueda IS NULL
-                OR @busqueda = ''
-                OR p.Concepto LIKE CONCAT('%', @busqueda, '%')
-            );
+
+                AND
+                (
+                    @busqueda IS NULL
+                    OR @busqueda = ''
+                    OR p.Concepto LIKE CONCAT(
+                        '%',
+                        @busqueda,
+                        '%'
+                    )
+                );
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue(
             "@reservaId",
@@ -328,9 +370,12 @@ public class RepositorioPago : IRepositorioPago
         int pagina = 1,
         int tamPagina = 10)
     {
-        var lista = new List<Pago>();
+        var lista =
+            new List<Pago>();
 
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -350,7 +395,11 @@ public class RepositorioPago : IRepositorioPago
             WHERE
                 @busqueda IS NULL
                 OR @busqueda = ''
-                OR Concepto LIKE CONCAT('%', @busqueda, '%')
+                OR Concepto LIKE CONCAT(
+                    '%',
+                    @busqueda,
+                    '%'
+                )
 
             ORDER BY
                 FechaPago DESC,
@@ -360,9 +409,11 @@ public class RepositorioPago : IRepositorioPago
             OFFSET @offset;
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
-        var offset = (pagina - 1) * tamPagina;
+        var offset =
+            (pagina - 1) * tamPagina;
 
         comando.Parameters.AddWithValue(
             "@busqueda",
@@ -381,47 +432,60 @@ public class RepositorioPago : IRepositorioPago
             offset
         );
 
-        using var reader = comando.ExecuteReader();
+        using var reader =
+            comando.ExecuteReader();
 
         while (reader.Read())
         {
-            lista.Add(new Pago
-            {
-                IdPago =
-                    reader.GetInt32("IdPago"),
+            lista.Add(
+                new Pago
+                {
+                    IdPago =
+                        reader.GetInt32("IdPago"),
 
-                Concepto =
-                    reader.GetString("Concepto"),
+                    Concepto =
+                        reader.GetString("Concepto"),
 
-                FechaPago =
-                    reader.GetDateTime("FechaPago"),
+                    FechaPago =
+                        reader.GetDateTime("FechaPago"),
 
-                Importe =
-                    reader.GetDecimal("Importe"),
+                    Importe =
+                        reader.GetDecimal("Importe"),
 
-                Anulado =
-                    reader.GetBoolean("Anulado"),
+                    Anulado =
+                        reader.GetBoolean("Anulado"),
 
-                FechaAnulacion =
-                    reader.IsDBNull(
-                        reader.GetOrdinal("FechaAnulacion")
-                    )
-                        ? null
-                        : reader.GetDateTime("FechaAnulacion"),
+                    FechaAnulacion =
+                        reader.IsDBNull(
+                            reader.GetOrdinal(
+                                "FechaAnulacion"
+                            )
+                        )
+                            ? null
+                            : reader.GetDateTime(
+                                "FechaAnulacion"
+                            ),
 
-                ReservaId =
-                    reader.GetInt32("ReservaId"),
+                    ReservaId =
+                        reader.GetInt32("ReservaId"),
 
-                UsuarioCreadorId =
-                    reader.GetInt32("UsuarioCreadorId"),
+                    UsuarioCreadorId =
+                        reader.GetInt32(
+                            "UsuarioCreadorId"
+                        ),
 
-                UsuarioAnuladorId =
-                    reader.IsDBNull(
-                        reader.GetOrdinal("UsuarioAnuladorId")
-                    )
-                        ? null
-                        : reader.GetInt32("UsuarioAnuladorId")
-            });
+                    UsuarioAnuladorId =
+                        reader.IsDBNull(
+                            reader.GetOrdinal(
+                                "UsuarioAnuladorId"
+                            )
+                        )
+                            ? null
+                            : reader.GetInt32(
+                                "UsuarioAnuladorId"
+                            )
+                }
+            );
         }
 
         return lista;
@@ -430,7 +494,9 @@ public class RepositorioPago : IRepositorioPago
     public int ObtenerCantidad(
         string? busqueda = null)
     {
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -439,10 +505,15 @@ public class RepositorioPago : IRepositorioPago
             WHERE
                 @busqueda IS NULL
                 OR @busqueda = ''
-                OR Concepto LIKE CONCAT('%', @busqueda, '%');
+                OR Concepto LIKE CONCAT(
+                    '%',
+                    @busqueda,
+                    '%'
+                );
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue(
             "@busqueda",
@@ -458,7 +529,9 @@ public class RepositorioPago : IRepositorioPago
 
     public Pago? ObtenerPorId(int id)
     {
-        using var conexion = new MySqlConnection(connectionString);
+        using var conexion =
+            new MySqlConnection(connectionString);
+
         conexion.Open();
 
         var sql = @"
@@ -472,7 +545,6 @@ public class RepositorioPago : IRepositorioPago
                 p.ReservaId,
                 p.UsuarioCreadorId,
                 p.UsuarioAnuladorId,
-
                 i.Direccion AS DireccionInmueble,
                 q.NombreCompleto AS NombreInquilino
 
@@ -491,14 +563,16 @@ public class RepositorioPago : IRepositorioPago
                 p.IdPago = @id;
         ";
 
-        using var comando = new MySqlCommand(sql, conexion);
+        using var comando =
+            new MySqlCommand(sql, conexion);
 
         comando.Parameters.AddWithValue(
             "@id",
             id
         );
 
-        using var reader = comando.ExecuteReader();
+        using var reader =
+            comando.ExecuteReader();
 
         if (!reader.Read())
         {
@@ -524,44 +598,98 @@ public class RepositorioPago : IRepositorioPago
 
             FechaAnulacion =
                 reader.IsDBNull(
-                    reader.GetOrdinal("FechaAnulacion")
+                    reader.GetOrdinal(
+                        "FechaAnulacion"
+                    )
                 )
                     ? null
-                    : reader.GetDateTime("FechaAnulacion"),
+                    : reader.GetDateTime(
+                        "FechaAnulacion"
+                    ),
 
             ReservaId =
                 reader.GetInt32("ReservaId"),
 
             UsuarioCreadorId =
-                reader.GetInt32("UsuarioCreadorId"),
+                reader.GetInt32(
+                    "UsuarioCreadorId"
+                ),
 
             UsuarioAnuladorId =
                 reader.IsDBNull(
-                    reader.GetOrdinal("UsuarioAnuladorId")
+                    reader.GetOrdinal(
+                        "UsuarioAnuladorId"
+                    )
                 )
                     ? null
-                    : reader.GetInt32("UsuarioAnuladorId"),
+                    : reader.GetInt32(
+                        "UsuarioAnuladorId"
+                    ),
 
             DireccionInmueble =
                 reader.IsDBNull(
-                    reader.GetOrdinal("DireccionInmueble")
+                    reader.GetOrdinal(
+                        "DireccionInmueble"
+                    )
                 )
                     ? null
-                    : reader.GetString("DireccionInmueble"),
+                    : reader.GetString(
+                        "DireccionInmueble"
+                    ),
 
             NombreInquilino =
                 reader.IsDBNull(
-                    reader.GetOrdinal("NombreInquilino")
+                    reader.GetOrdinal(
+                        "NombreInquilino"
+                    )
                 )
                     ? null
-                    : reader.GetString("NombreInquilino")
+                    : reader.GetString(
+                        "NombreInquilino"
+                    )
         };
+    }
+
+    public bool ExistePagoMulta(
+        int reservaId,
+        decimal importe)
+    {
+        using var conexion =
+            new MySqlConnection(connectionString);
+
+        conexion.Open();
+
+        var sql = @"
+            SELECT EXISTS(
+                SELECT 1
+                FROM Pago
+                WHERE ReservaId = @reservaId
+                  AND Concepto = 'Multa'
+                  AND Importe = @importe
+                  AND Anulado = 0
+            );
+        ";
+
+        using var comando =
+            new MySqlCommand(sql, conexion);
+
+        comando.Parameters.AddWithValue(
+            "@reservaId",
+            reservaId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@importe",
+            importe
+        );
+
+        return Convert.ToBoolean(
+            comando.ExecuteScalar()
+        );
     }
 
     public int Baja(int id)
     {
-
-
         return 0;
     }
 }

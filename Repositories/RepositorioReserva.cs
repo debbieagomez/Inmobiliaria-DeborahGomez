@@ -569,7 +569,6 @@ public class RepositorioReserva : IRepositorioReserva
         return comando.ExecuteNonQuery();
     }
 
-
     public int Modificacion(
         Reserva reserva)
     {
@@ -587,9 +586,6 @@ public class RepositorioReserva : IRepositorioReserva
 
                 FechaHasta =
                     @fechaHasta,
-
-                FechaHastaOriginal =
-                    @fechaHastaOriginal,
 
                 MontoPorDia =
                     @montoPorDia,
@@ -624,9 +620,57 @@ public class RepositorioReserva : IRepositorioReserva
                 conexion
             );
 
-        AgregarParametros(
-            comando,
-            reserva
+        comando.Parameters.AddWithValue(
+            "@fechaDesde",
+            reserva.FechaDesde
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaHasta",
+            reserva.FechaHasta
+        );
+
+        comando.Parameters.AddWithValue(
+            "@montoPorDia",
+            reserva.MontoPorDia
+        );
+
+        comando.Parameters.AddWithValue(
+            "@finalizada",
+            reserva.Finalizada
+        );
+
+        comando.Parameters.AddWithValue(
+            "@fechaFinalizacionAnticipada",
+            reserva.FechaFinalizacionAnticipada
+                ?? (object)DBNull.Value
+        );
+
+        comando.Parameters.AddWithValue(
+            "@montoMulta",
+            reserva.MontoMulta
+                ?? (object)DBNull.Value
+        );
+
+        comando.Parameters.AddWithValue(
+            "@inmuebleId",
+            reserva.InmuebleId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@inquilinoId",
+            reserva.InquilinoId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@usuarioCreadorId",
+            reserva.UsuarioCreadorId
+        );
+
+        comando.Parameters.AddWithValue(
+            "@usuarioFinalizadorId",
+            reserva.UsuarioFinalizadorId
+                ?? (object)DBNull.Value
         );
 
         comando.Parameters.AddWithValue(
@@ -636,8 +680,6 @@ public class RepositorioReserva : IRepositorioReserva
 
         return comando.ExecuteNonQuery();
     }
-
-   
     public int Baja(
         int id)
     {
@@ -1084,6 +1126,81 @@ public class RepositorioReserva : IRepositorioReserva
         );
     }
 
+    public decimal CalcularMontoMulta(
+    int idReserva,
+    DateTime fechaFinalizacion)
+    {
+        var reserva =
+            ObtenerPorId(idReserva);
+
+        if (reserva == null)
+        {
+            throw new InvalidOperationException(
+                "La reserva no existe."
+            );
+        }
+
+        if (reserva.Finalizada)
+        {
+            throw new InvalidOperationException(
+                "La reserva ya está finalizada."
+            );
+        }
+
+        if (
+            fechaFinalizacion <= reserva.FechaDesde ||
+            fechaFinalizacion >= reserva.FechaHastaOriginal
+        )
+        {
+            throw new InvalidOperationException(
+                "La fecha de finalización anticipada no es válida."
+            );
+        }
+
+        var diasTotales =
+            (
+                reserva.FechaHastaOriginal.Date -
+                reserva.FechaDesde.Date
+            ).Days;
+
+        var diasTranscurridos =
+            (
+                fechaFinalizacion.Date -
+                reserva.FechaDesde.Date
+            ).Days;
+
+        var diasRestantes =
+            (
+                reserva.FechaHastaOriginal.Date -
+                fechaFinalizacion.Date
+            ).Days;
+
+        if (diasTotales <= 0)
+        {
+            throw new InvalidOperationException(
+                "La duración de la reserva no es válida."
+            );
+        }
+
+        decimal porcentajeMulta =
+            diasTranscurridos <
+            diasTotales / 2.0
+                ? 50m
+                : 25m;
+
+        var montoBase =
+            reserva.MontoPorDia *
+            diasRestantes;
+
+        return Math.Round(
+            montoBase *
+            porcentajeMulta /
+            100m,
+            2,
+            MidpointRounding.AwayFromZero
+        );
+    }
+
     public int FinalizarAnticipadamente(
     int idReserva,
     DateTime fechaFinalizacion,
@@ -1099,7 +1216,8 @@ public class RepositorioReserva : IRepositorioReserva
 
         try
         {
-            var reserva = ObtenerPorId(idReserva);
+            var reserva =
+                ObtenerPorId(idReserva);
 
             if (reserva == null)
             {
@@ -1150,27 +1268,16 @@ public class RepositorioReserva : IRepositorioReserva
                 );
             }
 
-            decimal porcentajeMulta;
-
-            if (
+            var porcentajeMulta =
                 diasTranscurridos <
                 diasTotales / 2.0
-            )
-            {
-                porcentajeMulta = 50m;
-            }
-            else
-            {
-                porcentajeMulta = 25m;
-            }
-
-            var montoBase =
-                reserva.MontoPorDia *
-                diasRestantes;
+                    ? 50m
+                    : 25m;
 
             var montoMulta =
                 Math.Round(
-                    montoBase *
+                    reserva.MontoPorDia *
+                    diasRestantes *
                     porcentajeMulta /
                     100m,
                     2,
@@ -1182,16 +1289,12 @@ public class RepositorioReserva : IRepositorioReserva
                 SET
                     FechaFinalizacionAnticipada =
                         @fechaFinalizacion,
-
                     MontoMulta =
                         @montoMulta,
-
                     Finalizada =
                         1,
-
                     UsuarioFinalizadorId =
                         @usuarioFinalizadorId
-
                 WHERE
                     IdReserva = @idReserva
                     AND Finalizada = 0;
@@ -1234,60 +1337,6 @@ public class RepositorioReserva : IRepositorioReserva
                 );
             }
 
-            var sqlPago = @"
-                INSERT INTO Pago
-                (
-                    Concepto,
-                    FechaPago,
-                    Importe,
-                    Anulado,
-                    FechaAnulacion,
-                    ReservaId,
-                    UsuarioCreadorId,
-                    UsuarioAnuladorId
-                )
-                VALUES
-                (
-                    'Multa',
-                    @fechaPago,
-                    @importe,
-                    0,
-                    NULL,
-                    @reservaId,
-                    @usuarioCreadorId,
-                    NULL
-                );
-            ";
-
-            using var comandoPago =
-                new MySqlCommand(
-                    sqlPago,
-                    conexion,
-                    transaccion
-                );
-
-            comandoPago.Parameters.AddWithValue(
-                "@fechaPago",
-                DateTime.Now
-            );
-
-            comandoPago.Parameters.AddWithValue(
-                "@importe",
-                montoMulta
-            );
-
-            comandoPago.Parameters.AddWithValue(
-                "@reservaId",
-                idReserva
-            );
-
-            comandoPago.Parameters.AddWithValue(
-                "@usuarioCreadorId",
-                usuarioFinalizadorId
-            );
-
-            comandoPago.ExecuteNonQuery();
-
             transaccion.Commit();
 
             return 1;
@@ -1298,7 +1347,6 @@ public class RepositorioReserva : IRepositorioReserva
             throw;
         }
     }
-
     public bool TienePagos(
     int idReserva)
     {

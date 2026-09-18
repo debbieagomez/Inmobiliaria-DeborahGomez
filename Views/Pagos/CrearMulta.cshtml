@@ -1,0 +1,111 @@
+@model Inmobiliaria_DeborahGomez.Models.Pago
+
+@{
+    ViewData["Title"] = "Abonar multa";
+
+    var reserva =
+        ViewBag.Reserva as
+        Inmobiliaria_DeborahGomez.Models.Reserva;
+
+    DateTime fechaFinalizacion =
+        ViewBag.FechaFinalizacion;
+
+    decimal porcentajeMulta =
+        ViewBag.PorcentajeMulta ?? 0m;
+
+    int diasRestantes =
+        ViewBag.DiasRestantes ?? 0;
+}
+
+<div class="container mt-4">
+
+    <h2>Abonar multa</h2>
+
+    <div class="card mb-4">
+
+        <div class="card-body">
+
+            <dl class="row mb-0">
+
+                <dt class="col-sm-4">
+                    Reserva
+                </dt>
+
+                <dd class="col-sm-8">
+                    #@reserva?.IdReserva
+                </dd>
+
+                <dt class="col-sm-4">
+                    Fecha de finalización
+                </dt>
+
+                <dd class="col-sm-8">
+                    @fechaFinalizacion.ToString("dd/MM/yyyy")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Días restantes
+                </dt>
+
+                <dd class="col-sm-8">
+                    @diasRestantes
+                </dd>
+
+                <dt class="col-sm-4">
+                    Porcentaje de multa
+                </dt>
+
+                <dd class="col-sm-8">
+                    @porcentajeMulta%
+                </dd>
+
+                <dt class="col-sm-4">
+                    Importe de la multa
+                </dt>
+
+                <dd class="col-sm-8">
+                    <strong>
+                        @Model.Importe.ToString("C")
+                    </strong>
+                </dd>
+
+            </dl>
+
+        </div>
+
+    </div>
+
+    <div class="alert alert-warning">
+        Se registrará un pago por concepto de Multa.
+    </div>
+
+    <form asp-controller="Pagos"
+          asp-action="RegistrarMulta"
+          method="post">
+
+        @Html.AntiForgeryToken()
+
+        <input type="hidden"
+               name="reservaId"
+               value="@Model.ReservaId" />
+
+        <input type="hidden"
+               name="fechaFinalizacion"
+               value="@fechaFinalizacion.ToString("yyyy-MM-dd")" />
+
+        <button type="submit"
+                class="btn btn-sm btn-outline-success">
+            Registrar pago
+        </button>
+
+        <a asp-controller="Reservas"
+           asp-action="Finalizar"
+           asp-route-id="@Model.ReservaId"
+           asp-route-fechaFinalizacion="@fechaFinalizacion.ToString("yyyy-MM-dd")"
+           class="btn btn-sm btn-outline-secondary">
+            Volver
+        </a>
+
+    </form>
+
+</div>

@@ -162,6 +162,229 @@ public class PagosController : Controller
     }
 
     [HttpGet]
+    public IActionResult CrearMulta(
+        int reservaId,
+        DateTime fechaFinalizacion)
+    {
+        var reserva =
+            repositorioReserva.ObtenerPorId(
+                reservaId
+            );
+
+        if (reserva == null)
+        {
+            return NotFound();
+        }
+
+        if (reserva.Finalizada)
+        {
+            return BadRequest(
+                "La reserva ya fue finalizada."
+            );
+        }
+
+        if (
+            fechaFinalizacion <=
+            reserva.FechaDesde ||
+            fechaFinalizacion >=
+            reserva.FechaHastaOriginal
+        )
+        {
+            return BadRequest(
+                "La fecha de finalización no es válida."
+            );
+        }
+
+        var datosMulta =
+            CalcularMulta(
+                reserva,
+                fechaFinalizacion
+            );
+
+        if (
+            repositorioPago.ExistePagoMulta(
+                reservaId,
+                datosMulta.MontoMulta
+            )
+        )
+        {
+            return RedirectToAction(
+                "Finalizar",
+                "Reservas",
+                new
+                {
+                    id = reservaId,
+                    fechaFinalizacion =
+                        fechaFinalizacion.ToString("yyyy-MM-dd")
+                }
+            );
+        }
+
+        var pago = new Pago
+        {
+            ReservaId =
+                reservaId,
+
+            Concepto =
+                "Multa",
+
+            FechaPago =
+                DateTime.Now,
+
+            Importe =
+                datosMulta.MontoMulta,
+
+            Anulado =
+                false
+        };
+
+        ViewBag.Reserva =
+            reserva;
+
+        ViewBag.FechaFinalizacion =
+            fechaFinalizacion;
+
+        ViewBag.PorcentajeMulta =
+            datosMulta.PorcentajeMulta;
+
+        ViewBag.DiasRestantes =
+            datosMulta.DiasRestantes;
+
+        return View(pago);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public IActionResult RegistrarMulta(
+        int reservaId,
+        DateTime fechaFinalizacion)
+    {
+        var reserva =
+            repositorioReserva.ObtenerPorId(
+                reservaId
+            );
+
+        if (reserva == null)
+        {
+            return NotFound();
+        }
+
+        if (reserva.Finalizada)
+        {
+            return BadRequest(
+                "La reserva ya fue finalizada."
+            );
+        }
+
+        if (
+            fechaFinalizacion <=
+            reserva.FechaDesde ||
+            fechaFinalizacion >=
+            reserva.FechaHastaOriginal
+        )
+        {
+            return BadRequest(
+                "La fecha de finalización no es válida."
+            );
+        }
+
+        var datosMulta =
+            CalcularMulta(
+                reserva,
+                fechaFinalizacion
+            );
+
+        if (
+            repositorioPago.ExistePagoMulta(
+                reservaId,
+                datosMulta.MontoMulta
+            )
+        )
+        {
+            return RedirectToAction(
+                "Finalizar",
+                "Reservas",
+                new
+                {
+                    id = reservaId,
+                    fechaFinalizacion =
+                        fechaFinalizacion.ToString("yyyy-MM-dd")
+                }
+            );
+        }
+
+        var claimUsuarioId =
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier
+            );
+
+        if (!int.TryParse(
+            claimUsuarioId,
+            out var usuarioId))
+        {
+            return Unauthorized();
+        }
+
+        var pago = new Pago
+        {
+            ReservaId =
+                reservaId,
+
+            Concepto =
+                "Multa",
+
+            FechaPago =
+                DateTime.Now,
+
+            Importe =
+                datosMulta.MontoMulta,
+
+            UsuarioCreadorId =
+                usuarioId,
+
+            Anulado =
+                false,
+
+            FechaAnulacion =
+                null,
+
+            UsuarioAnuladorId =
+                null
+        };
+
+        var resultado =
+            repositorioPago.Alta(pago);
+
+        if (resultado == 0)
+        {
+            TempData["Error"] =
+                "No se pudo registrar el pago de la multa.";
+
+            return RedirectToAction(
+                "Finalizar",
+                "Reservas",
+                new
+                {
+                    id = reservaId,
+                    fechaFinalizacion =
+                        fechaFinalizacion.ToString("yyyy-MM-dd")
+                }
+            );
+        }
+
+        return RedirectToAction(
+            "Finalizar",
+            "Reservas",
+            new
+            {
+                id = reservaId,
+                fechaFinalizacion =
+                    fechaFinalizacion.ToString("yyyy-MM-dd")
+            }
+        );
+    }
+
+    [HttpGet]
     public IActionResult Editar(int id)
     {
         var pago =
@@ -222,7 +445,9 @@ public class PagosController : Controller
             );
         }
 
-        concepto = concepto?.Trim() ?? string.Empty;
+        concepto =
+            concepto?.Trim() ??
+            string.Empty;
 
         if (string.IsNullOrWhiteSpace(concepto))
         {
@@ -254,10 +479,13 @@ public class PagosController : Controller
             return View(pago);
         }
 
-        pago.Concepto = concepto;
+        pago.Concepto =
+            concepto;
 
         var resultado =
-            repositorioPago.Modificacion(pago);
+            repositorioPago.Modificacion(
+                pago
+            );
 
         if (resultado == 0)
         {
@@ -359,5 +587,65 @@ public class PagosController : Controller
         }
 
         return View(pago);
+    }
+
+    private static DatosMulta CalcularMulta(
+        Reserva reserva,
+        DateTime fechaFinalizacion)
+    {
+        var diasTotales =
+            (
+                reserva.FechaHastaOriginal.Date -
+                reserva.FechaDesde.Date
+            ).Days;
+
+        var diasTranscurridos =
+            (
+                fechaFinalizacion.Date -
+                reserva.FechaDesde.Date
+            ).Days;
+
+        var diasRestantes =
+            (
+                reserva.FechaHastaOriginal.Date -
+                fechaFinalizacion.Date
+            ).Days;
+
+        var porcentajeMulta =
+            diasTranscurridos <
+            diasTotales / 2.0
+                ? 50m
+                : 25m;
+
+        var montoMulta =
+            Math.Round(
+                reserva.MontoPorDia *
+                diasRestantes *
+                porcentajeMulta /
+                100m,
+                2,
+                MidpointRounding.AwayFromZero
+            );
+
+        return new DatosMulta
+        {
+            DiasRestantes =
+                diasRestantes,
+
+            PorcentajeMulta =
+                porcentajeMulta,
+
+            MontoMulta =
+                montoMulta
+        };
+    }
+
+    private sealed class DatosMulta
+    {
+        public int DiasRestantes { get; init; }
+
+        public decimal PorcentajeMulta { get; init; }
+
+        public decimal MontoMulta { get; init; }
     }
 }

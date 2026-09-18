@@ -11,17 +11,27 @@ public class ReservasController : ABMController<Reserva>
     private readonly IRepositorioInmueble repositorioInmueble;
     private readonly IRepositorioInquilino repositorioInquilino;
     private readonly IRepositorioTipoInmueble repositorioTipoInmueble;
+    private readonly IRepositorioPago repositorioPago;
 
     public ReservasController(
         IRepositorioReserva repositorio,
         IRepositorioInmueble repositorioInmueble,
         IRepositorioInquilino repositorioInquilino,
-        IRepositorioTipoInmueble repositorioTipoInmueble)
+        IRepositorioTipoInmueble repositorioTipoInmueble,
+        IRepositorioPago repositorioPago)
         : base(repositorio)
     {
-        this.repositorioInmueble = repositorioInmueble;
-        this.repositorioInquilino = repositorioInquilino;
-        this.repositorioTipoInmueble = repositorioTipoInmueble;
+        this.repositorioInmueble =
+            repositorioInmueble;
+
+        this.repositorioInquilino =
+            repositorioInquilino;
+
+        this.repositorioTipoInmueble =
+            repositorioTipoInmueble;
+
+        this.repositorioPago =
+            repositorioPago;
     }
 
     public override void OnActionExecuting(
@@ -332,9 +342,12 @@ public class ReservasController : ABMController<Reserva>
     }
 
     [HttpGet]
-    public IActionResult Finalizar(int id)
+    public IActionResult Finalizar(
+        int id,
+        DateTime? fechaFinalizacion)
     {
-        var reserva = repositorio.ObtenerPorId(id);
+        var reserva =
+            repositorio.ObtenerPorId(id);
 
         if (reserva == null)
         {
@@ -343,7 +356,51 @@ public class ReservasController : ABMController<Reserva>
 
         if (reserva.Finalizada)
         {
-            return BadRequest("La reserva ya fue finalizada.");
+            return BadRequest(
+                "La reserva ya fue finalizada."
+            );
+        }
+
+        ViewBag.MontoMultaCalculada = 0m;
+        ViewBag.PorcentajeMulta = 0m;
+        ViewBag.MultaAbonada = false;
+        ViewBag.FechaFinalizacion =
+            fechaFinalizacion;
+
+        if (fechaFinalizacion.HasValue)
+        {
+            if (
+                fechaFinalizacion.Value <=
+                reserva.FechaDesde ||
+                fechaFinalizacion.Value >=
+                reserva.FechaHastaOriginal
+            )
+            {
+                ModelState.AddModelError(
+                    "fechaFinalizacion",
+                    "La fecha de finalización no es válida."
+                );
+            }
+            else
+            {
+                var datos =
+                    CalcularMulta(
+                        reserva,
+                        fechaFinalizacion.Value
+                    );
+
+                ViewBag.MontoMultaCalculada =
+                    datos.MontoMulta;
+
+                ViewBag.PorcentajeMulta =
+                    datos.PorcentajeMulta;
+
+                ViewBag.MultaAbonada =
+                    repositorioPago.ExistePagoMulta(
+                        id,
+                        datos.MontoMulta
+                    );
+            }
         }
 
         return View(reserva);
@@ -351,9 +408,12 @@ public class ReservasController : ABMController<Reserva>
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult Finalizar(int id, DateTime fechaFinalizacion)
+    public IActionResult Finalizar(
+        int id,
+        DateTime fechaFinalizacion)
     {
-        var reserva = repositorio.ObtenerPorId(id);
+        var reserva =
+            repositorio.ObtenerPorId(id);
 
         if (reserva == null)
         {
@@ -362,46 +422,80 @@ public class ReservasController : ABMController<Reserva>
 
         if (reserva.Finalizada)
         {
-            return BadRequest("La reserva ya fue finalizada.");
-        }
-
-        if (fechaFinalizacion < reserva.FechaDesde)
-        {
-            ModelState.AddModelError(
-                "fechaFinalizacion",
-                "La fecha de finalización no puede ser anterior al inicio de la reserva."
+            return BadRequest(
+                "La reserva ya fue finalizada."
             );
         }
 
-        if (fechaFinalizacion >= reserva.FechaHastaOriginal)
+        if (
+            fechaFinalizacion <=
+            reserva.FechaDesde ||
+            fechaFinalizacion >=
+            reserva.FechaHastaOriginal
+        )
         {
             ModelState.AddModelError(
                 "fechaFinalizacion",
-                "Para una finalización anticipada, la fecha debe ser anterior a la fecha de finalización original."
+                "La fecha de finalización debe ser posterior al inicio y anterior a la fecha original."
             );
+
+            return View(reserva);
         }
 
-        var claimUsuarioId = User.FindFirstValue(
-            ClaimTypes.NameIdentifier
-        );
+        var datos =
+            CalcularMulta(
+                reserva,
+                fechaFinalizacion
+            );
 
-        if (!int.TryParse(claimUsuarioId, out var usuarioId))
+        ViewBag.MontoMultaCalculada =
+            datos.MontoMulta;
+
+        ViewBag.PorcentajeMulta =
+            datos.PorcentajeMulta;
+
+        ViewBag.FechaFinalizacion =
+            fechaFinalizacion;
+
+        var multaAbonada =
+            repositorioPago.ExistePagoMulta(
+                id,
+                datos.MontoMulta
+            );
+
+        ViewBag.MultaAbonada =
+            multaAbonada;
+
+        if (!multaAbonada)
+        {
+            ModelState.AddModelError(
+                "",
+                "La multa debe estar abonada antes de finalizar la reserva."
+            );
+
+            return View(reserva);
+        }
+
+        var claimUsuarioId =
+            User.FindFirstValue(
+                ClaimTypes.NameIdentifier
+            );
+
+        if (!int.TryParse(
+            claimUsuarioId,
+            out var usuarioId))
         {
             return Unauthorized();
         }
 
-        if (!ModelState.IsValid)
-        {
-            return View(reserva);
-        }
-
         try
         {
-            ((IRepositorioReserva)repositorio).FinalizarAnticipadamente(
-                id,
-                fechaFinalizacion,
-                usuarioId
-            );
+            ((IRepositorioReserva)repositorio)
+                .FinalizarAnticipadamente(
+                    id,
+                    fechaFinalizacion,
+                    usuarioId
+                );
         }
         catch
         {
@@ -417,5 +511,65 @@ public class ReservasController : ABMController<Reserva>
             nameof(Detalle),
             new { id }
         );
+    }
+
+    private static DatosMulta CalcularMulta(
+        Reserva reserva,
+        DateTime fechaFinalizacion)
+    {
+        var diasTotales =
+            (
+                reserva.FechaHastaOriginal.Date -
+                reserva.FechaDesde.Date
+            ).Days;
+
+        var diasTranscurridos =
+            (
+                fechaFinalizacion.Date -
+                reserva.FechaDesde.Date
+            ).Days;
+
+        var diasRestantes =
+            (
+                reserva.FechaHastaOriginal.Date -
+                fechaFinalizacion.Date
+            ).Days;
+
+        var porcentajeMulta =
+            diasTranscurridos <
+            diasTotales / 2.0
+                ? 50m
+                : 25m;
+
+        var montoMulta =
+            Math.Round(
+                reserva.MontoPorDia *
+                diasRestantes *
+                porcentajeMulta /
+                100m,
+                2,
+                MidpointRounding.AwayFromZero
+            );
+
+        return new DatosMulta
+        {
+            DiasRestantes =
+                diasRestantes,
+
+            PorcentajeMulta =
+                porcentajeMulta,
+
+            MontoMulta =
+                montoMulta
+        };
+    }
+
+    private sealed class DatosMulta
+    {
+        public int DiasRestantes { get; init; }
+
+        public decimal PorcentajeMulta { get; init; }
+
+        public decimal MontoMulta { get; init; }
     }
 }

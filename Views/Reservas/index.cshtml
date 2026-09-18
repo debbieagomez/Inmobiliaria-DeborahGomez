@@ -174,10 +174,9 @@
 
                                 @if (!reserva.Finalizada)
                                 {
-                                    <a
-                                        asp-action="Finalizar"
-                                        asp-route-id="@reserva.IdReserva"
-                                        class="btn btn-warning">
+                                    <a asp-action="Finalizar"
+                                    asp-route-id="@reserva.IdReserva"
+                                    class="btn btn-sm btn-outline-warning">
                                         Finalizar
                                     </a>
                                 }

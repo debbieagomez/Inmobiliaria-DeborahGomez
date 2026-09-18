@@ -30,6 +30,11 @@ public interface IRepositorioReserva : IRepositorio<Reserva>
         int usuarioFinalizadorId
     );
 
+    decimal CalcularMontoMulta(
+        int idReserva,
+        DateTime fechaFinalizacion
+    );
+
     bool TienePagos(
         int idReserva
     );

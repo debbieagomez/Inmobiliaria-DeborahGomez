@@ -1,52 +1,387 @@
 @model Inmobiliaria_DeborahGomez.Models.Reserva
 
-<h2>Finalizar reserva anticipadamente</h2>
+@{
+    var fechaFinalizacion =
+        ViewBag.FechaFinalizacion as DateTime?;
 
-<dl>
-    <dt>Fecha desde</dt>
-    <dd>@Model.FechaDesde.ToShortDateString()</dd>
+    decimal montoMulta =
+        ViewBag.MontoMultaCalculada ?? 0m;
 
-    <dt>Fecha hasta original</dt>
-    <dd>@Model.FechaHastaOriginal.ToShortDateString()</dd>
+    decimal porcentajeMulta =
+        ViewBag.PorcentajeMulta ?? 0m;
 
-    <dt>Monto por día</dt>
-    <dd>@Model.MontoPorDia.ToString("C")</dd>
-</dl>
+    bool multaAbonada =
+        ViewBag.MultaAbonada ?? false;
 
-<form asp-action="Finalizar" method="post">
-    <input type="hidden" name="id" value="@Model.IdReserva" />
+    var diasTotales =
+        (
+            Model.FechaHastaOriginal.Date -
+            Model.FechaDesde.Date
+        ).Days;
+}
+
+<div class="container mt-4">
+
+    <h2>Finalizar reserva anticipadamente</h2>
+
+    <div class="card mb-4">
+
+        <div class="card-body">
+
+            <dl class="row mb-0">
+
+                <dt class="col-sm-4">
+                    Reserva
+                </dt>
+
+                <dd class="col-sm-8">
+                    #@Model.IdReserva
+                </dd>
+
+                <dt class="col-sm-4">
+                    Fecha desde
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.FechaDesde.ToString("dd/MM/yyyy")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Fecha hasta original
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.FechaHastaOriginal.ToString("dd/MM/yyyy")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Monto por día
+                </dt>
+
+                <dd class="col-sm-8">
+                    @Model.MontoPorDia.ToString("C")
+                </dd>
+
+                <dt class="col-sm-4">
+                    Duración original
+                </dt>
+
+                <dd class="col-sm-8">
+                    @diasTotales días
+                </dd>
+
+            </dl>
+
+        </div>
+
+    </div>
+
+    <div asp-validation-summary="All"
+         class="text-danger mb-3">
+    </div>
+
+    @if (TempData["Error"] is string error)
+    {
+        <div class="alert alert-danger">
+            @error
+        </div>
+    }
 
     <div class="mb-3">
-        <label for="fechaFinalizacion" class="form-label">
+
+        <label for="fechaFinalizacion"
+               class="form-label">
             Fecha de finalización anticipada
         </label>
 
-        <input
-            type="date"
-            id="fechaFinalizacion"
-            name="fechaFinalizacion"
-            class="form-control"
-            min="@Model.FechaDesde.ToString("yyyy-MM-dd")"
-            max="@Model.FechaHastaOriginal.AddDays(-1).ToString("yyyy-MM-dd")"
-            required
-        />
+        <input type="date"
+               id="fechaFinalizacion"
+               class="form-control"
+               min="@Model.FechaDesde.AddDays(1).ToString("yyyy-MM-dd")"
+               max="@Model.FechaHastaOriginal.AddDays(-1).ToString("yyyy-MM-dd")"
+               value="@(fechaFinalizacion?.ToString("yyyy-MM-dd"))"
+               required />
 
-        <span
-            asp-validation-for="FechaFinalizacionAnticipada"
-            class="text-danger">
-        </span>
     </div>
 
-    <div asp-validation-summary="All" class="text-danger"></div>
+    <div class="card mb-3">
 
-    <button type="submit" class="btn btn-danger">
-        Finalizar reserva
-    </button>
+        <div class="card-body">
 
-    <a
-        asp-action="Detalle"
-        asp-route-id="@Model.IdReserva"
-        class="btn btn-secondary">
-        Cancelar
-    </a>
-</form>
+            <h5 class="card-title">
+                Cálculo de la multa
+            </h5>
+
+            <p class="mb-2">
+                Días transcurridos:
+                <strong id="diasTranscurridos">0</strong>
+            </p>
+
+            <p class="mb-2">
+                Días restantes:
+                <strong id="diasRestantes">0</strong>
+            </p>
+
+            <p class="mb-2">
+                Porcentaje de multa:
+                <strong id="porcentajeMulta">
+                    @porcentajeMulta%
+                </strong>
+            </p>
+
+            <p class="mb-0">
+                Importe de la multa:
+                <strong id="montoMulta">
+                    @montoMulta.ToString("C")
+                </strong>
+            </p>
+
+        </div>
+
+    </div>
+
+    @if (multaAbonada)
+    {
+        <div class="alert alert-success">
+            La multa ya fue abonada.
+        </div>
+    }
+
+    <div class="d-flex gap-2">
+
+        <a id="btnPagarMulta"
+           href="#"
+           class="btn btn-sm btn-outline-success @(multaAbonada ? "disabled" : "")">
+            Abonar multa
+        </a>
+
+        <form asp-action="Finalizar"
+              method="post"
+              id="formFinalizar"
+              class="d-inline">
+
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="id"
+                   value="@Model.IdReserva" />
+
+            <input type="hidden"
+                   name="fechaFinalizacion"
+                   id="fechaFinalizacionPost"
+                   value="@(fechaFinalizacion?.ToString("yyyy-MM-dd"))" />
+
+            <button type="submit"
+                    id="btnFinalizar"
+                    class="btn btn-sm btn-outline-danger"
+                    @(multaAbonada ? "" : "disabled")>
+                Finalizar reserva
+            </button>
+
+        </form>
+
+        <a asp-action="Detalle"
+           asp-route-id="@Model.IdReserva"
+           class="btn btn-sm btn-outline-secondary">
+            Cancelar
+        </a>
+
+    </div>
+
+</div>
+
+@section Scripts {
+
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+
+        const fechaDesde =
+            new Date(
+                "@Model.FechaDesde.ToString("yyyy-MM-dd")T00:00:00"
+            );
+
+        const fechaHastaOriginal =
+            new Date(
+                "@Model.FechaHastaOriginal.ToString("yyyy-MM-dd")T00:00:00"
+            );
+
+        const montoPorDia =
+            @Model.MontoPorDia.ToString(
+                System.Globalization.CultureInfo.InvariantCulture
+            );
+
+        const diasTotales =
+            @diasTotales;
+
+        const fechaInput =
+            document.getElementById(
+                "fechaFinalizacion"
+            );
+
+        const fechaFinalizacionPost =
+            document.getElementById(
+                "fechaFinalizacionPost"
+            );
+
+        const diasTranscurridosElement =
+            document.getElementById(
+                "diasTranscurridos"
+            );
+
+        const diasRestantesElement =
+            document.getElementById(
+                "diasRestantes"
+            );
+
+        const porcentajeMultaElement =
+            document.getElementById(
+                "porcentajeMulta"
+            );
+
+        const montoMultaElement =
+            document.getElementById(
+                "montoMulta"
+            );
+
+        const btnPagarMulta =
+            document.getElementById(
+                "btnPagarMulta"
+            );
+
+        const btnFinalizar =
+            document.getElementById(
+                "btnFinalizar"
+            );
+
+        function calcularMulta() {
+
+            if (!fechaInput.value) {
+
+                diasTranscurridosElement.textContent =
+                    "0";
+
+                diasRestantesElement.textContent =
+                    "0";
+
+                porcentajeMultaElement.textContent =
+                    "0%";
+
+                montoMultaElement.textContent =
+                    "$ 0,00";
+
+                btnPagarMulta.href =
+                    "#";
+
+                btnPagarMulta.classList.add(
+                    "disabled"
+                );
+
+                btnFinalizar.disabled =
+                    true;
+
+                fechaFinalizacionPost.value =
+                    "";
+
+                return;
+            }
+
+            const fechaFinalizacion =
+                new Date(
+                    fechaInput.value +
+                    "T00:00:00"
+                );
+
+            const diferenciaTranscurridos =
+                fechaFinalizacion.getTime() -
+                fechaDesde.getTime();
+
+            const diasTranscurridos =
+                Math.floor(
+                    diferenciaTranscurridos /
+                    (1000 * 60 * 60 * 24)
+                );
+
+            const diferenciaRestantes =
+                fechaHastaOriginal.getTime() -
+                fechaFinalizacion.getTime();
+
+            const diasRestantes =
+                Math.floor(
+                    diferenciaRestantes /
+                    (1000 * 60 * 60 * 24)
+                );
+
+            let porcentajeMulta =
+                0;
+
+            if (
+                diasTranscurridos <
+                diasTotales / 2
+            ) {
+                porcentajeMulta =
+                    50;
+            }
+            else {
+                porcentajeMulta =
+                    25;
+            }
+
+            const montoBase =
+                montoPorDia *
+                diasRestantes;
+
+            const montoMulta =
+                montoBase *
+                porcentajeMulta /
+                100;
+
+            diasTranscurridosElement.textContent =
+                diasTranscurridos;
+
+            diasRestantesElement.textContent =
+                diasRestantes;
+
+            porcentajeMultaElement.textContent =
+                porcentajeMulta + "%";
+
+            montoMultaElement.textContent =
+                montoMulta.toLocaleString(
+                    "es-AR",
+                    {
+                        style: "currency",
+                        currency: "ARS"
+                    }
+                );
+
+            fechaFinalizacionPost.value =
+                fechaInput.value;
+
+            btnPagarMulta.href =
+                `/Pagos/CrearMulta?reservaId=@Model.IdReserva&fechaFinalizacion=${fechaInput.value}`;
+
+            btnPagarMulta.classList.remove(
+                "disabled"
+            );
+
+            btnFinalizar.disabled =
+                true;
+        }
+
+        fechaInput.addEventListener(
+            "change",
+            calcularMulta
+        );
+
+        calcularMulta();
+
+        @if (multaAbonada)
+        {
+            <text>
+            btnFinalizar.disabled = false;
+            btnPagarMulta.classList.add("disabled");
+            </text>
+        }
+
+    </script>
+}
