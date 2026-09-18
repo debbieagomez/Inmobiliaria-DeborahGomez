@@ -1,41 +1,34 @@
 @model Inmobiliaria_DeborahGomez.Models.Propietario
 
-<h2>Eliminar Propietario</h2>
+@{
+    ViewData["Title"] = "Eliminar propietario";
+}
 
-<h4>Datos del propietario</h4>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="h3 mb-4">Eliminar propietario</h1>
+            <div class="alert alert-warning">¿Está seguro de que desea eliminar este propietario?</div>
 
-<div class="mb-3">
-    <label>Nombre</label>
-    <p>@Model.Nombre</p>
+            <dl class="row">
+                <dt class="col-sm-3">Nombre</dt>
+                <dd class="col-sm-9">@Model.Nombre</dd>
+                <dt class="col-sm-3">Apellido</dt>
+                <dd class="col-sm-9">@Model.Apellido</dd>
+                <dt class="col-sm-3">DNI</dt>
+                <dd class="col-sm-9">@Model.Dni</dd>
+                <dt class="col-sm-3">Teléfono</dt>
+                <dd class="col-sm-9">@Model.Telefono</dd>
+                <dt class="col-sm-3">Email</dt>
+                <dd class="col-sm-9">@Model.Email</dd>
+            </dl>
+
+            <form asp-action="EliminarConfirmado" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.IdPropietario" />
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
 </div>
-
-<div class="mb-3">
-    <label>Apellido</label>
-    <p>@Model.Apellido</p>
-</div>
-
-<div class="mb-3">
-    <label>Dni</label>
-    <p>@Model.Dni</p>
-</div>
-
-<div class="mb-3">
-    <label>Teléfono</label>
-    <p>@Model.Telefono</p>
-</div>
-
-<div class="mb-3">
-    <label>Email</label>
-    <p>@Model.Email</p>
-</div>
-
-<form asp-action="EliminarConfirmado" method="post">
-    <input type="hidden" name="id" asp-for="IdPropietario" />
-
-
-<button type="submit" class="btn btn-danger">Eliminar</button>
-
-<a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-
-
-</form>

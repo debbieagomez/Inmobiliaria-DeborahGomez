@@ -1,23 +1,32 @@
 @model Inmobiliaria_DeborahGomez.Models.Inmueble
 
- <h1>¿Desea Eliminar este inmueble?</h1>
+@{
+    ViewData["Title"] = "Eliminar inmueble";
+}
 
-<dl>
-    <dt>Direccion</dt>
-    <dd>@Model.Direccion</dd>
+<div class="container mt-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <h1 class="h3 mb-4">Eliminar inmueble</h1>
+            <div class="alert alert-warning">¿Está seguro de que desea eliminar este inmueble?</div>
 
-    <dt>Tipo</dt>
-    <dd>@Model.TipoNombre</dd>
+            <dl class="row">
+                <dt class="col-sm-3">Dirección</dt>
+                <dd class="col-sm-9">@Model.Direccion</dd>
+                <dt class="col-sm-3">Tipo</dt>
+                <dd class="col-sm-9">@Model.TipoNombre</dd>
+                <dt class="col-sm-3">Propietario</dt>
+                <dd class="col-sm-9">@Model.propietarioNombre</dd>
+                <dt class="col-sm-3">Precio por día</dt>
+                <dd class="col-sm-9">@Model.PrecioPorDia.ToString("C")</dd>
+            </dl>
 
-    <dt>Propietario</dt>
-    <dd>@Model.propietarioNombre</dd>
-
-    <dt>Precio Por Dia</dt>
-    <dd>@Model.PrecioPorDia.ToString("c")</dd>
-</dl>
-
-<form asp-controller="Inmuebles" asp-action="EliminarConfirmado" method="post">
-    <input type="hidden" name="id" value="@Model.IdInmueble"/>
-    <button type="submit"> eliminar</button>
-    <a asp-action="Index"> Cancelar</a>
-    </form>
+            <form asp-controller="Inmuebles" asp-action="EliminarConfirmado" method="post">
+                @Html.AntiForgeryToken()
+                <input type="hidden" name="id" value="@Model.IdInmueble" />
+                <button type="submit" class="btn btn-danger">Eliminar</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
+            </form>
+        </div>
+    </div>
+</div>
