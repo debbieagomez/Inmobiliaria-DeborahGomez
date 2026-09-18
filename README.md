@@ -8,7 +8,7 @@
 
 * **Dario Godoy** - *dariogodoy0896@gmail.com* - [@GodoyDario](https://github.com/GodoyDario)
 * **Deborah Gomez** - *deborahgomez71@gmail.com* - [@debbieagomez](https://github.com/debbieagomez)
-* **Ian Quimey Pereyra ** - *0108.facultad@gmail.com* - [@necoian](https://github.com/necoian)
+* **Ian Quimey Pereyra** - *0108.facultad@gmail.com* - [@necoian](https://github.com/necoian)
 
 ---
 
@@ -25,7 +25,7 @@ A continuación se presenta el esquema del modelo de datos correspondiente a la 
 <details>
 <summary>Ver diagrama en código Mermaid (Opcional)</summary>
 
-​```mermaid
+```mermaid
 classDiagram
     class Propietario {
         +int IdPropietario
@@ -51,9 +51,16 @@ classDiagram
         +decimal PrecioPorDia
         +decimal PorcentajeSenia
         +bool Disponible
-        +string ImagenPortadaUrl
         +int PropietarioId
         +int TipoInmuebleId
+        +List~ImagenInmueble~ Imagenes
+    }
+
+    class ImagenInmueble {
+        +int IdImagenInmueble
+        +int InmuebleId
+        +string Url
+        +bool EsPortada
     }
 
     class Inquilino {
@@ -86,6 +93,7 @@ classDiagram
         +DateTime FechaPago
         +decimal Importe
         +bool Anulado
+        +DateTime? FechaAnulacion
         +int ReservaId
         +int UsuarioCreadorId
         +int? UsuarioAnuladorId
@@ -107,13 +115,16 @@ classDiagram
 
     Propietario "1" --> "0..*" Inmueble : posee
     TipoInmueble "1" --> "0..*" Inmueble : clasifica
+    Inmueble "1" --> "0..*" ImagenInmueble : contiene
     Inmueble "1" --> "0..*" Reserva : es_reservado_en
     Inquilino "1" --> "0..*" Reserva : realiza
     Reserva "1" --> "0..*" Pago : tiene
     Usuario "1" --> "0..*" Reserva : crea
+    Usuario "1" --> "0..*" Reserva : finaliza
     Usuario "1" --> "0..*" Pago : registra
+    Usuario "1" --> "0..*" Pago : anula
     Usuario --> RolUsuario : tiene
-​```
+```
 
 </details>
 
@@ -133,7 +144,7 @@ classDiagram
 
 5. Actualizar la sección **Schemas -> Refresh All** y verificar que exista la base:
 
-   `DBInmobiliaria_DeborahGomez`
+   `dbinmobiliaria_deborahgomez`
 
 6. Dirigirse a:
 
@@ -145,7 +156,7 @@ classDiagram
 
 8. Seleccionar como esquema de destino:
 
-   `DBInmobiliaria_DeborahGomez`
+   `dbinmobiliaria_deborahgomez`
 
 **Nota:** Si no aparece el esquema de destino, abrir nuevamente la pestaña `Server -> Data Import`
 
@@ -164,7 +175,7 @@ classDiagram
 12. Configurar la conexión a MySQL reemplazando `TU-CONTRASEÑA` por la contraseña correspondiente:
 
     ```bash
-    dotnet user-secrets set "ConnectionStrings:MySqlConnection" "Server=localhost;Port=3306;Database=DBInmobiliaria_DeborahGomez;Uid=root;Pwd=TU-CONTRASEÑA;"
+    dotnet user-secrets set "ConnectionStrings:MySqlConnection" "Server=localhost;Port=3306;Database=dbinmobiliaria_deborahgomez;Uid=root;Pwd=TU-CONTRASEÑA;"
     ```
 
 13. Verificar la configuración:

@@ -58,7 +58,18 @@ public class ReservasController : ABMController<Reserva>
     [HttpGet]
     public override IActionResult Crear()
     {
-        return View(new Reserva());
+        var hoy = DateTime.Now.Date;
+
+        return View(new Reserva
+        {
+            FechaDesde = hoy,
+            FechaHasta = hoy.AddDays(1),
+            FechaHastaOriginal = hoy.AddDays(1),
+            Finalizada = false,
+            MontoMulta = null,
+            FechaFinalizacionAnticipada = null,
+            UsuarioFinalizadorId = null
+        });
     }
 
     [HttpPost]

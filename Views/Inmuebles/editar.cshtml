@@ -1,6 +1,6 @@
 @model Inmobiliaria_DeborahGomez.Models.Inmueble
 
-<h1>Editar inmueble</h1>
+<h1 class="mb-4">Editar inmueble</h1>
 
 <form asp-controller="Inmuebles"
       asp-action="Editar"
@@ -11,52 +11,73 @@
            asp-for="IdInmueble" />
 
     <div asp-validation-summary="All"
-         class="text-danger"></div>
+         class="text-danger mb-3"></div>
 
-    <div>
-        <label asp-for="Direccion"></label>
-        <input asp-for="Direccion" />
-        <span asp-validation-for="Direccion"></span>
+    <div class="mb-3">
+        <label asp-for="Direccion" class="form-label"></label>
+        <input asp-for="Direccion"
+               class="form-control" />
+        <span asp-validation-for="Direccion"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label asp-for="Cupo"></label>
+    <div class="mb-3">
+        <label asp-for="Cupo" class="form-label"></label>
         <input asp-for="Cupo"
-               type="number" />
+               type="number"
+               class="form-control" />
+        <span asp-validation-for="Cupo"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label asp-for="PrecioPorDia"></label>
+    <div class="mb-3">
+        <label asp-for="PrecioPorDia" class="form-label"></label>
         <input asp-for="PrecioPorDia"
                type="number"
-               step="0.01" />
+               step="0.01"
+               class="form-control" />
+        <span asp-validation-for="PrecioPorDia"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label asp-for="PorcentajeSenia"></label>
+    <div class="mb-3">
+        <label asp-for="PorcentajeSenia" class="form-label"></label>
         <input asp-for="PorcentajeSenia"
                type="number"
-               step="0.01" />
+               step="0.01"
+               class="form-control" />
+        <span asp-validation-for="PorcentajeSenia"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label asp-for="Latitud"></label>
+    <div class="mb-3">
+        <label asp-for="Latitud" class="form-label"></label>
         <input asp-for="Latitud"
                type="number"
-               step="0.0000001" />
+               step="any"
+               class="form-control" />
+        <span asp-validation-for="Latitud"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label asp-for="Longitud"></label>
+    <div class="mb-3">
+        <label asp-for="Longitud" class="form-label"></label>
         <input asp-for="Longitud"
                type="number"
-               step="0.0000001" />
+               step="any"
+               class="form-control" />
+        <span asp-validation-for="Longitud"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label>Propietario</label>
+    <div class="mb-3">
+        <label class="form-label">Propietario</label>
 
-        <select asp-for="PropietarioId">
+        <select asp-for="PropietarioId"
+                class="form-select">
+
+            <option value="0">Seleccione un propietario</option>
+
             @foreach (
                 var p in
                 (IEnumerable<Inmobiliaria_DeborahGomez.Models.Propietario>)
@@ -67,12 +88,19 @@
                 </option>
             }
         </select>
+
+        <span asp-validation-for="PropietarioId"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label>Tipo de inmueble</label>
+    <div class="mb-3">
+        <label class="form-label">Tipo de inmueble</label>
 
-        <select asp-for="TipoInmuebleId">
+        <select asp-for="TipoInmuebleId"
+                class="form-select">
+
+            <option value="0">Seleccione un tipo</option>
+
             @foreach (
                 var t in
                 (IEnumerable<Inmobiliaria_DeborahGomez.Models.TipoInmueble>)
@@ -83,29 +111,149 @@
                 </option>
             }
         </select>
+
+        <span asp-validation-for="TipoInmuebleId"
+              class="text-danger"></span>
     </div>
 
-    <div>
-        <label asp-for="Disponible"></label>
+    <div class="mb-3">
+        <label asp-for="Disponible"
+               class="form-label"></label>
 
-        <input asp-for="Disponible"
-               type="checkbox" />
+        <div class="form-check">
+            <input asp-for="Disponible"
+                   class="form-check-input"
+                   type="checkbox" />
+
+            <label asp-for="Disponible"
+                   class="form-check-label">
+            </label>
+        </div>
     </div>
 
-    <div>
-        <label>Agregar imágenes</label>
+    @if (Model.Imagenes != null && Model.Imagenes.Count > 0)
+    {
+        <div class="mb-4">
+            <label class="form-label">
+                Imágenes actuales
+            </label>
+
+            <div class="row g-3">
+                @foreach (var imagen in Model.Imagenes)
+                {
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-3">
+                        <div class="card shadow-sm">
+
+                            <img src="@imagen.Url"
+                                 class="card-img-top"
+                                 style="height:180px; object-fit:cover;" />
+
+                            <div class="card-body text-center">
+                                @if (imagen.EsPortada)
+                                {
+                                    <span class="badge bg-primary">
+                                        Portada
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <div class="mb-4">
+        <label class="form-label">
+            Agregar más imágenes
+        </label>
 
         <input type="file"
+               id="imagenes"
                name="imagenes"
-               multiple
-               accept="image/jpeg,image/png,image/webp" />
+               class="form-control"
+               accept="image/jpeg,image/png,image/webp"
+               multiple />
+
+        <div class="form-text">
+            Podés seleccionar varias imágenes nuevas al mismo tiempo.
+        </div>
+
+        <div id="contadorImagenes"
+             class="mt-2 text-muted">
+        </div>
     </div>
 
-    <button type="submit">
-        Actualizar
-    </button>
+    <div id="previewImagenes"
+         class="row g-3 mb-4">
+    </div>
 
-    <a asp-action="Index">
-        Cancelar
-    </a>
-</form> 
+    <div class="d-flex gap-2">
+        <button type="submit"
+                class="btn btn-primary">
+            Actualizar
+        </button>
+
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Cancelar
+        </a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+
+    <script>
+        const inputImagenes = document.getElementById("imagenes");
+        const previewImagenes = document.getElementById("previewImagenes");
+        const contadorImagenes = document.getElementById("contadorImagenes");
+
+        inputImagenes.addEventListener("change", function () {
+            previewImagenes.innerHTML = "";
+
+            const archivos = Array.from(this.files);
+
+            if (archivos.length === 0) {
+                contadorImagenes.textContent = "";
+                return;
+            }
+
+            contadorImagenes.textContent =
+                archivos.length === 1
+                    ? "1 imagen nueva seleccionada"
+                    : archivos.length + " imágenes nuevas seleccionadas";
+
+            archivos.forEach(function (archivo) {
+                if (!archivo.type.startsWith("image/")) {
+                    return;
+                }
+
+                const reader = new FileReader();
+
+                reader.onload = function (e) {
+                    const columna = document.createElement("div");
+                    columna.className = "col-12 col-sm-6 col-md-4 col-lg-3";
+
+                    columna.innerHTML = `
+                        <div class="card h-100 shadow-sm">
+                            <img src="${e.target.result}"
+                                 class="card-img-top"
+                                 style="height: 180px; object-fit: cover;">
+
+                            <div class="card-body">
+                                <small class="text-muted text-break">
+                                    ${archivo.name}
+                                </small>
+                            </div>
+                        </div>
+                    `;
+
+                    previewImagenes.appendChild(columna);
+                };
+
+                reader.readAsDataURL(archivo);
+            });
+        });
+    </script>
+}

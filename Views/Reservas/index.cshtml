@@ -68,8 +68,8 @@
                     {
                         <tr>
                             <td>#@reserva.IdReserva</td>
-                            <td>@reserva.FechaDesde.ToString("dd/MM/yyyy")</td>
-                            <td>@reserva.FechaHasta.ToString("dd/MM/yyyy")</td>
+                            @reserva.FechaDesde.ToString("dd/MM/yyyy")
+                            @reserva.FechaHasta.ToString("dd/MM/yyyy")
                             <td>@reserva.DireccionInmueble</td>
                             <td>@reserva.NombreInquilino</td>
                             <td>$ @reserva.MontoPorDia.ToString("N2")</td>

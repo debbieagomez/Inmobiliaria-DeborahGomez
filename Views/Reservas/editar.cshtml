@@ -8,17 +8,17 @@
 
     <input asp-for="IdReserva" type="hidden" />
 
-    <div>
-        <label asp-for="FechaDesde"></label>
-        <input asp-for="FechaDesde" type="datetime-local" />
-        <span asp-validation-for="FechaDesde" class="text-danger"></span>
-    </div>
+        <div>
+            <label asp-for="FechaDesde"></label>
+            <input asp-for="FechaDesde" type="date" />
+            <span asp-validation-for="FechaDesde" class="text-danger"></span>
+        </div>
 
-    <div>
-        <label asp-for="FechaHasta"></label>
-        <input asp-for="FechaHasta" type="datetime-local" />
-        <span asp-validation-for="FechaHasta" class="text-danger"></span>
-    </div>
+        <div>
+            <label asp-for="FechaHasta"></label>
+            <input asp-for="FechaHasta" type="date" />
+            <span asp-validation-for="FechaHasta" class="text-danger"></span>
+        </div>
 
     <div>
         <label asp-for="MontoPorDia"></label>

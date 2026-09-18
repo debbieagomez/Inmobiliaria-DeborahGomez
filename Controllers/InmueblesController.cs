@@ -30,12 +30,18 @@ public class InmueblesController : ABMController<Inmueble>
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
-        ViewBag.Propietarios = repositorioPropietario.ObtenerLista(tamPagina: 1000);
-        ViewBag.Tipos = repositorioTipoInmueble.ObtenerLista(tamPagina: 1000);
+        ViewBag.Propietarios =
+            repositorioPropietario.ObtenerLista(tamPagina: 1000);
+
+        ViewBag.Tipos =
+            repositorioTipoInmueble.ObtenerLista(tamPagina: 1000);
+
         base.OnActionExecuting(context);
     }
 
-    public override IActionResult Index(string? busqueda, int pagina = 1)
+    public override IActionResult Index(
+        string? busqueda,
+        int pagina = 1)
     {
         const int tamPagina = 10;
 
@@ -44,19 +50,34 @@ public class InmueblesController : ABMController<Inmueble>
             pagina = 1;
         }
 
-        var cantidad = repositorioInmueble.ObtenerCantidad(busqueda);
-        var totalPaginas = cantidad == 0 ? 1 : (int)Math.Ceiling((double)cantidad / tamPagina);
+        var cantidad =
+            repositorioInmueble.ObtenerCantidad(busqueda);
+
+        var totalPaginas =
+            cantidad == 0
+                ? 1
+                : (int)Math.Ceiling(
+                    (double)cantidad / tamPagina
+                );
 
         if (pagina > totalPaginas)
         {
             pagina = totalPaginas;
         }
 
-        var lista = repositorioInmueble.ObtenerLista(busqueda, pagina, tamPagina);
+        var lista =
+            repositorioInmueble.ObtenerLista(
+                busqueda,
+                pagina,
+                tamPagina
+            );
 
         foreach (var inmueble in lista)
         {
-            inmueble.Imagenes = repositorioImagen.ObtenerPorInmueble(inmueble.IdInmueble);
+            inmueble.Imagenes =
+                repositorioImagen.ObtenerPorInmueble(
+                    inmueble.IdInmueble
+                );
         }
 
         ViewBag.Busqueda = busqueda;
@@ -84,27 +105,40 @@ public class InmueblesController : ABMController<Inmueble>
 
         repositorioInmueble.Alta(inmueble);
 
-        var inmuebles = repositorioInmueble.ObtenerLista(null, 1, 1000);
+        var inmuebles =
+            repositorioInmueble.ObtenerLista(
+                null,
+                1,
+                1000
+            );
 
-        var inmuebleCreado = inmuebles
-            .Where(i =>
-                i.Direccion == inmueble.Direccion &&
-                i.PropietarioId == inmueble.PropietarioId &&
-                i.TipoInmuebleId == inmueble.TipoInmuebleId)
-            .OrderByDescending(i => i.IdInmueble)
-            .FirstOrDefault();
+        var inmuebleCreado =
+            inmuebles
+                .Where(i =>
+                    i.Direccion == inmueble.Direccion &&
+                    i.PropietarioId == inmueble.PropietarioId &&
+                    i.TipoInmuebleId == inmueble.TipoInmuebleId
+                )
+                .OrderByDescending(i => i.IdInmueble)
+                .FirstOrDefault();
 
         if (inmuebleCreado == null)
         {
-            TempData["Error_Inmuebles"] = "El inmueble fue creado, pero no se pudo obtener su identificador.";
+            TempData["Error_Inmuebles"] =
+                "El inmueble fue creado, pero no se pudo obtener su identificador.";
+
             return RedirectToAction(nameof(Index));
         }
 
-        inmueble.IdInmueble = inmuebleCreado.IdInmueble;
+        inmueble.IdInmueble =
+            inmuebleCreado.IdInmueble;
 
         foreach (var archivo in Request.Form.Files)
         {
-            GuardarImagen(inmueble.IdInmueble, archivo);
+            GuardarImagen(
+                inmueble.IdInmueble,
+                archivo
+            );
         }
 
         return RedirectToAction(nameof(Index));
@@ -113,14 +147,17 @@ public class InmueblesController : ABMController<Inmueble>
     [HttpGet]
     public override IActionResult Editar(int id)
     {
-        var inmueble = repositorioInmueble.ObtenerPorId(id);
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(id);
 
         if (inmueble == null)
         {
             return NotFound();
         }
 
-        inmueble.Imagenes = repositorioImagen.ObtenerPorInmueble(id);
+        inmueble.Imagenes =
+            repositorioImagen.ObtenerPorInmueble(id);
+
         return View(inmueble);
     }
 
@@ -130,11 +167,18 @@ public class InmueblesController : ABMController<Inmueble>
     {
         if (!ModelState.IsValid)
         {
-            inmueble.Imagenes = repositorioImagen.ObtenerPorInmueble(inmueble.IdInmueble);
+            inmueble.Imagenes =
+                repositorioImagen.ObtenerPorInmueble(
+                    inmueble.IdInmueble
+                );
+
             return View(inmueble);
         }
 
-        var existente = repositorioInmueble.ObtenerPorId(inmueble.IdInmueble);
+        var existente =
+            repositorioInmueble.ObtenerPorId(
+                inmueble.IdInmueble
+            );
 
         if (existente == null)
         {
@@ -145,7 +189,10 @@ public class InmueblesController : ABMController<Inmueble>
 
         foreach (var archivo in Request.Form.Files)
         {
-            GuardarImagen(inmueble.IdInmueble, archivo);
+            GuardarImagen(
+                inmueble.IdInmueble,
+                archivo
+            );
         }
 
         return RedirectToAction(nameof(Index));
@@ -154,136 +201,251 @@ public class InmueblesController : ABMController<Inmueble>
     [HttpGet]
     public IActionResult Detalle(int id)
     {
-        var inmueble = repositorioInmueble.ObtenerPorId(id);
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(id);
 
         if (inmueble == null)
         {
             return NotFound();
         }
 
-        inmueble.Imagenes = repositorioImagen.ObtenerPorInmueble(id);
+        inmueble.Imagenes =
+            repositorioImagen.ObtenerPorInmueble(id);
+
         return View(inmueble);
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult EstablecerPortada(int idInmueble, int idImagen)
+    public IActionResult EstablecerPortada(
+        int idInmueble,
+        int idImagen)
     {
-        var inmueble = repositorioInmueble.ObtenerPorId(idInmueble);
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(
+                idInmueble
+            );
 
         if (inmueble == null)
         {
             return NotFound();
         }
 
-        var imagen = repositorioImagen.ObtenerPorId(idImagen);
+        var imagen =
+            repositorioImagen.ObtenerPorId(
+                idImagen
+            );
 
-        if (imagen == null || imagen.InmuebleId != idInmueble)
+        if (
+            imagen == null ||
+            imagen.InmuebleId != idInmueble
+        )
         {
             return NotFound();
         }
 
-        repositorioImagen.EstablecerPortada(idInmueble, idImagen);
+        repositorioImagen.EstablecerPortada(
+            idInmueble,
+            idImagen
+        );
 
-        return RedirectToAction(nameof(Detalle), new { id = idInmueble });
+        return RedirectToAction(
+            nameof(Detalle),
+            new { id = idInmueble }
+        );
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public IActionResult EliminarImagen(int idInmueble, int idImagen)
+    public IActionResult EliminarImagen(
+        int idInmueble,
+        int idImagen)
     {
-        var inmueble = repositorioInmueble.ObtenerPorId(idInmueble);
+        var inmueble =
+            repositorioInmueble.ObtenerPorId(
+                idInmueble
+            );
 
         if (inmueble == null)
         {
             return NotFound();
         }
 
-        var imagen = repositorioImagen.ObtenerPorId(idImagen);
+        var imagen =
+            repositorioImagen.ObtenerPorId(
+                idImagen
+            );
 
-        if (imagen == null || imagen.InmuebleId != idInmueble)
+        if (
+            imagen == null ||
+            imagen.InmuebleId != idInmueble
+        )
         {
             return NotFound();
         }
 
-        EliminarArchivoFisico(imagen.Url);
-        repositorioImagen.Baja(idImagen);
+        EliminarArchivoFisico(
+            imagen.Url
+        );
 
-        return RedirectToAction(nameof(Detalle), new { id = idInmueble });
+        repositorioImagen.Baja(
+            idImagen
+        );
+
+        return RedirectToAction(
+            nameof(Detalle),
+            new { id = idInmueble }
+        );
     }
 
-    private void GuardarImagen(int inmuebleId, IFormFile archivo)
+    private void GuardarImagen(
+        int inmuebleId,
+        IFormFile archivo)
     {
-        if (archivo == null || archivo.Length == 0)
+        if (
+            archivo == null ||
+            archivo.Length == 0
+        )
         {
             return;
         }
 
-        const long tamanoMaximo = 5 * 1024 * 1024;
+        const long tamanoMaximo =
+            5 * 1024 * 1024;
 
         if (archivo.Length > tamanoMaximo)
         {
-            TempData["Error_Inmuebles"] = "Una de las imágenes supera el tamaño máximo permitido de 5 MB.";
+            TempData["Error_Inmuebles"] =
+                "Una de las imágenes supera el tamaño máximo permitido de 5 MB.";
+
             return;
         }
 
-        var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".webp" };
-        var extension = Path.GetExtension(archivo.FileName).ToLowerInvariant();
+        var extensionesPermitidas =
+            new[]
+            {
+                ".jpg",
+                ".jpeg",
+                ".png",
+                ".webp"
+            };
+
+        var extension =
+            Path.GetExtension(
+                archivo.FileName
+            ).ToLowerInvariant();
 
         if (!extensionesPermitidas.Contains(extension))
         {
-            TempData["Error_Inmuebles"] = "Solo se permiten imágenes JPG, JPEG, PNG o WEBP.";
+            TempData["Error_Inmuebles"] =
+                "Solo se permiten imágenes JPG, JPEG, PNG o WEBP.";
+
             return;
         }
 
-        var tiposPermitidos = new[] { "image/jpeg", "image/png", "image/webp" };
+        var tiposPermitidos =
+            new[]
+            {
+                "image/jpeg",
+                "image/png",
+                "image/webp"
+            };
 
-        if (!tiposPermitidos.Contains(archivo.ContentType.ToLowerInvariant()))
+        if (
+            !tiposPermitidos.Contains(
+                archivo.ContentType.ToLowerInvariant()
+            )
+        )
         {
-            TempData["Error_Inmuebles"] = "El archivo seleccionado no es un tipo de imagen permitido.";
+            TempData["Error_Inmuebles"] =
+                "El archivo seleccionado no es un tipo de imagen permitido.";
+
             return;
         }
 
-        var carpeta = Path.Combine(
-            environment.WebRootPath,
-            "images",
-            "inmuebles",
-            inmuebleId.ToString());
+        var carpeta =
+            Path.Combine(
+                environment.WebRootPath,
+                "images",
+                "inmuebles",
+                inmuebleId.ToString()
+            );
 
-        Directory.CreateDirectory(carpeta);
+        Directory.CreateDirectory(
+            carpeta
+        );
 
-        var nombreArchivo = $"{Guid.NewGuid()}{extension}";
-        var rutaFisica = Path.Combine(carpeta, nombreArchivo);
+        var nombreArchivo =
+            $"{Guid.NewGuid()}{extension}";
 
-        using var stream = new FileStream(rutaFisica, FileMode.Create);
+        var rutaFisica =
+            Path.Combine(
+                carpeta,
+                nombreArchivo
+            );
+
+        using var stream =
+            new FileStream(
+                rutaFisica,
+                FileMode.Create
+            );
+
         archivo.CopyTo(stream);
 
-        var url = $"/images/inmuebles/{inmuebleId}/{nombreArchivo}";
-        var tienePortada = repositorioImagen.TienePortada(inmuebleId);
+        var url =
+            $"/images/inmuebles/{inmuebleId}/{nombreArchivo}";
 
-        var imagen = new ImagenInmueble
-        {
-            InmuebleId = inmuebleId,
-            Url = url,
-            EsPortada = !tienePortada
-        };
+        var tienePortada =
+            repositorioImagen.TienePortada(
+                inmuebleId
+            );
 
-        repositorioImagen.Alta(imagen);
+        var imagen =
+            new ImagenInmueble
+            {
+                InmuebleId = inmuebleId,
+                Url = url,
+                EsPortada = !tienePortada
+            };
+
+        repositorioImagen.Alta(
+            imagen
+        );
     }
 
-    private void EliminarArchivoFisico(string url)
+    private void EliminarArchivoFisico(
+        string url)
     {
-        if (string.IsNullOrWhiteSpace(url) || !url.StartsWith("/images/", StringComparison.OrdinalIgnoreCase))
+        if (
+            string.IsNullOrWhiteSpace(url) ||
+            !url.StartsWith(
+                "/images/",
+                StringComparison.OrdinalIgnoreCase
+            )
+        )
         {
             return;
         }
 
-        var rutaRelativa = url.TrimStart('/').Replace('/', Path.DirectorySeparatorChar);
-        var rutaFisica = Path.Combine(environment.WebRootPath, rutaRelativa);
+        var rutaRelativa =
+            url
+                .TrimStart('/')
+                .Replace(
+                    '/',
+                    Path.DirectorySeparatorChar
+                );
+
+        var rutaFisica =
+            Path.Combine(
+                environment.WebRootPath,
+                rutaRelativa
+            );
 
         if (System.IO.File.Exists(rutaFisica))
         {
-            System.IO.File.Delete(rutaFisica);
+            System.IO.File.Delete(
+                rutaFisica
+            );
         }
     }
 }
